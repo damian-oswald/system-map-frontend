@@ -160,6 +160,11 @@ mat-button-toggle mat-icon {
 			width: 280px;
 		}
 	}
+
+	// the zoom controls step aside as well instead of hiding behind the drawer
+	&.has-drawer .zoom-btns {
+		right: 404px;
+	}
 }
 
 // the element/relation count is the first thing to go when the bar gets tight
@@ -787,6 +792,10 @@ mat-button-toggle mat-icon {
 
 	.stage.has-drawer .stage-bar {
 		right: 12px;
+	}
+
+	.stage.has-drawer .zoom-btns {
+		display: none;
 	}
 
 	.focus-pill {
