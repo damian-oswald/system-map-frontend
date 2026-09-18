@@ -19,7 +19,9 @@
 		"showAll": "Show all",
 		"showLess": "Show less",
 		"of": "of",
-		"and": "and"
+		"and": "and",
+		"andMore": "and {{n}} more",
+		"address": "Address"
 	},
 	"state": {
 		"loading": "Loading the data from LINDAS…",
@@ -39,8 +41,8 @@
 			"plural": "IT systems"
 		},
 		"dataset": {
-			"one": "Information unit",
-			"plural": "Information units"
+			"one": "Data set",
+			"plural": "Data sets"
 		},
 		"service": {
 			"one": "IT service",
@@ -119,7 +121,7 @@
 		"fit": "Fit to screen",
 		"computing": "Computing layout…",
 		"empty": "Nothing to show with the current settings.",
-		"canvasLabel": "Graph of organizations, IT systems, IT services and information units",
+		"canvasLabel": "Graph of organizations, IT systems, IT services and data sets",
 		"interactionHint": "Scroll to pan · Ctrl + scroll to zoom · double-click to focus",
 		"details": "Details",
 		"openDetails": "Details page",
@@ -133,8 +135,7 @@
 		"allSectors": "All sectors",
 		"allRelations": "All relations",
 		"nOfM": "{{n}} of {{m}}",
-		"activeFilters": "{{n}} active filters",
-		"andMore": "and {{n}} more"
+		"activeFilters": "{{n}} active filters"
 	},
 	"dash": {
 		"title": "At a glance",
@@ -159,17 +160,17 @@
 		},
 		"privacy": {
 			"title": "Data protection",
-			"sub": "Each square is one of the {{n}} information units, ordered by protection need.",
+			"sub": "Each square is one of the {{n}} data sets, ordered by protection need.",
 			"none": "No personal data",
 			"master": "Outlined squares are master data ({{n}})."
 		},
 		"systems": {
 			"title": "Largest IT systems",
-			"sub": "IT systems by number of information units they contain"
+			"sub": "IT systems by number of data sets they contain"
 		},
 		"hubs": {
 			"title": "Most connected",
-			"sub": "IT systems and information units with the most distinct relations"
+			"sub": "IT systems and data sets with the most distinct relations"
 		},
 		"services": {
 			"title": "Shared IT services",
@@ -195,26 +196,21 @@
 		"unit": {
 			"systems": "IT systems",
 			"orgs": "organizations",
-			"datasets": "information units",
+			"datasets": "data sets",
 			"links": "relations",
 			"consumers": "users"
 		}
 	},
 	"catalog": {
-		"lead": "Every organization, IT system, IT service and information unit – where the data lives and who is responsible for it.",
 		"classes": "Classes",
 		"filters": "Filters",
 		"clear": "Reset filters",
 		"results": "Results",
 		"protection": "Data protection",
-		"masterOnly": "Master data only",
-		"type": "Type",
-		"fmisOnly": "Farm management systems only",
 		"sector": "Sector",
-		"topLevelOnly": "Top-level organizations only",
+		"topLevelOnly": "Top level only",
 		"canton": "Canton",
 		"any": "Any",
-		"subgraph": "Architecture / subgraph",
 		"keywords": "Keywords",
 		"responsible": {
 			"dataset": "Responsible organization",
@@ -222,21 +218,13 @@
 			"organization": "Belongs to",
 			"service": "Provider (organization)"
 		},
-		"search": "Search the inventory",
-		"searchPlaceholder": {
-			"dataset": "Search information units, systems, organizations…",
-			"system": "Search IT systems…",
-			"organization": "Search organizations…",
-			"service": "Search IT services…"
-		},
 		"groupBy": "Group by",
 		"group": {
 			"none": "No grouping",
-			"operator": "Responsible organization"
+			"operator": "Responsible organization",
+			"sector": "Sector",
+			"system": "IT system"
 		},
-		"sort": "Sort",
-		"sortName": "Name",
-		"sortConnections": "Connections",
 		"view": "View",
 		"cards": "Cards",
 		"table": "Table",
@@ -254,15 +242,36 @@
 			"organization": "Belongs to",
 			"service": "Operated by"
 		},
-		"contains": "Contains",
 		"col": {
 			"name": "Name",
 			"flags": "Classification",
-			"orgType": "Sector",
 			"website": "Website",
 			"description": "Description"
 		},
-		"level": "Level"
+		"csv": "Download as CSV",
+		"count": "{{n}} of {{m}} entries",
+		"showFilters": "Show filters",
+		"hideFilters": "Hide filters",
+		"num": {
+			"systems": "Systems",
+			"datasets": "Data sets",
+			"services": "Services",
+			"legal": "Legal bases",
+			"parts": {
+				"dataset": "Parts",
+				"system": "Sub-systems",
+				"organization": "Sub-units"
+			},
+			"users": {
+				"system": "Services used",
+				"service": "Users"
+			}
+		},
+		"numHint": {
+			"organization": "Including sub-units",
+			"system": "Including sub-systems"
+		},
+		"pagination": "Pages"
 	},
 	"entity": {
 		"breadcrumb": "Breadcrumb",
@@ -286,19 +295,19 @@
 		"structure": {
 			"organization": "Organizational structure",
 			"system": "System structure",
-			"dataset": "Structure of the information unit",
+			"dataset": "Structure of the data set",
 			"service": "Service structure"
 		},
 		"rollup": {
 			"organization": "IT systems within this organization",
-			"system": "Information units in sub-systems",
+			"system": "Data sets in sub-systems",
 			"dataset": "Where the parts are stored",
 			"service": "Use of the sub-services"
 		},
 		"rollupSub": {
 			"organization": "{{n}} IT systems are operated by units of this organization.",
-			"system": "{{n}} information units are contained in sub-systems of this system.",
-			"dataset": "{{n}} IT systems contain parts of this information unit.",
+			"system": "{{n}} data sets are contained in sub-systems of this system.",
+			"dataset": "{{n}} IT systems contain parts of this data set.",
 			"service": "{{n}} systems and organizations use sub-services of this service."
 		}
 	},
@@ -307,7 +316,7 @@
 		"lead": "A shared, machine-readable picture of who runs which IT systems and where which data is kept in the Swiss agri-food sector.",
 		"what": {
 			"title": "What is it?",
-			"p1": "The DigiAgriFoodCH system map is a knowledge graph maintained by the Federal Office for Agriculture FOAG. It describes organizations, the IT systems they operate, the IT services these systems provide and use, and the information units (datasets) they contain – together with their relations, protection needs and legal bases.",
+			"p1": "The DigiAgriFoodCH system map is a knowledge graph maintained by the Federal Office for Agriculture FOAG. It describes organizations, the IT systems they operate, the IT services these systems provide and use, and the data sets (datasets) they contain – together with their relations, protection needs and legal bases.",
 			"p2": "This application offers three views on the same data: an overview with key figures, an interactive map that makes the graph structure visible, and an inventory to search and filter every documented element."
 		},
 		"how": {

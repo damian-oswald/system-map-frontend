@@ -17,7 +17,7 @@
 	--sm-shadow-lg: 0 10px 30px rgba(19, 27, 34, 0.12), 0 2px 6px rgba(19, 27, 34, 0.06);
 
 	// entity classes in federal branding — organization: federal red, IT system: light grey (Oblique secondary-300,
-	// the lightest grey with 3:1 contrast on the grid), information unit: footer dark blue, IT service: light blue
+	// the lightest grey with 3:1 contrast on the grid), data set: footer dark blue, IT service: light blue
 	// (the lightest blue with 3:1 contrast on the grid that stays ≥16 ΔE from the grey).
 	// Adjacent pairs keep ≥14 ΔE under colour-vision deficiency; every colour is accompanied by a text label.
 	--kind-organization: #d8232a;
@@ -482,4 +482,11 @@ a.sm-chip:focus-visible {
 
 .search-option .mdc-list-item__primary-text {
 	color: var(--sm-ink);
+}
+
+// description of an inventory row, shown as tooltip of its name
+.desc-tip .mdc-tooltip__surface {
+	max-width: 380px;
+	text-align: left;
+	white-space: pre-line;
 }

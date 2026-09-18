@@ -46,6 +46,12 @@ export function shortLabel(e: Entity | undefined, lang: Lang, max = 34): string 
 	return label.slice(0, max - 1).trimEnd() + '…';
 }
 
+/** The abbreviation where there is one, else the (optionally shortened) name – for dense tables. */
+export function abbrLabel(e: Entity | undefined, lang: Lang, max?: number): string {
+	if (!e) return '';
+	return e.abbreviation ?? (max ? shortLabel(e, lang, max) : entityLabel(e, lang));
+}
+
 @Injectable({ providedIn: 'root' })
 export class LangService {
 	private readonly translate = inject(TranslateService);
@@ -74,8 +80,14 @@ export class PickPipe implements PipeTransform {
 
 @Pipe({ name: 'label' })
 export class LabelPipe implements PipeTransform {
-	transform(e: Entity | undefined, lang: Lang, mode: 'label' | 'title' | 'short' = 'label', max?: number): string {
+	transform(
+		e: Entity | undefined,
+		lang: Lang,
+		mode: 'label' | 'title' | 'short' | 'abbr' = 'label',
+		max?: number,
+	): string {
 		if (mode === 'title') return entityTitle(e, lang);
+		if (mode === 'abbr') return abbrLabel(e, lang, max);
 		if (mode === 'short') return shortLabel(e, lang, max);
 		return entityLabel(e, lang);
 	}

@@ -193,7 +193,7 @@ export class EntityPage {
 			.sort((a, b) => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang));
 	});
 
-	/** Ancestors → the element → all descendants, as a tree (organizations, systems, information units, services). */
+	/** Ancestors → the element → all descendants, as a tree (organizations, systems, data sets, services). */
 	protected readonly structure = computed<TreeNode[]>(() => {
 		const e = this.entity();
 		const g = this.graph();
@@ -215,8 +215,8 @@ export class EntityPage {
 	});
 
 	/**
-	 * What the descendants bring along, per class: systems operated by sub-units, information units in sub-systems,
-	 * systems storing the parts of an information unit, users of sub-services.
+	 * What the descendants bring along, per class: systems operated by sub-units, data sets in sub-systems,
+	 * systems storing the parts of a data set, users of sub-services.
 	 */
 	protected readonly rollup = computed(() => {
 		const e = this.entity();

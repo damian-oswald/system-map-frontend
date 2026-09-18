@@ -1,411 +1,383 @@
 <div class="sm-page">
-	<header class="sm-page-header">
-		<div>
-			<h1>{{ 'nav.catalog' | translate }}</h1>
-			<p class="sm-lead">{{ 'catalog.lead' | translate }}</p>
-		</div>
-	</header>
+	<h1 class="sm-sr-only">{{ 'nav.catalog' | translate }}</h1>
 
 	@if (rowsByKind(); as all) {
-		<!-- class tabs -->
-		<nav class="tabs" [attr.aria-label]="'catalog.classes' | translate">
-			@for (k of KINDS; track k) {
-				<button type="button" class="tab sm-kind--{{ k }}" [attr.aria-pressed]="kind() === k" (click)="setKind(k)">
-					<mat-icon [svgIcon]="KIND_ICON[k]" />
-					<span>{{ 'kind.' + k + '.plural' | translate }}</span>
-					<span class="tab-count">{{ all[k].length }}</span>
-				</button>
-			}
-		</nav>
-
-		<div class="layout" [class.filters-open]="filtersOpen()">
-			<!-- ========================================= filters -->
-			<aside class="filters" [attr.aria-label]="'catalog.filters' | translate">
-				<div class="filters-head">
-					<h2>{{ 'catalog.filters' | translate }}</h2>
-					@if (activeFilterCount()) {
-						<button mat-button obButton="tertiary" type="button" (click)="clearFilters()">
-							{{ 'catalog.clear' | translate }} ({{ activeFilterCount() }})
-						</button>
-					}
+		<div class="inv-shell" [class.panel-closed]="!panelOpen()">
+			<!-- ============================================================ filters -->
+			<aside
+				class="controls sm-card"
+				[attr.aria-label]="'catalog.filters' | translate"
+				[attr.inert]="panelOpen() ? null : ''"
+			>
+				<div class="controls-head">
+					<h2>{{ 'map.filterTitle' | translate }}</h2>
+					<button mat-button obButton="secondary" type="button" class="reset-btn" (click)="clearFilters()">
+						<mat-icon svgIcon="undo" />{{ 'map.reset' | translate }}
+					</button>
 				</div>
 
 				@if (kind() === 'dataset') {
-					<fieldset>
-						<legend class="sm-filter-label">{{ 'catalog.protection' | translate }}</legend>
-						<div class="toggles">
-							<button
-								type="button"
-								class="sm-toggle prot-sensitive"
-								[attr.aria-pressed]="protection().has('sensitive')"
-								(click)="toggleProtection('sensitive')"
-							>
-								<i class="sm-dot"></i>{{ 'flags.sensitive' | translate }}
-							</button>
-							<button
-								type="button"
-								class="sm-toggle prot-personal"
-								[attr.aria-pressed]="protection().has('personal')"
-								(click)="toggleProtection('personal')"
-							>
-								<i class="sm-dot"></i>{{ 'flags.personal' | translate }}
-							</button>
-							<button
-								type="button"
-								class="sm-toggle prot-none"
-								[attr.aria-pressed]="protection().has('none')"
-								(click)="toggleProtection('none')"
-							>
-								<i class="sm-dot"></i>{{ 'dash.privacy.none' | translate }}
-							</button>
-						</div>
-						<mat-slide-toggle class="slide" [checked]="masterOnly()" (change)="masterOnly.set($event.checked)">{{
-							'catalog.masterOnly' | translate
-						}}</mat-slide-toggle>
-					</fieldset>
-				}
-
-				@if (kind() === 'system') {
-					<fieldset>
-						<legend class="sm-filter-label">{{ 'catalog.type' | translate }}</legend>
-						<mat-slide-toggle [checked]="fmisOnly()" (change)="fmisOnly.set($event.checked)">{{
-							'catalog.fmisOnly' | translate
-						}}</mat-slide-toggle>
-					</fieldset>
-				}
-
-				@if (kind() === 'organization') {
-					<fieldset>
-						<legend class="sm-filter-label">{{ 'catalog.sector' | translate }}</legend>
-						<div class="toggles">
-							@for (t of ORG_TYPES; track t) {
-								<button
-									type="button"
-									class="sm-toggle org-{{ t }}"
-									[attr.aria-pressed]="orgTypes().has(t)"
-									(click)="toggleOrgType(t)"
-								>
-									{{ 'orgType.' + t | translate }}
-								</button>
-							}
-						</div>
-					</fieldset>
-					<fieldset>
-						<mat-form-field class="full" subscriptSizing="dynamic">
-							<mat-label>{{ 'catalog.canton' | translate }}</mat-label>
-							<mat-select [value]="canton()" (selectionChange)="canton.set($event.value)">
-								<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
-								@for (c of CANTONS; track c.code) {
-									<mat-option [value]="c.code">{{ c.code }} – {{ c.names[0] }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-					</fieldset>
-				}
-
-				<fieldset>
-					<legend class="sm-filter-label">{{ 'catalog.level' | translate }}</legend>
-					<mat-slide-toggle [checked]="topLevelOnly()" (change)="topLevelOnly.set($event.checked)">{{
-						'catalog.topLevelOnly' | translate
-					}}</mat-slide-toggle>
-				</fieldset>
-
-				@if (operatorOptions().length) {
-					<fieldset>
-						<mat-form-field class="full" subscriptSizing="dynamic">
-							<mat-label>{{ 'catalog.responsible.' + kind() | translate }}</mat-label>
-							<mat-select [value]="operator()" (selectionChange)="operator.set($event.value)">
-								<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
-								@for (o of operatorOptions(); track o.e.id) {
-									<mat-option [value]="o.e.id">{{ o.e | label: lang() : 'short' : 44 }} ({{ o.n }})</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-					</fieldset>
-				}
-
-				<fieldset>
 					<mat-form-field class="full" subscriptSizing="dynamic">
-						<mat-label>{{ 'catalog.subgraph' | translate }}</mat-label>
-						<mat-select [value]="subgraph()" (selectionChange)="subgraph.set($event.value)">
-							<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
-							@for (c of graph()!.collections; track c.id) {
-								<mat-option [value]="c.id">{{ c.name | pick: lang() }}</mat-option>
+						<mat-label>{{ 'catalog.protection' | translate }}</mat-label>
+						<mat-select multiple [value]="protectionList()" (selectionChange)="setProtection($event.value)">
+							<mat-select-trigger>
+								@if (!protection().size) {
+									{{ 'catalog.any' | translate }}
+								} @else {
+									@for (p of protectionList(); track p; let last = $last) {
+										{{ PROTECTION_KEY[p] | translate }}{{ last ? '' : ', ' }}
+									}
+								}
+							</mat-select-trigger>
+							@for (p of PROTECTIONS; track p) {
+								<mat-option [value]="p">{{ PROTECTION_KEY[p] | translate }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>
-				</fieldset>
+				}
+
+				@if (kind() === 'organization') {
+					<mat-form-field class="full" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.sector' | translate }}</mat-label>
+						<mat-select multiple [value]="orgTypeList()" (selectionChange)="setOrgTypes($event.value)">
+							<mat-select-trigger>
+								@if (orgTypes().size === ORG_TYPES.length) {
+									{{ 'map.allSectors' | translate }}
+								} @else if (!orgTypes().size) {
+									{{ 'common.none' | translate }}
+								} @else {
+									@for (t of orgTypeList(); track t; let last = $last) {
+										{{ 'orgType.' + t | translate }}{{ last ? '' : ', ' }}
+									}
+								}
+							</mat-select-trigger>
+							@for (t of ORG_TYPES; track t) {
+								<mat-option [value]="t">{{ 'orgType.' + t | translate }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				}
+
+				@if (operatorOptions().length) {
+					<mat-form-field class="full" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.responsible.' + kind() | translate }}</mat-label>
+						<mat-select [value]="operator()" (selectionChange)="operator.set($event.value)">
+							<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
+							@for (o of operatorOptions(); track o.e.id) {
+								<mat-option [value]="o.e.id" class="option-row">
+									{{ o.e | label: lang() : 'short' : 40 }}
+									<span class="count">{{ o.n }}</span>
+								</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				}
 
 				@if (keywordOptions().length) {
-					<fieldset>
-						<legend class="sm-filter-label">{{ 'catalog.keywords' | translate }}</legend>
-						<div class="toggles">
+					<mat-form-field class="full" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.keywords' | translate }}</mat-label>
+						<mat-select multiple [value]="keywordList()" (selectionChange)="setKeywords($event.value)">
+							<mat-select-trigger>
+								@if (!keywords().size) {
+									{{ 'catalog.any' | translate }}
+								} @else {
+									{{ 'map.nOfM' | translate: { n: keywords().size, m: keywordOptions().length } }}
+								}
+							</mat-select-trigger>
 							@for (k of keywordOptions(); track k.e.id) {
-								<button
-									type="button"
-									class="sm-toggle"
-									[attr.aria-pressed]="keyword() === k.e.id"
-									(click)="keyword.set(keyword() === k.e.id ? '' : k.e.id)"
-								>
-									{{ k.e.name | pick: lang() }} <span class="count">{{ k.n }}</span>
-								</button>
+								<mat-option [value]="k.e.id" class="option-row">
+									{{ k.e.name | pick: lang() }}
+									<span class="count">{{ k.n }}</span>
+								</mat-option>
 							}
-						</div>
-					</fieldset>
+						</mat-select>
+					</mat-form-field>
 				}
+
+				@if (groupOptions().length) {
+					<mat-form-field class="full" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.groupBy' | translate }}</mat-label>
+						<mat-select [value]="groupBy()" (selectionChange)="groupBy.set($event.value)">
+							<mat-option value="none">{{ 'catalog.group.none' | translate }}</mat-option>
+							@for (o of groupOptions(); track o) {
+								<mat-option [value]="o">{{ 'catalog.group.' + o | translate }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				}
+
+				<mat-slide-toggle
+					class="slide"
+					[checked]="topLevelOnly() && !topLevelDisabled()"
+					[disabled]="topLevelDisabled()"
+					(change)="topLevelOnly.set($event.checked)"
+					>{{ 'catalog.topLevelOnly' | translate }}</mat-slide-toggle
+				>
 			</aside>
 
-			<!-- ========================================= results -->
-			<section class="results" [attr.aria-label]="'catalog.results' | translate">
-				<div class="toolbar">
-					<mat-form-field class="grow search-field" subscriptSizing="dynamic">
-						<mat-label>{{ 'catalog.search' | translate }}</mat-label>
-						<mat-icon matPrefix svgIcon="search" />
+			<!-- ============================================================ content -->
+			<section class="content" [attr.aria-label]="'catalog.results' | translate">
+				<div class="bar">
+					<button
+						mat-icon-button
+						obButton="secondary"
+						type="button"
+						class="bar-btn"
+						[class.has-badge]="activeFilterCount() > 0"
+						[matBadge]="activeFilterCount()"
+						[matBadgeHidden]="!activeFilterCount()"
+						matBadgeColor="warn"
+						[matBadgeDescription]="'map.activeFilters' | translate: { n: activeFilterCount() }"
+						(click)="panelOpen.set(!panelOpen())"
+						[matTooltip]="(panelOpen() ? 'catalog.hideFilters' : 'catalog.showFilters') | translate"
+						[attr.aria-label]="(panelOpen() ? 'catalog.hideFilters' : 'catalog.showFilters') | translate"
+						[attr.aria-expanded]="panelOpen()"
+					>
+						<mat-icon svgIcon="filter" />
+					</button>
+
+					<!-- class switch -->
+					<mat-button-toggle-group
+						hideSingleSelectionIndicator
+						class="bar-seg sm-seg-h kinds"
+						[value]="kind()"
+						(change)="setKind($event.value)"
+						[attr.aria-label]="'catalog.classes' | translate"
+					>
+						@for (k of KINDS; track k) {
+							<mat-button-toggle [value]="k" [matTooltip]="'kind.' + k + '.plural' | translate">
+								<mat-icon [svgIcon]="KIND_ICON[k]" /><span class="kind-label">{{
+									'kind.' + k + '.plural' | translate
+								}}</span>
+								<span class="count">{{ all[k].length }}</span>
+							</mat-button-toggle>
+						}
+					</mat-button-toggle-group>
+
+					<mat-form-field class="bar-search" subscriptSizing="dynamic">
+						<mat-label>{{ 'map.search' | translate }}</mat-label>
 						<input
 							matInput
-							type="search"
-							[placeholder]="'catalog.searchPlaceholder.' + kind() | translate"
+							type="text"
+							autocomplete="off"
 							[value]="query()"
 							(input)="query.set($any($event.target).value)"
 						/>
 					</mat-form-field>
-					<button
-						mat-button
-						obButton="secondary"
-						type="button"
-						class="filter-btn"
-						(click)="filtersOpen.set(!filtersOpen())"
-						[attr.aria-expanded]="filtersOpen()"
-					>
-						<mat-icon svgIcon="filter" />{{ 'catalog.filters' | translate }}
-						@if (activeFilterCount()) {
-							<span class="badge">{{ activeFilterCount() }}</span>
-						}
-					</button>
+
+					<div class="bar-right">
+						<mat-button-toggle-group
+							hideSingleSelectionIndicator
+							class="bar-seg sm-seg-h view-seg"
+							[value]="view()"
+							(change)="view.set($event.value)"
+							[attr.aria-label]="'catalog.view' | translate"
+						>
+							<mat-button-toggle value="table" [matTooltip]="'catalog.table' | translate">
+								<mat-icon svgIcon="list" />
+							</mat-button-toggle>
+							<mat-button-toggle value="cards" [matTooltip]="'catalog.cards' | translate">
+								<mat-icon svgIcon="grid" />
+							</mat-button-toggle>
+						</mat-button-toggle-group>
+						<button
+							mat-icon-button
+							obButton="secondary"
+							type="button"
+							class="bar-btn"
+							(click)="exportCsv()"
+							[matTooltip]="'catalog.csv' | translate"
+							[attr.aria-label]="'catalog.csv' | translate"
+						>
+							<mat-icon svgIcon="download" />
+						</button>
+					</div>
 				</div>
 
-				<div class="toolbar sub">
-					<p class="count" role="status">
-						<strong>{{ filtered().length }}</strong> {{ 'common.of' | translate }} {{ rows().length }}
-						{{ 'kind.' + kind() + '.plural' | translate }}
-					</p>
-					<span class="spacer"></span>
-					@if (kind() === 'dataset' || kind() === 'system') {
-						<mat-form-field class="inline-field" subscriptSizing="dynamic">
-							<mat-label>{{ 'catalog.groupBy' | translate }}</mat-label>
-							<mat-select [value]="groupBy()" (selectionChange)="groupBy.set($event.value)">
-								<mat-option value="none">{{ 'catalog.group.none' | translate }}</mat-option>
-								@if (kind() === 'dataset') {
-									<mat-option value="system">{{ 'kind.system.one' | translate }}</mat-option>
-								}
-								<mat-option value="operator">{{ 'catalog.group.operator' | translate }}</mat-option>
-							</mat-select>
-						</mat-form-field>
-					}
-					<mat-form-field class="inline-field" subscriptSizing="dynamic">
-						<mat-label>{{ 'catalog.sort' | translate }}</mat-label>
-						<mat-select [value]="sortBy()" (selectionChange)="sortBy.set($event.value)">
-							<mat-option value="name">{{ 'catalog.sortName' | translate }}</mat-option>
-							<mat-option value="connections">{{ 'catalog.sortConnections' | translate }}</mat-option>
-						</mat-select>
-					</mat-form-field>
-					<mat-button-toggle-group
-						hideSingleSelectionIndicator
-						[value]="view()"
-						(change)="view.set($event.value)"
-						[attr.aria-label]="'catalog.view' | translate"
-					>
-						<mat-button-toggle
-							value="cards"
-							[attr.aria-label]="'catalog.cards' | translate"
-							[matTooltip]="'catalog.cards' | translate"
-							><mat-icon svgIcon="grid"
-						/></mat-button-toggle>
-						<mat-button-toggle
-							value="table"
-							[attr.aria-label]="'catalog.table' | translate"
-							[matTooltip]="'catalog.table' | translate"
-							><mat-icon svgIcon="list"
-						/></mat-button-toggle>
-					</mat-button-toggle-group>
-					<button mat-button obButton="secondary" type="button" (click)="exportCsv()">
-						<mat-icon svgIcon="download" />CSV
-					</button>
-				</div>
+				<p class="count-line" role="status">
+					{{ 'catalog.count' | translate: { n: filtered().length, m: rows().length } }}
+				</p>
 
 				@if (!filtered().length) {
-					<div class="empty sm-card sm-card-pad">
+					<div class="empty">
 						<p>{{ 'catalog.empty' | translate }}</p>
 						<button mat-button obButton="secondary" type="button" (click)="clearFilters(); query.set('')">
-							{{ 'catalog.clear' | translate }}
+							<mat-icon svgIcon="undo" />{{ 'catalog.clear' | translate }}
 						</button>
 					</div>
 				}
 
-				@for (grp of groups(); track grp.key) {
+				@for (grp of pagedGroups(); track grp.key) {
 					@if (grp.key) {
 						<h3 class="group-title">
 							@if (grp.entity; as ge) {
-								<a class="sm-kind--{{ ge.kind }}" [routerLink]="['/entity', ge.key]"
-									><i class="sm-dot"></i>{{ ge | label: lang() : 'title' }}</a
-								>
+								<a [routerLink]="['/entity', ge.key]">{{ ge | label: lang() : 'title' }}</a>
+							} @else if (grp.label) {
+								<span>{{ grp.label }}</span>
 							} @else {
 								<span class="sm-muted">{{ 'catalog.unassigned' | translate }}</span>
 							}
-							<span class="group-count">{{ grp.rows.length }}</span>
+							<span class="group-count">{{ grp.total }}</span>
 						</h3>
+					}
+
+					@if (view() === 'table' && grp.rows.length) {
+						<table
+							mat-table
+							matSort
+							class="ob-table ob-table-sm ob-table-collapse-md kind-{{ kind() }}"
+							[dataSource]="grp.rows"
+							[matSortActive]="sort().active"
+							[matSortDirection]="sort().direction"
+							(matSortChange)="onSort($event)"
+						>
+							<ng-container matColumnDef="name">
+								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.col.name' | translate }}</th>
+								<td mat-cell *matCellDef="let r" [attr.data-title]="'catalog.col.name' | translate" class="cell-name">
+									<a
+										[routerLink]="['/entity', r.e.key]"
+										[matTooltip]="nameTip(r)"
+										[matTooltipDisabled]="!nameTip(r)"
+										matTooltipClass="desc-tip"
+										matTooltipShowDelay="300"
+										>{{ r.e | label: lang() : 'abbr' }}</a
+									>
+								</td>
+							</ng-container>
+							<ng-container matColumnDef="systems">
+								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.where.' + kind() | translate }}</th>
+								<td
+									mat-cell
+									*matCellDef="let r"
+									[attr.data-title]="'catalog.where.' + kind() | translate"
+									[class.is-empty]="!r.systems.length"
+								>
+									<app-name-list [items]="r.systems" [max]="3" [chars]="48" [abbr]="true" />
+								</td>
+							</ng-container>
+							<ng-container matColumnDef="operators">
+								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.who.' + kind() | translate }}</th>
+								<td
+									mat-cell
+									*matCellDef="let r"
+									[attr.data-title]="'catalog.who.' + kind() | translate"
+									[class.is-empty]="!r.operators.length"
+								>
+									<app-name-list [items]="r.operators" [max]="3" [chars]="48" [abbr]="true" />
+								</td>
+							</ng-container>
+							<ng-container matColumnDef="keywords">
+								<th mat-header-cell *matHeaderCellDef>{{ 'catalog.keywords' | translate }}</th>
+								<td
+									mat-cell
+									*matCellDef="let r"
+									[attr.data-title]="'catalog.keywords' | translate"
+									class="cell-kw"
+									[class.is-empty]="!r.keywords.length"
+								>
+									@for (k of r.keywords; track k.id; let last = $last) {
+										{{ k.name | pick: lang() }}{{ last ? '' : ', ' }}
+									}
+								</td>
+							</ng-container>
+							<ng-container matColumnDef="sector">
+								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.sector' | translate }}</th>
+								<td mat-cell *matCellDef="let r" [attr.data-title]="'catalog.sector' | translate">
+									{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}
+								</td>
+							</ng-container>
+							@for (c of NUM_COLUMNS; track c.id) {
+								<ng-container [matColumnDef]="c.id">
+									<th
+										mat-header-cell
+										*matHeaderCellDef
+										mat-sort-header
+										start="desc"
+										class="num"
+										[matTooltip]="numHint(c) ?? '' | translate"
+										[matTooltipDisabled]="!numHint(c)"
+									>
+										{{ numLabel(c) | translate }}
+									</th>
+									<td
+										mat-cell
+										*matCellDef="let r"
+										[attr.data-title]="numLabel(c) | translate"
+										class="num"
+										[class.zero]="!r.counts[c.count]"
+										[class.is-empty]="!r.counts[c.count]"
+									>
+										{{ r.counts[c.count] || '' }}
+									</td>
+								</ng-container>
+							}
+
+							<tr mat-header-row *matHeaderRowDef="columns()"></tr>
+							<tr mat-row *matRowDef="let row; columns: columns()"></tr>
+						</table>
 					}
 
 					@if (view() === 'cards') {
 						<ul class="cards">
 							@for (r of grp.rows; track r.e.id) {
 								<li class="card sm-card sm-kind--{{ r.e.kind }}">
-									<div class="card-head">
-										<a class="card-title" [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
-										<div class="tags">
-											@if (r.e.sensitive) {
-												<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
-											} @else if (r.e.personal) {
-												<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
-											}
-											@if (r.e.master) {
-												<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
-											}
-											@if (r.e.fmis) {
-												<span class="sm-tag sm-tag--ok">FMIS</span>
-											}
-											@if (r.e.orgType) {
-												<span class="sm-tag">{{ 'orgType.' + r.e.orgType | translate }}</span>
-											}
-											@if (r.e.canton) {
-												<span class="sm-tag">{{ r.e.canton }}</span>
-											}
-										</div>
-									</div>
+									<a class="card-title" [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
 									@if (r.description) {
 										<p class="card-desc">{{ r.description }}</p>
 									}
 									<dl class="facts">
-										@if (r.systems.length) {
+										@if (r.e.kind === 'organization') {
+											<div>
+												<dt>{{ 'catalog.sector' | translate }}</dt>
+												<dd>{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</dd>
+											</div>
+										}
+										@if (r.systems.length && r.e.kind !== 'organization') {
 											<div>
 												<dt>{{ 'catalog.where.' + r.e.kind | translate }}</dt>
-												<dd>
-													@for (s of r.systems.slice(0, 6); track s.id) {
-														<app-entity-chip [entity]="s" [max]="32" />
-													}
-													@if (r.systems.length > 6) {
-														<span class="more">+{{ r.systems.length - 6 }}</span>
-													}
-												</dd>
+												<dd><app-name-list [items]="r.systems" [max]="4" /></dd>
 											</div>
 										}
 										@if (r.operators.length) {
 											<div>
 												<dt>{{ 'catalog.who.' + r.e.kind | translate }}</dt>
-												<dd>
-													@for (o of r.operators.slice(0, 5); track o.id) {
-														<app-entity-chip [entity]="o" [max]="32" />
-													}
-													@if (r.operators.length > 5) {
-														<span class="more">+{{ r.operators.length - 5 }}</span>
-													}
-												</dd>
-											</div>
-										}
-										@if (r.datasets.length) {
-											<div>
-												<dt>{{ 'catalog.contains' | translate }}</dt>
-												<dd>
-													@for (d of r.datasets.slice(0, 5); track d.id) {
-														<app-entity-chip [entity]="d" [max]="32" />
-													}
-													@if (r.datasets.length > 5) {
-														<span class="more">+{{ r.datasets.length - 5 }}</span>
-													}
-												</dd>
-											</div>
-										}
-										@if (r.e.kind === 'service' && r.users.length) {
-											<div>
-												<dt>{{ 'relInverse.consumes' | translate }}</dt>
-												<dd>
-													<span class="more">{{ r.users.length }} {{ 'dash.unit.consumers' | translate }}</span>
-												</dd>
+												<dd><app-name-list [items]="r.operators" [max]="4" /></dd>
 											</div>
 										}
 									</dl>
-									<div class="card-foot">
-										@for (k of r.keywords; track k.id) {
-											<span class="kw">#{{ k.name | pick: lang() }}</span>
+									<!-- the same figures as the table's numeric columns -->
+									<p class="nums">
+										@for (col of columns(); track col) {
+											@if (isNum(col)) {
+												@for (c of NUM_COLUMNS; track c.id) {
+													@if (c.id === col && r.counts[c.count]) {
+														<span class="num-fact"
+															><strong>{{ r.counts[c.count] }}</strong> {{ numLabel(c) | translate }}</span
+														>
+													}
+												}
+											}
 										}
-										<span class="spacer"></span>
-										@if (r.e.urls[0]; as url) {
-											<a class="ext" [href]="url" target="_blank" rel="noopener">{{ host(url) }} ↗</a>
-										}
-									</div>
+									</p>
+									@if (r.e.urls[0]; as url) {
+										<a class="ext" [href]="url" target="_blank" rel="noopener">{{ host(url) }} ↗</a>
+									}
 								</li>
 							}
 						</ul>
-					} @else {
-						<div class="table-wrap sm-card">
-							<table class="table">
-								<thead>
-									<tr>
-										<th scope="col">{{ 'catalog.col.name' | translate }}</th>
-										<th scope="col">{{ 'catalog.where.' + kind() | translate }}</th>
-										<th scope="col">{{ 'catalog.who.' + kind() | translate }}</th>
-										<th scope="col">
-											{{ (kind() === 'organization' ? 'catalog.col.orgType' : 'catalog.col.flags') | translate }}
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									@for (r of grp.rows; track r.e.id) {
-										<tr>
-											<td class="name-cell">
-												<a [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
-												@if (r.description) {
-													<span class="desc">{{ r.description }}</span>
-												}
-											</td>
-											<td>
-												@for (s of r.systems.slice(0, 4); track s.id) {
-													<app-entity-chip [entity]="s" [max]="26" />
-												}
-												@if (r.systems.length > 4) {
-													<span class="more">+{{ r.systems.length - 4 }}</span>
-												}
-											</td>
-											<td>
-												@for (o of r.operators.slice(0, 3); track o.id) {
-													<app-entity-chip [entity]="o" [max]="26" />
-												}
-												@if (r.operators.length > 3) {
-													<span class="more">+{{ r.operators.length - 3 }}</span>
-												}
-											</td>
-											<td class="flags">
-												@if (r.e.orgType) {
-													<span class="sm-tag">{{ 'orgType.' + r.e.orgType | translate }}</span>
-												}
-												@if (r.e.sensitive) {
-													<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
-												} @else if (r.e.personal) {
-													<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
-												}
-												@if (r.e.master) {
-													<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
-												}
-												@if (r.e.fmis) {
-													<span class="sm-tag sm-tag--ok">FMIS</span>
-												}
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
 					}
+				}
+
+				@if (total() > PAGE_SIZES[0]) {
+					<mat-paginator
+						[length]="total()"
+						[pageIndex]="page()"
+						[pageSize]="pageSize()"
+						[pageSizeOptions]="PAGE_SIZES"
+						showFirstLastButtons
+						(page)="onPage($event)"
+						[attr.aria-label]="'catalog.pagination' | translate"
+					/>
 				}
 			</section>
 		</div>

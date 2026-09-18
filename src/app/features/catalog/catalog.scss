@@ -1,225 +1,149 @@
+// Standard page layout (padded, max 1400px) with the map's filter panel and control bar inside.
+.inv-shell {
+	display: grid;
+	grid-template-columns: 320px minmax(0, 1fr);
+	gap: 20px;
+	align-items: start;
+
+	&.panel-closed {
+		grid-template-columns: minmax(0, 1fr);
+
+		.controls {
+			display: none;
+		}
+	}
+}
+
 mat-icon {
 	width: 18px;
 	height: 18px;
 }
 
-// ---- class tabs
-.tabs {
-	display: flex;
-	gap: 4px;
-	margin-bottom: 20px;
-	border-bottom: 1px solid var(--sm-line);
-	overflow-x: auto;
-}
+// ---------------------------------------------------------------- filters
+.controls {
+	padding: 16px 16px 20px;
 
-.tab {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: -1px;
-	padding: 12px 18px;
-	border: 0;
-	border-bottom: 3px solid transparent;
-	background: none;
-	color: var(--sm-ink-2);
-	font: inherit;
-	font-size: 1rem;
-	white-space: nowrap;
-	cursor: pointer;
-
-	mat-icon {
-		color: var(--k);
-	}
-
-	&:hover {
-		color: var(--sm-ink);
-		background: var(--sm-surface-3);
-	}
-
-	&[aria-pressed='true'] {
-		border-bottom-color: var(--k);
-		color: var(--sm-ink);
-		font-weight: 600;
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--sm-focus);
-		outline-offset: -2px;
+	> mat-form-field + mat-form-field,
+	> mat-form-field + .slide,
+	> .slide + mat-form-field,
+	> .slide + .slide {
+		margin-top: 14px;
 	}
 }
 
-.tab-count {
-	padding: 0 8px;
-	border-radius: 999px;
-	background: var(--sm-surface-2);
-	color: var(--sm-ink-2);
-	font-size: 0.8125rem;
-	font-weight: 600;
-}
-
-// ---- layout
-.layout {
-	display: grid;
-	grid-template-columns: 270px minmax(0, 1fr);
-	gap: 28px;
-	align-items: start;
-}
-
-.filters {
-	position: sticky;
-	top: 12px;
-	display: grid;
-	gap: 18px;
-
-	fieldset {
-		margin: 0;
-		padding: 0;
-		border: 0;
-		min-width: 0;
-	}
-}
-
-.filters-head {
+.controls-head {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	margin-bottom: 12px;
 
 	h2 {
 		margin: 0;
-		font-size: 1.125rem;
+		font-size: 1.375rem;
+	}
+
+	.reset-btn mat-icon {
+		margin-right: 6px;
 	}
 }
 
-.toggles {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
+.full {
+	width: 100%;
 }
 
 .slide {
 	display: block;
-	margin-top: 10px;
 }
 
-.prot-sensitive {
-	--k: #263645;
-	--k-bg: #e9eef2;
-}
-.prot-personal {
-	--k: #828e9a;
-	--k-bg: #f0f4f7;
-}
-.prot-none {
-	--k: #dfe4e9;
-	--k-bg: #f8fafb;
-}
-.org-federal {
-	--k: var(--org-federal);
-	--k-bg: #eef1f4;
-}
-.org-cantonal {
-	--k: var(--org-cantonal);
-	--k-bg: #eef1f4;
-}
-.org-private {
-	--k: var(--org-private);
-	--k-bg: #eef1f4;
-}
-.org-other {
-	--k: var(--org-other);
-	--k-bg: #eef1f4;
+// ---------------------------------------------------------------- content & control bar
+.content {
+	container: inventory / inline-size;
+	min-width: 0;
 }
 
-// ---- toolbar
-.toolbar {
+.bar {
+	--bar-h: 42px; // Oblique's form-field height, so buttons, toggles and search line up
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 10px 14px;
+	gap: 10px;
 
-	&.sub {
-		margin: 14px 0 16px;
+	.bar-btn.mat-mdc-icon-button.mat-mdc-button-base {
+		width: var(--bar-h);
+		height: var(--bar-h);
+		padding: 0;
 	}
 
-	.grow {
-		flex: 1;
-		min-width: 220px;
+	.bar-btn.has-badge {
+		margin-right: 4px;
 	}
 
-	.spacer {
-		flex: 1;
+	.bar-seg {
+		--seg-h: var(--bar-h);
+		--seg-px: 14px;
 	}
 
-	.count {
-		margin: 0;
-		color: var(--sm-ink-2);
+	.kinds mat-icon {
+		margin-right: 8px;
+	}
+
+	.kinds .count {
+		margin-left: 8px;
+		color: var(--sm-ink-3);
+		font-variant-numeric: tabular-nums;
+	}
+
+	// the search takes what is left (flex-wrap never shrinks items, so it starts small and grows)
+	.bar-search {
+		flex: 1 1 160px;
+		max-width: 320px;
+	}
+
+	// view toggle and export stay together and wrap as one, right-aligned
+	.bar-right {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-left: auto;
 	}
 }
 
-.filter-btn {
-	display: none;
-}
-
-mat-form-field.full {
-	width: 100%;
-}
-
-.inline-field {
-	width: 200px;
-}
-
-.search-field mat-icon {
-	margin: 0 4px 0 12px;
-	color: var(--sm-ink-3);
-}
-
-.filter-btn .badge {
-	margin-left: 6px;
-	padding: 0 6px;
-	border-radius: 999px;
-	background: var(--sm-ink-2);
-	color: #fff;
-	font-size: 0.75rem;
-}
-
-button mat-icon {
-	margin-right: 6px;
-}
-
-mat-button-toggle mat-icon {
-	margin: 0;
-	vertical-align: -3px;
+.count-line {
+	margin: 10px 0 12px;
+	color: var(--sm-ink-2);
+	font-size: 0.875rem;
 }
 
 .empty {
-	text-align: center;
+	display: grid;
+	justify-items: start;
+	gap: 10px;
+	padding: 24px 0;
 	color: var(--sm-ink-2);
+
+	p {
+		margin: 0;
+	}
+
+	mat-icon {
+		margin-right: 6px;
+	}
 }
 
-// ---- groups
 .group-title {
 	display: flex;
-	align-items: center;
+	align-items: baseline;
 	gap: 10px;
-	margin: 28px 0 12px;
-	padding-bottom: 8px;
-	border-bottom: 2px solid var(--sm-line);
+	margin: 28px 0 8px;
 	font-size: 1.0625rem;
 
 	a {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
 		color: var(--sm-ink);
 		text-decoration: none;
 
 		&:hover {
 			text-decoration: underline;
 		}
-	}
-
-	.sm-dot {
-		color: var(--k);
 	}
 }
 
@@ -229,10 +153,74 @@ mat-button-toggle mat-icon {
 	font-weight: 400;
 }
 
-// ---- cards
+// ---------------------------------------------------------------- table
+table.ob-table {
+	width: 100%;
+
+	// wrap at spaces or hyphenation points, never mid-word; headers stay on one line
+	td {
+		word-break: normal;
+		overflow-wrap: break-word;
+		hyphens: auto;
+	}
+
+	th {
+		white-space: nowrap;
+	}
+
+	td a,
+	td a:visited {
+		color: inherit;
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
+
+	.cell-name a {
+		font-weight: 600;
+	}
+
+	.cell-kw {
+		color: var(--sm-ink-2);
+	}
+
+	// figures: right-aligned, as narrow as their header
+	.num {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	th.num .mat-sort-header-container {
+		justify-content: flex-end;
+	}
+
+	// the name gets the room, the text columns share the rest (regular, non-collapsed layout only)
+	@media (min-width: 906px) {
+		.mat-column-name {
+			width: 28%;
+			min-width: 200px;
+		}
+
+		.mat-column-sector,
+		.num {
+			width: 1%;
+			white-space: nowrap;
+		}
+	}
+}
+
+mat-paginator {
+	margin-top: 12px;
+	background: transparent;
+}
+
+// ---------------------------------------------------------------- cards
 .cards {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 	gap: 14px;
 	margin: 0;
 	padding: 0;
@@ -245,17 +233,6 @@ mat-button-toggle mat-icon {
 	gap: 10px;
 	padding: 16px 18px 14px;
 	border-left: 3px solid var(--k);
-	transition: box-shadow 0.15s;
-
-	&:hover {
-		box-shadow: var(--sm-shadow-lg);
-	}
-}
-
-.card-head {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
 }
 
 .card-title {
@@ -266,18 +243,7 @@ mat-button-toggle mat-icon {
 	text-decoration: none;
 
 	&:hover {
-		color: var(--sm-focus);
 		text-decoration: underline;
-	}
-}
-
-.tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-
-	&:empty {
-		display: none;
 	}
 }
 
@@ -296,10 +262,15 @@ mat-button-toggle mat-icon {
 	display: grid;
 	gap: 8px;
 	margin: 0;
+	font-size: 0.875rem;
+
+	&:empty {
+		display: none;
+	}
 
 	div {
 		display: grid;
-		gap: 4px;
+		gap: 2px;
 	}
 
 	dt {
@@ -311,137 +282,86 @@ mat-button-toggle mat-icon {
 	}
 
 	dd {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 5px;
 		margin: 0;
 	}
 }
 
-.more {
-	align-self: center;
-	color: var(--sm-ink-3);
-	font-size: 0.8125rem;
-}
-
-.card-foot {
+// "12 Systeme · 34 Datensätze · 3 Services"
+.nums {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px 10px;
-	margin-top: auto;
-	padding-top: 8px;
-	border-top: 1px solid var(--sm-line);
-	font-size: 0.8125rem;
+	gap: 4px 14px;
+	margin: 0;
+	color: var(--sm-ink-2);
+	font-size: 0.875rem;
 
-	&:has(.spacer:only-child) {
+	&:empty {
 		display: none;
 	}
 
-	.spacer {
-		flex: 1;
+	strong {
+		color: var(--sm-ink);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.zero {
+		color: var(--sm-ink-3);
+
+		strong {
+			color: inherit;
+			font-weight: 400;
+		}
 	}
 }
 
-.kw {
-	color: var(--sm-ink-2);
-}
-
 .ext {
+	margin-top: auto;
 	color: var(--sm-ink-2);
+	font-size: 0.8125rem;
 	text-decoration: none;
 
 	&:hover {
-		color: var(--sm-focus);
 		text-decoration: underline;
 	}
 }
 
-// ---- table
-.table-wrap {
-	overflow-x: auto;
-}
-
-.table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.875rem;
-
-	th {
-		position: sticky;
-		top: 0;
-		padding: 10px 12px;
-		border-bottom: 2px solid var(--sm-line);
-		background: var(--sm-surface-3);
-		color: var(--sm-ink-3);
-		font-size: 0.75rem;
-		letter-spacing: 0.04em;
-		text-align: left;
-		text-transform: uppercase;
-	}
-
-	td {
-		padding: 10px 12px;
-		border-bottom: 1px solid var(--sm-line);
-		vertical-align: top;
-
-		app-entity-chip {
-			margin: 0 4px 4px 0;
-		}
-	}
-
-	tr:hover td {
-		background: var(--sm-surface-3);
-	}
-}
-
-.name-cell {
-	min-width: 260px;
-	max-width: 420px;
-
-	a {
-		font-weight: 600;
-	}
-
-	.desc {
-		display: -webkit-box;
-		margin-top: 2px;
-		overflow: hidden;
-		color: var(--sm-ink-3);
-		font-size: 0.8125rem;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-	}
-}
-
-.flags {
-	.sm-tag {
-		margin: 0 4px 4px 0;
-	}
-}
-
-@media (max-width: 960px) {
-	.layout {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.filters {
-		position: static;
+// ---------------------------------------------------------------- narrow content
+// only on narrow screens the class switch keeps icon and count only (the tooltip names the class)
+@container inventory (max-width: 760px) {
+	.bar .kind-label {
 		display: none;
-		padding: 16px;
-		border: 1px solid var(--sm-line);
-		border-radius: var(--sm-radius);
 	}
 
-	.filters-open .filters {
-		display: grid;
+	.bar .kinds mat-icon {
+		margin-right: 0;
 	}
 
-	.filter-btn {
-		display: inline-flex;
+	.bar .kinds .count {
+		margin-left: 6px;
+	}
+}
+
+@container inventory (max-width: 720px) {
+	.bar .bar-search {
+		flex: 1 1 100%;
+	}
+
+	// Oblique's collapsed table lists every cell with its title: leave out the empty ones
+	table.ob-table td.is-empty {
+		display: none;
+	}
+
+	table.ob-table td.num {
+		text-align: left;
 	}
 
 	.cards {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 900px) {
+	.inv-shell {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }

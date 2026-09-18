@@ -10,8 +10,9 @@ import {
 	provideBrowserGlobalErrorListeners,
 	provideZoneChangeDetection,
 } from '@angular/core';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { provideObliqueConfiguration } from '@oblique/oblique';
+import { ObPaginatorService, provideObliqueConfiguration } from '@oblique/oblique';
 
 import { routes } from './app.routes';
 import { TranslatedTitleStrategy } from './core/title.strategy';
@@ -33,6 +34,7 @@ export const appConfig: ApplicationConfig = {
 		provideHttpClient(withFetch()),
 		{ provide: TitleStrategy, useClass: TranslatedTitleStrategy },
 		{ provide: LOCALE_ID, useValue: 'de-CH' },
+		{ provide: MatPaginatorIntl, useClass: ObPaginatorService },
 		provideObliqueConfiguration({
 			accessibilityStatement: {
 				applicationName: 'DigiAgriFoodCH System Map',

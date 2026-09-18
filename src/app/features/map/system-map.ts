@@ -29,6 +29,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { select } from 'd3-selection';
 import { ZoomBehavior, ZoomTransform, zoom, zoomIdentity } from 'd3-zoom';
 
+import { AddressService } from '../../core/address.service';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityTitle, pick, shortLabel } from '../../core/i18n';
@@ -139,6 +140,7 @@ const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, d
 })
 export class SystemMap implements AfterViewInit {
 	private readonly graphService = inject(GraphService);
+	private readonly addressService = inject(AddressService);
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly zone = inject(NgZone);
@@ -342,6 +344,11 @@ export class SystemMap implements AfterViewInit {
 		const id = this.selected();
 		return id ? (this.graph()?.entities.get(id) ?? null) : null;
 	});
+	/** postal address of the selected organization (from the registers it is linked to), once loaded */
+	protected readonly address = computed(() => {
+		const e = this.selectedEntity();
+		return e?.kind === 'organization' ? this.addressService.addresses().get(e.id) : undefined;
+	});
 	protected readonly selectedNode = computed(() => {
 		const id = this.selected();
 		return id ? (this.mapGraph()?.nodeById.get(id) ?? null) : null;
@@ -376,7 +383,7 @@ export class SystemMap implements AfterViewInit {
 				if (k > 0) parts.push({ text: k === shown.length - 1 && !more ? ` ${and} ` : ', ' });
 				parts.push({ entity });
 			});
-			if (more) parts.push({ text: ` ${this.translate.instant('map.andMore', { n: more })}` });
+			if (more) parts.push({ text: ` ${this.translate.instant('common.andMore', { n: more })}` });
 			parts.push({ text: '.' });
 			return { key: label, parts };
 		};
@@ -446,6 +453,10 @@ export class SystemMap implements AfterViewInit {
 	protected readonly subgraphs = computed(() => this.graph()?.collections ?? []);
 
 	constructor() {
+		// addresses are only needed once an organization is opened
+		effect(() => {
+			if (this.selectedEntity()?.kind === 'organization') untracked(() => this.addressService.load());
+		});
 		this.readUrl();
 
 		// keep the URL in sync (replaceUrl: no history spam)

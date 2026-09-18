@@ -1,35 +1,74 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { CANTONS } from '../../core/cantons';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
-import { LabelPipe, LangService, PickPipe, entityLabel } from '../../core/i18n';
+import { LabelPipe, LangService, PickPipe, abbrLabel, entityLabel } from '../../core/i18n';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { EntityChip, KIND_ICON, PageState } from '../../shared/ui';
+import { KIND_ICON, NameList, PageState } from '../../shared/ui';
 import { ORG_TYPES } from '../map/map-model';
-import { CatalogRow, buildRows, normalize, toCsv } from './catalog-data';
+import { CatalogRow, CountKey, buildRows, normalize, toCsv } from './catalog-data';
 
 type Protection = 'sensitive' | 'personal' | 'none';
-type GroupBy = 'none' | 'system' | 'operator';
-type SortBy = 'name' | 'connections';
+type GroupBy = 'none' | 'system' | 'operator' | 'sector';
+type View = 'table' | 'cards';
 
 interface Group {
 	key: string;
 	entity?: Entity;
+	/** translated title for groups that are not an element (sectors) */
+	label?: string;
 	rows: CatalogRow[];
+	/** size of the whole group – `rows` may hold only the part on the current page */
+	total: number;
 }
+
+/** numeric column → the figure it shows */
+export interface NumColumn {
+	id: string;
+	count: CountKey;
+}
+const NUM: Record<CountKey, NumColumn> = {
+	systems: { id: 'nSystems', count: 'systems' },
+	datasets: { id: 'nDatasets', count: 'datasets' },
+	services: { id: 'nServices', count: 'services' },
+	users: { id: 'nUsers', count: 'users' },
+	parts: { id: 'nParts', count: 'parts' },
+	legal: { id: 'nLegal', count: 'legal' },
+};
+const NUM_COLUMNS = Object.values(NUM);
+const NUM_ID = new Map(NUM_COLUMNS.map((c) => [c.id, c.count]));
+
+/** table columns per class – text cells first, figures to the right */
+const COLUMNS: Record<Kind, string[]> = {
+	dataset: ['name', 'systems', 'operators', 'keywords', NUM.parts.id, NUM.legal.id],
+	system: ['name', 'operators', NUM.datasets.id, NUM.services.id, NUM.users.id, NUM.parts.id],
+	service: ['name', 'systems', 'operators', NUM.users.id],
+	organization: ['name', 'sector', 'operators', NUM.parts.id, NUM.systems.id, NUM.datasets.id, NUM.services.id],
+};
+/** figures that roll up along the hierarchy get a hint in the header */
+const ROLLUP: Partial<Record<Kind, Set<CountKey>>> = {
+	organization: new Set(['systems', 'datasets', 'services']),
+	system: new Set(['datasets', 'services']),
+};
+
+const PAGE_SIZES = [12, 24, 48, 96];
+const DEFAULT_PAGE_SIZE = 24;
 
 @Component({
 	selector: 'app-catalog',
@@ -37,17 +76,21 @@ interface Group {
 	host: { class: 'sm-routed' },
 	imports: [
 		TranslatePipe,
+		MatBadgeModule,
 		MatButtonModule,
 		MatButtonToggleModule,
 		MatFormFieldModule,
 		MatIconModule,
 		MatInputModule,
+		MatPaginatorModule,
 		MatSelectModule,
 		MatSlideToggleModule,
+		MatSortModule,
+		MatTableModule,
 		MatTooltipModule,
 		ObButtonDirective,
 		RouterLink,
-		EntityChip,
+		NameList,
 		PageState,
 		DataFooter,
 		PickPipe,
@@ -63,27 +106,39 @@ export class Catalog {
 	private readonly translate = inject(TranslateService);
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
+	/** class switch order: the data first */
 	protected readonly KINDS: Kind[] = ['dataset', 'system', 'service', 'organization'];
 	protected readonly KIND_ICON = KIND_ICON;
 	protected readonly ORG_TYPES = ORG_TYPES;
-	protected readonly CANTONS = CANTONS;
-	protected readonly compactIri = compactIri;
+	protected readonly PROTECTIONS: Protection[] = ['sensitive', 'personal', 'none'];
+	protected readonly PROTECTION_KEY: Record<Protection, string> = {
+		sensitive: 'flags.sensitive',
+		personal: 'flags.personal',
+		none: 'dash.privacy.none',
+	};
+	protected readonly NUM_COLUMNS = NUM_COLUMNS;
+	protected readonly PAGE_SIZES = PAGE_SIZES;
 
+	// ---- state (mirrored in the URL)
 	protected readonly kind = signal<Kind>('dataset');
 	protected readonly query = signal('');
-	protected readonly operator = signal<string>('');
-	protected readonly subgraph = signal<string>('');
-	protected readonly keyword = signal<string>('');
+	protected readonly operator = signal('');
+	protected readonly keywords = signal(new Set<string>());
 	protected readonly protection = signal(new Set<Protection>());
-	protected readonly masterOnly = signal(false);
-	protected readonly fmisOnly = signal(false);
-	protected readonly orgTypes = signal(new Set<OrgType>());
-	protected readonly canton = signal('');
+	protected readonly orgTypes = signal(new Set<OrgType>(ORG_TYPES));
 	protected readonly topLevelOnly = signal(false);
 	protected readonly groupBy = signal<GroupBy>('none');
-	protected readonly sortBy = signal<SortBy>('name');
-	protected readonly view = signal<'cards' | 'table'>('cards');
-	protected readonly filtersOpen = signal(false);
+	protected readonly view = signal<View>('table');
+	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' });
+	protected readonly pageIndex = signal(0);
+	protected readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+	protected readonly panelOpen = signal(false);
+
+	protected readonly keywordList = computed(() => [...this.keywords()]);
+	protected readonly protectionList = computed(() => [...this.protection()]);
+	protected readonly orgTypeList = computed(() => [...this.orgTypes()]);
+	/** "top level only" has no meaning once the organizations are already narrowed to one parent */
+	protected readonly topLevelDisabled = computed(() => this.kind() === 'organization' && !!this.operator());
 
 	protected readonly rowsByKind = computed(() => {
 		const g = this.graph();
@@ -92,8 +147,22 @@ export class Catalog {
 		return Object.fromEntries(KINDS.map((k) => [k, buildRows(g, k, lang)])) as Record<Kind, CatalogRow[]>;
 	});
 	protected readonly rows = computed(() => this.rowsByKind()?.[this.kind()] ?? []);
+	protected readonly columns = computed(() => COLUMNS[this.kind()]);
+	/** group-by choices per class */
+	protected readonly groupOptions = computed<GroupBy[]>(() => {
+		switch (this.kind()) {
+			case 'dataset':
+				return ['system', 'operator'];
+			case 'system':
+				return ['operator'];
+			case 'organization':
+				return ['sector'];
+			default:
+				return [];
+		}
+	});
 
-	/** top-level organizations that appear as operators for the current class (filter options) */
+	/** top-level organizations responsible for elements of the current class (filter options) */
 	protected readonly operatorOptions = computed(() => {
 		const g = this.graph();
 		if (!g) return [];
@@ -111,53 +180,69 @@ export class Catalog {
 	});
 
 	protected readonly filtered = computed(() => {
-		const q = normalize(this.query().trim());
-		const terms = q.split(/\s+/).filter(Boolean);
+		const terms = normalize(this.query().trim()).split(/\s+/).filter(Boolean);
 		const op = this.operator();
-		const sub = this.subgraph();
-		const kw = this.keyword();
+		const kws = this.keywords();
 		const prot = this.protection();
 		const kind = this.kind();
-		const g = this.graph();
-		const subMembers = sub ? g?.collections.find((c) => c.id === sub)?.members : undefined;
-		let rows = this.rows().filter((r) => {
+		const lang = this.lang();
+		const table = this.view() === 'table';
+		const topLevel = this.topLevelOnly() && !this.topLevelDisabled();
+		const rows = this.rows().filter((r) => {
 			if (terms.length && !terms.every((t) => r.search.includes(t))) return false;
 			if (op && !r.operatorRoots.has(op)) return false;
-			if (subMembers && !subMembers.has(r.e.id)) return false;
-			if (kw && !r.e.keywords.includes(kw)) return false;
-			if (kind === 'dataset') {
-				if (prot.size) {
-					const p: Protection = r.e.sensitive ? 'sensitive' : r.e.personal ? 'personal' : 'none';
-					if (!prot.has(p)) return false;
-				}
-				if (this.masterOnly() && !r.e.master) return false;
+			if (kws.size && !r.e.keywords.some((k) => kws.has(k))) return false;
+			if (kind === 'dataset' && prot.size) {
+				if (!prot.has(r.e.sensitive ? 'sensitive' : r.e.personal ? 'personal' : 'none')) return false;
 			}
-			if (kind === 'system' && this.fmisOnly() && !r.e.fmis) return false;
-			if (this.topLevelOnly() && r.e.root !== r.e.id) return false;
-			if (kind === 'organization') {
-				if (this.orgTypes().size && !this.orgTypes().has(r.e.orgType ?? 'other')) return false;
-				if (this.canton() && r.e.canton !== this.canton()) return false;
-			}
+			if (kind === 'organization' && !this.orgTypes().has(r.e.orgType ?? 'other')) return false;
+			if (topLevel && r.e.root !== r.e.id) return false;
 			return true;
 		});
-		if (this.sortBy() === 'connections') rows = [...rows].sort((a, b) => b.degree - a.degree);
-		return rows;
+		const { active, direction } = this.sort();
+		const dir = direction === 'desc' ? -1 : 1;
+		const names = (list: Entity[]): string => list.map((x) => entityLabel(x, lang)).join(' ');
+		const count = NUM_ID.get(active);
+		const key = (r: CatalogRow): string | number => {
+			if (count) return r.counts[count];
+			switch (active) {
+				case 'sector':
+					return this.translate.instant(`orgType.${r.e.orgType ?? 'other'}`);
+				case 'operators':
+					return names(r.operators);
+				case 'systems':
+					return names(r.systems);
+				default:
+					// the table shows abbreviations, so it sorts by them
+					return table ? abbrLabel(r.e, lang) : r.name;
+			}
+		};
+		const cmp = (a: string | number, b: string | number): number =>
+			typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), lang);
+		return [...rows].sort((a, b) => dir * cmp(key(a), key(b)) || a.name.localeCompare(b.name, lang));
 	});
 
+	/** all groups over the filtered rows (sizes and order) */
 	protected readonly groups = computed<Group[]>(() => {
 		const rows = this.filtered();
 		const by = this.groupBy();
-		if (by === 'none') return [{ key: '', rows }];
+		if (by === 'none' || !this.groupOptions().includes(by)) return [{ key: '', rows, total: rows.length }];
 		const g = this.graph()!;
 		const lang = this.lang();
+		if (by === 'sector') {
+			return ORG_TYPES.map((t) => {
+				const grpRows = rows.filter((r) => (r.e.orgType ?? 'other') === t);
+				return { key: t, label: this.translate.instant(`orgType.${t}`), rows: grpRows, total: grpRows.length };
+			}).filter((grp) => grp.total);
+		}
 		const map = new Map<string, Group>();
-		const none: Group = { key: '∅', rows: [] };
+		const none: Group = { key: '∅', rows: [], total: 0 };
 		for (const r of rows) {
 			const keys =
 				by === 'system' ? (this.kind() === 'system' ? [r.e] : r.systems).map((s) => s.id) : [...r.operatorRoots];
 			if (!keys.length) none.rows.push(r);
 			for (const k of keys) {
-				if (!map.has(k)) map.set(k, { key: k, entity: g.entities.get(k), rows: [] });
+				if (!map.has(k)) map.set(k, { key: k, entity: g.entities.get(k), rows: [], total: 0 });
 				map.get(k)!.rows.push(r);
 			}
 		}
@@ -165,99 +250,125 @@ export class Catalog {
 			(a, b) => b.rows.length - a.rows.length || entityLabel(a.entity, lang).localeCompare(entityLabel(b.entity, lang)),
 		);
 		if (none.rows.length) out.push(none);
+		for (const grp of out) grp.total = grp.rows.length;
 		return out;
 	});
 
+	/** rows over all groups (an element in two groups counts twice, as it is shown twice) */
+	protected readonly total = computed(() => this.groups().reduce((n, grp) => n + grp.rows.length, 0));
+	protected readonly page = computed(() =>
+		Math.min(this.pageIndex(), Math.max(0, Math.ceil(this.total() / this.pageSize()) - 1)),
+	);
+	/** the groups cut to the current page, keeping the group order */
+	protected readonly pagedGroups = computed<Group[]>(() => {
+		const start = this.page() * this.pageSize();
+		const end = start + this.pageSize();
+		const out: Group[] = [];
+		let offset = 0;
+		for (const grp of this.groups()) {
+			const from = Math.max(start - offset, 0);
+			const to = Math.min(end - offset, grp.rows.length);
+			if (from < to) out.push({ ...grp, rows: grp.rows.slice(from, to) });
+			offset += grp.rows.length;
+			if (offset >= end) break;
+		}
+		return out;
+	});
+
+	/** filters that deviate from their defaults – shown as a badge on the filter button */
 	protected readonly activeFilterCount = computed(
 		() =>
-			[this.operator(), this.subgraph(), this.keyword(), this.canton()].filter(Boolean).length +
-			this.protection().size +
-			this.orgTypes().size +
-			[this.masterOnly(), this.fmisOnly(), this.topLevelOnly()].filter(Boolean).length,
+			(this.operator() ? 1 : 0) +
+			(this.keywords().size ? 1 : 0) +
+			(this.protection().size ? 1 : 0) +
+			(this.orgTypes().size !== ORG_TYPES.length ? 1 : 0) +
+			(this.groupBy() !== 'none' ? 1 : 0) +
+			(this.topLevelOnly() && !this.topLevelDisabled() ? 1 : 0),
 	);
 
 	constructor() {
-		const q = this.route.snapshot.queryParamMap;
-		const kind = q.get('kind');
-		if (kind && (KINDS as readonly string[]).includes(kind)) this.kind.set(kind as Kind);
-		if (q.get('q')) this.query.set(q.get('q')!);
-		if (q.get('op')) this.operator.set(expandIri(q.get('op')!));
-		if (q.get('sub')) this.subgraph.set(expandIri(q.get('sub')!));
-		if (q.get('kw')) this.keyword.set(expandIri(q.get('kw')!));
-		if (q.get('group') === 'system' || q.get('group') === 'operator') this.groupBy.set(q.get('group') as GroupBy);
-		if (q.get('view') === 'table') this.view.set('table');
-		const prot = q.get('protection');
-		if (prot) this.protection.set(new Set(prot.split(',') as Protection[]));
-
-		// the kind tabs are also reachable from the dashboard tiles → react to later query-param changes
+		this.readUrl();
+		// the class switch is also reachable from the dashboard tiles → react to later query-param changes
 		this.route.queryParamMap.subscribe((p) => {
-			const k = p.get('kind');
-			if (k && k !== untracked(this.kind) && (KINDS as readonly string[]).includes(k)) this.setKind(k as Kind);
+			const k = p.get('kind') ?? 'dataset';
+			if (k !== untracked(this.kind) && (KINDS as readonly string[]).includes(k)) this.setKind(k as Kind);
 		});
-
+		// back to the first page whenever the selection changes (but not when data or language arrive)
+		let lastSelection: string | undefined;
 		effect(() => {
-			const params = {
-				kind: this.kind() === 'dataset' ? null : this.kind(),
-				q: this.query() || null,
-				op: this.operator() ? compactIri(this.operator()) : null,
-				sub: this.subgraph() ? compactIri(this.subgraph()) : null,
-				kw: this.keyword() ? compactIri(this.keyword()) : null,
-				group: this.groupBy() === 'none' ? null : this.groupBy(),
-				view: this.view() === 'cards' ? null : 'table',
-				protection: this.protection().size ? [...this.protection()].join(',') : null,
-			};
+			const selection = JSON.stringify([
+				this.kind(),
+				this.query(),
+				this.operator(),
+				[...this.keywords()],
+				[...this.protection()],
+				[...this.orgTypes()],
+				this.topLevelOnly(),
+				this.groupBy(),
+				this.sort(),
+			]);
+			if (lastSelection !== undefined && selection !== lastSelection) untracked(() => this.pageIndex.set(0));
+			lastSelection = selection;
+		});
+		effect(() => {
+			const params = this.urlParams();
 			untracked(() => this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true }));
 		});
 	}
 
+	// ---------------------------------------------------------------------------------------------- columns
+
+	protected isNum(column: string): boolean {
+		return NUM_ID.has(column);
+	}
+
+	/** header label of a numeric column ("Teile" / "Teilsysteme" / "Untereinheiten" depend on the class) */
+	protected numLabel(c: NumColumn): string {
+		return c.count === 'parts' || c.count === 'users'
+			? `catalog.num.${c.count}.${this.kind()}`
+			: `catalog.num.${c.count}`;
+	}
+
+	protected numHint(c: NumColumn): string | null {
+		return ROLLUP[this.kind()]?.has(c.count) ? `catalog.numHint.${this.kind()}` : null;
+	}
+
+	// ---------------------------------------------------------------------------------------------- actions
+
 	protected setKind(k: Kind): void {
 		this.kind.set(k);
 		this.clearFilters();
-		if (k === 'organization' || k === 'service') this.groupBy.set('none');
+		this.sort.set({ active: 'name', direction: 'asc' });
 	}
 
 	protected clearFilters(): void {
 		this.operator.set('');
-		this.subgraph.set('');
-		this.keyword.set('');
+		this.keywords.set(new Set());
 		this.protection.set(new Set());
-		this.masterOnly.set(false);
-		this.fmisOnly.set(false);
-		this.orgTypes.set(new Set());
-		this.canton.set('');
+		this.orgTypes.set(new Set(ORG_TYPES));
 		this.topLevelOnly.set(false);
+		this.groupBy.set('none');
 	}
 
-	protected toggleProtection(p: Protection): void {
-		this.protection.update((s) => {
-			const n = new Set(s);
-			if (n.has(p)) n.delete(p);
-			else n.add(p);
-			return n;
-		});
+	protected setKeywords(ids: string[]): void {
+		this.keywords.set(new Set(ids));
 	}
-	protected toggleOrgType(t: OrgType): void {
-		this.orgTypes.update((s) => {
-			const n = new Set(s);
-			if (n.has(t)) n.delete(t);
-			else n.add(t);
-			return n;
-		});
+	protected setProtection(values: Protection[]): void {
+		this.protection.set(new Set(values));
+	}
+	protected setOrgTypes(values: OrgType[]): void {
+		this.orgTypes.set(new Set(values));
+	}
+	protected onSort(s: Sort): void {
+		this.sort.set(s.direction ? s : { active: 'name', direction: 'asc' });
+	}
+	protected onPage(e: PageEvent): void {
+		this.pageIndex.set(e.pageIndex);
+		this.pageSize.set(e.pageSize);
 	}
 
 	protected exportCsv(): void {
-		const t = (k: string): string => this.translate.instant(k);
-		const headers = [
-			'IRI',
-			t('catalog.col.name'),
-			this.kind() === 'organization' ? t('catalog.col.orgType') : t('catalog.col.flags'),
-			t(`catalog.where.${this.kind()}`),
-			t(`catalog.who.${this.kind()}`),
-			t('kind.dataset.plural'),
-			t('catalog.col.website'),
-			t('catalog.col.description'),
-		];
-		const csv = toCsv(this.filtered(), this.kind(), this.lang(), headers);
+		const csv = toCsv(this.filtered(), this.kind(), this.lang(), (k) => this.translate.instant(k));
 		const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
 		const a = document.createElement('a');
 		a.href = url;
@@ -266,11 +377,61 @@ export class Catalog {
 		setTimeout(() => URL.revokeObjectURL(url), 1000);
 	}
 
+	/** tooltip of a table name: the full name when the cell shows the abbreviation, then the description */
+	protected nameTip(r: CatalogRow): string {
+		return [r.e.abbreviation ? r.name : '', r.description].filter(Boolean).join('\n\n');
+	}
+
 	protected host(url: string): string {
 		try {
 			return new URL(url).hostname.replace(/^www\./, '');
 		} catch {
 			return url;
 		}
+	}
+
+	// ---------------------------------------------------------------------------------------------- URL state
+
+	private urlParams(): Record<string, string | null> {
+		return {
+			kind: this.kind() === 'dataset' ? null : this.kind(),
+			q: this.query() || null,
+			op: this.operator() ? compactIri(this.operator()) : null,
+			kw: this.keywords().size ? [...this.keywords()].map(compactIri).join(',') : null,
+			protection: this.protection().size ? [...this.protection()].join(',') : null,
+			sector: this.orgTypes().size === ORG_TYPES.length ? null : [...this.orgTypes()].join(',') || 'none',
+			top: this.topLevelOnly() ? '1' : null,
+			group: this.groupBy() === 'none' ? null : this.groupBy(),
+			view: this.view() === 'table' ? null : this.view(),
+			page: this.page() ? String(this.page() + 1) : null,
+			size: this.pageSize() === DEFAULT_PAGE_SIZE ? null : String(this.pageSize()),
+		};
+	}
+
+	private readUrl(): void {
+		const q = this.route.snapshot.queryParamMap;
+		const list = (k: string): string[] | null => {
+			const v = q.get(k);
+			return v === null ? null : v === 'none' ? [] : v.split(',').filter(Boolean);
+		};
+		const kind = q.get('kind');
+		if (kind && (KINDS as readonly string[]).includes(kind)) this.kind.set(kind as Kind);
+		if (q.get('q')) this.query.set(q.get('q')!);
+		if (q.get('op')) this.operator.set(expandIri(q.get('op')!));
+		const kw = list('kw');
+		if (kw) this.keywords.set(new Set(kw.map(expandIri)));
+		const prot = list('protection');
+		if (prot)
+			this.protection.set(new Set(prot.filter((p): p is Protection => (this.PROTECTIONS as string[]).includes(p))));
+		const sector = list('sector');
+		if (sector) this.orgTypes.set(new Set(sector.filter((s): s is OrgType => (ORG_TYPES as string[]).includes(s))));
+		if (q.get('top') === '1') this.topLevelOnly.set(true);
+		const group = q.get('group');
+		if (group === 'system' || group === 'operator' || group === 'sector') this.groupBy.set(group);
+		if (q.get('view') === 'cards') this.view.set('cards');
+		const page = Number(q.get('page'));
+		if (page > 1) this.pageIndex.set(page - 1);
+		const size = Number(q.get('size'));
+		if (PAGE_SIZES.includes(size)) this.pageSize.set(size);
 	}
 }
