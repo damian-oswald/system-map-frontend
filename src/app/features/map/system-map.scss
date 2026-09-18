@@ -155,6 +155,10 @@ mat-button-toggle mat-icon {
 	// disappearing underneath
 	&.has-drawer .stage-bar {
 		right: 404px;
+
+		.bar-search.mat-mdc-form-field {
+			width: 280px;
+		}
 	}
 }
 
