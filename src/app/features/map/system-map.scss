@@ -156,8 +156,9 @@ mat-button-toggle mat-icon {
 	&.has-drawer .stage-bar {
 		right: 404px;
 
-		.bar-search.mat-mdc-form-field {
-			width: 280px;
+		// the search keeps its size; the focus chip's label gives way instead
+		.focus-pill {
+			max-width: 340px;
 		}
 	}
 }
