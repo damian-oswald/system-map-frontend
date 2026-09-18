@@ -351,7 +351,10 @@ export class SystemMap implements AfterViewInit {
 		const e = this.selectedEntity();
 		const g = this.graph();
 		if (!e || !g || this.levels()[e.kind as Kind] !== 'collapsed') return [];
-		return [...g.entities.values()].filter((o) => o.kind === e.kind && o.root === e.id && o.id !== e.id);
+		const lang = this.lang();
+		return [...g.entities.values()]
+			.filter((o) => o.kind === e.kind && o.root === e.id && o.id !== e.id)
+			.sort((a, b) => entityTitle(a, lang).localeCompare(entityTitle(b, lang), lang));
 	});
 
 	/**
