@@ -7,22 +7,27 @@ import {
 	inject,
 	input,
 	signal,
+	untracked,
 	viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
-import { ObButtonDirective } from '@oblique/oblique';
+import { ObButtonDirective, ObExternalLinkDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AddressService } from '../../core/address.service';
 import { Entity } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, entityTitle, isFallback, pick } from '../../core/i18n';
+import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
 import { CLS, HIERARCHY_KEYS, KINDS, Kind, NS, RELATIONS, compactIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
-import { EntityChip, EntityTree, KIND_ICON, PageState, TreeNode } from '../../shared/ui';
+import { EntityChip, EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
+import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
 
 interface EgoNode {
 	id: string;
@@ -70,6 +75,26 @@ interface WholeNode {
 	title: string;
 }
 
+/** one small table in the "relations in detail" chapter: a relation type in one direction */
+interface RelationTable {
+	id: string;
+	title: string;
+	/** header of the second column, depends on the class of the related elements; empty = names only */
+	infoLabel: string;
+	columns: string[];
+	rows: TableRow[];
+}
+
+interface TableRow {
+	e: Entity;
+	text?: string;
+	list?: Entity[];
+	/** translation keys of flags (data protection, master data) */
+	tags?: { key: string; cls: string }[];
+}
+
+type ChapterId = 'relations' | 'structure' | 'tables' | 'more';
+
 const HIDDEN_TYPES = new Set<string>([
 	CLS.organization,
 	CLS.system,
@@ -81,12 +106,21 @@ const HIDDEN_TYPES = new Set<string>([
 ]);
 const DASHED = new Set(RELATIONS.filter((r) => r.dashed).map((r) => r.key));
 const GROUP_LIMIT = 12;
+/** rows a small table shows before "+ n weitere anzeigen" */
+const TABLE_LIMIT = 10;
 /** relation collected from all descendants for the roll-up section, per class */
 const ROLLUP: Record<Kind, { key: string; out: boolean }> = {
 	organization: { key: 'operates', out: true },
 	system: { key: 'contains', out: true },
 	dataset: { key: 'contains', out: false },
 	service: { key: 'consumes', out: false },
+};
+/** key figures in the header, per class – the same figures the inventory shows */
+const FIGURES: Record<Kind, CountKey[]> = {
+	organization: ['parts', 'systems', 'datasets', 'services'],
+	system: ['datasets', 'services', 'users', 'parts'],
+	dataset: ['systems', 'parts', 'legal'],
+	service: ['systems', 'users'],
 };
 
 @Component({
@@ -97,10 +131,14 @@ const ROLLUP: Record<Kind, { key: string; out: boolean }> = {
 		TranslatePipe,
 		MatButtonModule,
 		MatIconModule,
+		MatTableModule,
+		MatTooltipModule,
 		ObButtonDirective,
+		ObExternalLinkDirective,
 		RouterLink,
 		EntityChip,
 		EntityTree,
+		NameList,
 		PageState,
 		DataFooter,
 		PickPipe,
@@ -114,6 +152,7 @@ export class EntityPage {
 	readonly key = input.required<string>();
 
 	private readonly graphService = inject(GraphService);
+	private readonly addressService = inject(AddressService);
 	private readonly router = inject(Router);
 	private readonly title = inject(Title);
 	private readonly translate = inject(TranslateService);
@@ -136,6 +175,32 @@ export class EntityPage {
 		return { kind: k && k !== 'dataset' && (KINDS as readonly string[]).includes(k) ? k : null };
 	});
 	protected readonly descFallback = computed(() => isFallback(this.entity()?.description, this.lang()));
+
+	/** the inventory row of this element: related elements and the rolled-up figures */
+	protected readonly row = computed<CatalogRow | null>(() => {
+		const e = this.entity();
+		const g = this.graph();
+		return e && g && this.isMappable() ? buildRow(g, e, this.lang()) : null;
+	});
+	protected readonly figures = computed(() => {
+		const r = this.row();
+		const e = this.entity();
+		if (!r || !e) return [];
+		return FIGURES[e.kind as Kind].map((count) => ({
+			count,
+			n: r.counts[count],
+			label: figureLabel(count, e.kind as Kind, r.counts[count]),
+		}));
+	});
+	/** postal address from the registers (Zefix, Staatskalender) the organization is linked to */
+	protected readonly address = computed(() => {
+		const e = this.entity();
+		return e?.kind === 'organization' ? this.addressService.addresses().get(e.id) : undefined;
+	});
+	protected readonly parents = computed(() => {
+		const g = this.graph();
+		return (this.entity()?.parents ?? []).map((p) => g?.entities.get(p)).filter((x): x is Entity => !!x);
+	});
 
 	protected readonly typeLabels = computed(() => {
 		const e = this.entity();
@@ -170,6 +235,119 @@ export class EntityPage {
 	});
 	protected readonly relationCount = computed(() => this.relationGroups().reduce((a, g) => a + g.items.length, 0));
 
+	/** the name of a relation as seen from this element: the property's name for outgoing, the inverse for incoming */
+	private relationName(key: string, out: boolean): string {
+		const g = this.graph()!;
+		const name = out ? pick(g.relationInfo.get(key)?.name, this.lang()) : this.translate.instant(`relInverse.${key}`);
+		return name.charAt(0).toUpperCase() + name.slice(1);
+	}
+
+	/**
+	 * One small table per relation type and direction. The second column tells the most useful thing about the
+	 * related elements' class – the operators of systems, where data sets are stored, the sector of organizations,
+	 * the providers of services – leaving out this element itself. Where that would say nothing (the systems an
+	 * organization operates are operated by … the organization), the column falls back to the next best thing.
+	 */
+	protected readonly tables = computed<RelationTable[]>(() => {
+		const e = this.entity();
+		const g = this.graph();
+		if (!e || !g) return [];
+		const lang = this.lang();
+		const others = (x: Entity, key: string, out: boolean): Entity[] =>
+			(out ? x.out : x.in)
+				.filter((r) => r.key === key)
+				.map((r) => g.entities.get(out ? r.o : r.s)!)
+				.filter((y) => y.id !== e.id);
+		const primary = (x: Entity): TableRow => {
+			switch (x.kind) {
+				case 'organization':
+					return { e: x, text: this.translate.instant(`orgType.${x.orgType ?? 'other'}`) };
+				case 'system':
+					return { e: x, list: others(x, 'operates', false) };
+				case 'dataset':
+					return { e: x, list: others(x, 'contains', false) };
+				case 'service':
+					return { e: x, list: others(x, 'provides', false) };
+				default:
+					return { e: x };
+			}
+		};
+		const fallback = (x: Entity): TableRow => {
+			switch (x.kind) {
+				case 'system':
+					return { e: x, list: others(x, 'contains', true) };
+				case 'dataset':
+					return {
+						e: x,
+						tags: [
+							...(x.sensitive
+								? [{ key: 'flags.sensitive', cls: 'sm-tag--warn' }]
+								: x.personal
+									? [{ key: 'flags.personal', cls: 'sm-tag--warn' }]
+									: []),
+							...(x.master ? [{ key: 'flags.master', cls: 'sm-tag--info' }] : []),
+						],
+					};
+				case 'service':
+					return { e: x, text: String(others(x, 'consumes', false).length) };
+				default:
+					return { e: x };
+			}
+		};
+		const primaryLabel: Record<Kind, string> = {
+			organization: 'catalog.sector',
+			system: 'catalog.who.system',
+			dataset: 'catalog.where.dataset',
+			service: 'catalog.where.service',
+		};
+		const fallbackLabel: Record<Kind, string> = {
+			organization: 'catalog.sector',
+			system: 'kind.dataset.plural',
+			dataset: 'catalog.col.flags',
+			service: 'catalog.num.users.service',
+		};
+		return this.relationGroups()
+			.filter(
+				(grp) => grp.key !== 'hasLegalBasis' && grp.items.some((x) => (KINDS as readonly string[]).includes(x.kind)),
+			)
+			.map((grp) => {
+				const kind = grp.items[0].kind as Kind;
+				const items = [...grp.items].sort((a, b) => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang));
+				const says = (rows: TableRow[]): boolean => rows.some((r) => r.text || r.list?.length || r.tags?.length);
+				let rows = items.map(primary);
+				let label = primaryLabel[kind];
+				if (!says(rows)) {
+					rows = items.map(fallback);
+					label = fallbackLabel[kind];
+				}
+				const info = says(rows);
+				return {
+					id: `${grp.key}|${grp.out}`,
+					title: this.relationName(grp.key, grp.out),
+					infoLabel: info ? this.translate.instant(label) : '',
+					columns: info ? ['name', 'info'] : ['name'],
+					rows,
+				};
+			});
+	});
+
+	/** small tables the user expanded beyond TABLE_LIMIT rows */
+	protected readonly openTables = signal(new Set<string>());
+	protected readonly TABLE_LIMIT = TABLE_LIMIT;
+
+	protected tableRows(t: RelationTable): TableRow[] {
+		return this.openTables().has(t.id) ? t.rows : t.rows.slice(0, TABLE_LIMIT);
+	}
+
+	protected toggleTable(id: string): void {
+		this.openTables.update((s) => {
+			const n = new Set(s);
+			if (n.has(id)) n.delete(id);
+			else n.add(id);
+			return n;
+		});
+	}
+
 	protected readonly ancestors = computed(() => {
 		const e = this.entity();
 		const g = this.graph();
@@ -182,15 +360,6 @@ export class EntityPage {
 			cur = cur.parents.length ? g?.entities.get(cur.parents[0]) : undefined;
 		}
 		return out;
-	});
-	protected readonly children = computed(() => {
-		const e = this.entity();
-		const g = this.graph();
-		if (!e || !g) return [];
-		const lang = this.lang();
-		return e.children
-			.map((c) => g.entities.get(c)!)
-			.sort((a, b) => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang));
 	});
 
 	/** Ancestors → the element → all descendants, as a tree (organizations, systems, data sets, services). */
@@ -248,10 +417,9 @@ export class EntityPage {
 
 	protected readonly sameAs = computed(() =>
 		(this.entity()?.sameAs ?? []).map((iri) => {
-			if (iri.startsWith(NS.zefix)) return { iri, label: 'Zefix', short: 'zefix:' + iri.slice(NS.zefix.length) };
-			if (iri.startsWith(NS.sk))
-				return { iri, label: 'Staatskalender', short: 'staatskalender:' + iri.slice(NS.sk.length) };
-			return { iri, label: this.host(iri), short: iri };
+			if (iri.startsWith(NS.zefix)) return { iri, label: 'Zefix' };
+			if (iri.startsWith(NS.sk)) return { iri, label: 'Staatskalender' };
+			return { iri, label: this.host(iri) };
 		}),
 	);
 	protected readonly legal = computed(() => {
@@ -269,7 +437,27 @@ export class EntityPage {
 		return g && e ? g.collections.filter((c) => c.members.has(e.id)) : [];
 	});
 
-	/** Ego network: predecessors left, successors right, grouped by relation. */
+	/** chapters shown for this element, in order – the numbers in the chapter headers follow from it */
+	protected readonly chapters = computed<ChapterId[]>(() => {
+		const out: ChapterId[] = [];
+		if (this.ego()?.nodes.length || this.ego()?.hasStructure) out.push('relations');
+		if (this.structure().length) out.push('structure');
+		if (this.tables().length) out.push('tables');
+		if (this.legal().length || this.keywords().length || this.collections().length) out.push('more');
+		return out;
+	});
+
+	protected chapterNo(id: ChapterId): string {
+		return String(this.chapters().indexOf(id) + 1).padStart(2, '0');
+	}
+
+	/** chapters alternate between white and the tinted background */
+	protected tinted(id: ChapterId): boolean {
+		return this.chapters().indexOf(id) % 2 === 0;
+	}
+
+	// ---------------------------------------------------------------------------------------------- relations diagram
+
 	/** relation groups (key|direction) the user expanded beyond GROUP_LIMIT */
 	protected readonly expanded = signal(new Set<string>());
 	/** available width for the diagram, kept in sync with the container */
@@ -517,6 +705,14 @@ export class EntityPage {
 			ro.observe(el);
 			onCleanup(() => ro.disconnect());
 		});
+		// the address is only needed for organizations
+		effect(() => {
+			if (this.entity()?.kind === 'organization') untracked(() => this.addressService.load());
+		});
+	}
+
+	protected icon(e: Entity): string {
+		return KIND_ICON[e.kind];
 	}
 
 	protected toggleGroup(id: string): void {

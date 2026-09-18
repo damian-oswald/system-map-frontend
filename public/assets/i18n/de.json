@@ -295,7 +295,6 @@
 		"showInMap": "Auf der Karte zeigen",
 		"relations": "Beziehungen",
 		"relationsSub": "{{n}} direkte Beziehungen: eingehende links, ausgehende rechts. Wählen Sie ein Element, um weiter zu erkunden.",
-		"noRelations": "Es sind noch keine Beziehungen dokumentiert.",
 		"copy": "IRI kopieren",
 		"copied": "IRI kopiert",
 		"legal": "Rechtsgrundlage",
@@ -324,7 +323,12 @@
 			"system": "{{n}} Datensätze sind in Teilsystemen dieses Systems enthalten.",
 			"dataset": "{{n}} IT-Systeme enthalten Teile dieses Datensatzes.",
 			"service": "{{n}} Systeme und Organisationen nutzen Teilservices dieses Services."
-		}
+		},
+		"structureSub": "Übergeordnete Einheiten, das Element selbst und alles, was darunter liegt.",
+		"tables": "Beziehungen im Detail",
+		"tablesSub": "Eine Tabelle pro Beziehungsart – mit dem, was über die verbundenen Elemente am meisten sagt.",
+		"via": "Über",
+		"moreTitle": "Weitere Angaben"
 	},
 	"about": {
 		"title": "Über das Projekt",

@@ -295,7 +295,6 @@
 		"showInMap": "Afficher sur la carte",
 		"relations": "Relations",
 		"relationsSub": "{{n}} relations directes : entrantes à gauche, sortantes à droite. Sélectionnez un élément pour poursuivre l'exploration.",
-		"noRelations": "Aucune relation n'est encore documentée.",
 		"copy": "Copier l'IRI",
 		"copied": "IRI copié",
 		"legal": "Base légale",
@@ -324,7 +323,12 @@
 			"system": "{{n}} jeux de données sont contenus dans des sous-systèmes de ce système.",
 			"dataset": "{{n}} systèmes informatiques contiennent des parties de ce jeu de données.",
 			"service": "{{n}} systèmes et organisations utilisent des sous-services de ce service."
-		}
+		},
+		"structureSub": "Unités supérieures, l'élément lui-même et tout ce qui se trouve en dessous.",
+		"tables": "Relations en détail",
+		"tablesSub": "Un tableau par type de relation – avec ce qui en dit le plus sur les éléments liés.",
+		"via": "Via",
+		"moreTitle": "Autres indications"
 	},
 	"about": {
 		"title": "À propos du projet",

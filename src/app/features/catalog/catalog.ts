@@ -23,7 +23,7 @@ import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { EntityChip, KIND_ICON, NameList, PageState } from '../../shared/ui';
 import { ORG_TYPES } from '../map/map-model';
-import { CatalogRow, CountKey, buildRows, normalize, toCsv } from './catalog-data';
+import { CatalogRow, CountKey, buildRows, figureLabel, normalize, toCsv } from './catalog-data';
 
 type Protection = 'sensitive' | 'personal' | 'none';
 type GroupBy = 'none' | 'system' | 'operator' | 'sector';
@@ -344,10 +344,7 @@ export class Catalog {
 
 	/** label of a figure ("Teile" / "Teilsysteme" / "Untereinheiten" depend on the class); singular for exactly one */
 	protected numLabel(c: NumColumn, n = 0): string {
-		const group = n === 1 ? 'numOne' : 'num';
-		return c.count === 'parts' || c.count === 'users'
-			? `catalog.${group}.${c.count}.${this.kind()}`
-			: `catalog.${group}.${c.count}`;
+		return figureLabel(c.count, this.kind(), n);
 	}
 
 	protected numHint(c: NumColumn): string | null {

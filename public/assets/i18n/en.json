@@ -295,7 +295,6 @@
 		"showInMap": "Show on map",
 		"relations": "Relations",
 		"relationsSub": "{{n}} direct relations: incoming on the left, outgoing on the right. Select an element to continue exploring.",
-		"noRelations": "No relations are documented yet.",
 		"copy": "Copy IRI",
 		"copied": "IRI copied",
 		"legal": "Legal basis",
@@ -324,7 +323,12 @@
 			"system": "{{n}} data sets are contained in sub-systems of this system.",
 			"dataset": "{{n}} IT systems contain parts of this data set.",
 			"service": "{{n}} systems and organizations use sub-services of this service."
-		}
+		},
+		"structureSub": "Parent units, the element itself and everything below it.",
+		"tables": "Relations in detail",
+		"tablesSub": "One table per type of relation – with what says most about the related elements.",
+		"via": "Via",
+		"moreTitle": "Further details"
 	},
 	"about": {
 		"title": "About the project",

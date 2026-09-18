@@ -37,9 +37,21 @@ const uniq = (list: (Entity | undefined)[]): Entity[] => {
  * all its sub-units (schema:subOrganization*), a system counts the data sets and services of itself and its parts.
  */
 export function buildRows(g: SystemMapGraph, kind: Kind, lang: Lang): CatalogRow[] {
+	return g.byKind[kind].map((e) => buildRow(g, e, lang)).sort((a, b) => a.name.localeCompare(b.name, lang));
+}
+
+/** i18n key of a figure's label: "Teile" / "Teilsysteme" / "Untereinheiten" depend on the class, singular for one */
+export function figureLabel(count: CountKey, kind: Kind, n = 0): string {
+	const group = n === 1 ? 'numOne' : 'num';
+	return count === 'parts' || count === 'users' ? `catalog.${group}.${count}.${kind}` : `catalog.${group}.${count}`;
+}
+
+/** The row of one element; `kind` is the element's class. */
+export function buildRow(g: SystemMapGraph, e: Entity, lang: Lang): CatalogRow {
+	const kind = e.kind as Kind;
 	const get = (id: string): Entity | undefined => g.entities.get(id);
-	const incoming = (e: Entity, key: string): Entity[] => e.in.filter((r) => r.key === key).map((r) => get(r.s)!);
-	const outgoing = (e: Entity, key: string): Entity[] => e.out.filter((r) => r.key === key).map((r) => get(r.o)!);
+	const incoming = (x: Entity, key: string): Entity[] => x.in.filter((r) => r.key === key).map((r) => get(r.s)!);
+	const outgoing = (x: Entity, key: string): Entity[] => x.out.filter((r) => r.key === key).map((r) => get(r.o)!);
 	const operatorsOf = (systems: Entity[]): Entity[] => uniq(systems.flatMap((s) => incoming(s, 'operates')));
 	/** the elements and everything below them in their hierarchy */
 	const withDescendants = (roots: Entity[]): Entity[] => {
@@ -59,75 +71,73 @@ export function buildRows(g: SystemMapGraph, kind: Kind, lang: Lang): CatalogRow
 		return out;
 	};
 
-	return g.byKind[kind]
-		.map((e) => {
-			let systems: Entity[] = [];
-			let operators: Entity[] = [];
-			let datasets: Entity[] = [];
-			let services: Entity[] = [];
-			let users: Entity[] = [];
-			const tree = withDescendants([e]);
-			if (kind === 'dataset') {
-				systems = incoming(e, 'contains');
-				// parts of a larger data set inherit where the whole is stored
-				if (!systems.length) systems = uniq(outgoing(e, 'isPartOf').flatMap((p) => incoming(p, 'contains')));
-				operators = operatorsOf(systems);
-			} else if (kind === 'system') {
-				operators = incoming(e, 'operates');
-				datasets = uniq(tree.flatMap((s) => outgoing(s, 'contains')));
-				services = uniq(tree.flatMap((s) => outgoing(s, 'provides')));
-				users = outgoing(e, 'consumes');
-			} else if (kind === 'organization') {
-				systems = uniq(tree.flatMap((u) => outgoing(u, 'operates')));
-				const allSystems = withDescendants(systems);
-				datasets = uniq(allSystems.flatMap((s) => outgoing(s, 'contains')));
-				services = uniq(allSystems.flatMap((s) => outgoing(s, 'provides')));
-				operators = e.parents.map(get).filter((x): x is Entity => !!x);
-			} else if (kind === 'service') {
-				systems = incoming(e, 'provides');
-				operators = operatorsOf(systems);
-				users = incoming(e, 'consumes');
-			}
-			const roots = new Set(operators.map((o) => o.root ?? o.id));
-			if (kind === 'organization') roots.add(e.root ?? e.id);
-			const keywords = e.keywords.map(get).filter((x): x is Entity => !!x);
-			const legal = outgoing(e, 'hasLegalBasis');
-			const name = entityTitle(e, lang);
-			const description = pick(e.description, lang);
-			const search = normalize(
-				[
-					...Object.values(e.name),
-					e.abbreviation ?? '',
-					description,
-					...systems.map((s) => entityLabel(s, lang)),
-					...operators.map((s) => entityLabel(s, lang)),
-					...keywords.map((k) => entityLabel(k, lang)),
-				].join(' '),
-			);
-			return {
-				e,
-				name,
+	{
+		let systems: Entity[] = [];
+		let operators: Entity[] = [];
+		let datasets: Entity[] = [];
+		let services: Entity[] = [];
+		let users: Entity[] = [];
+		const tree = withDescendants([e]);
+		if (kind === 'dataset') {
+			systems = incoming(e, 'contains');
+			// parts of a larger data set inherit where the whole is stored
+			if (!systems.length) systems = uniq(outgoing(e, 'isPartOf').flatMap((p) => incoming(p, 'contains')));
+			operators = operatorsOf(systems);
+		} else if (kind === 'system') {
+			operators = incoming(e, 'operates');
+			datasets = uniq(tree.flatMap((s) => outgoing(s, 'contains')));
+			services = uniq(tree.flatMap((s) => outgoing(s, 'provides')));
+			users = outgoing(e, 'consumes');
+		} else if (kind === 'organization') {
+			systems = uniq(tree.flatMap((u) => outgoing(u, 'operates')));
+			const allSystems = withDescendants(systems);
+			datasets = uniq(allSystems.flatMap((s) => outgoing(s, 'contains')));
+			services = uniq(allSystems.flatMap((s) => outgoing(s, 'provides')));
+			operators = e.parents.map(get).filter((x): x is Entity => !!x);
+		} else if (kind === 'service') {
+			systems = incoming(e, 'provides');
+			operators = operatorsOf(systems);
+			users = incoming(e, 'consumes');
+		}
+		const roots = new Set(operators.map((o) => o.root ?? o.id));
+		if (kind === 'organization') roots.add(e.root ?? e.id);
+		const keywords = e.keywords.map(get).filter((x): x is Entity => !!x);
+		const legal = outgoing(e, 'hasLegalBasis');
+		const name = entityTitle(e, lang);
+		const description = pick(e.description, lang);
+		const search = normalize(
+			[
+				...Object.values(e.name),
+				e.abbreviation ?? '',
 				description,
-				systems,
-				operators,
-				operatorRoots: roots,
-				datasets,
-				services,
-				users,
-				keywords,
-				legal,
-				counts: {
-					systems: systems.length,
-					datasets: datasets.length,
-					services: services.length,
-					users: users.length,
-					parts: tree.length - 1,
-					legal: legal.length,
-				},
-				search,
-			};
-		})
-		.sort((a, b) => a.name.localeCompare(b.name, lang));
+				...systems.map((s) => entityLabel(s, lang)),
+				...operators.map((s) => entityLabel(s, lang)),
+				...keywords.map((k) => entityLabel(k, lang)),
+			].join(' '),
+		);
+		return {
+			e,
+			name,
+			description,
+			systems,
+			operators,
+			operatorRoots: roots,
+			datasets,
+			services,
+			users,
+			keywords,
+			legal,
+			counts: {
+				systems: systems.length,
+				datasets: datasets.length,
+				services: services.length,
+				users: users.length,
+				parts: tree.length - 1,
+				legal: legal.length,
+			},
+			search,
+		};
+	}
 }
 
 export function normalize(s: string): string {

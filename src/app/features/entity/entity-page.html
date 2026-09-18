@@ -1,81 +1,118 @@
-<div class="sm-page">
-	@if (entity(); as e) {
-		<nav class="crumbs" [attr.aria-label]="'entity.breadcrumb' | translate">
-			<a routerLink="/catalog" [queryParams]="catalogParams()">{{ 'nav.catalog' | translate }}</a>
-			<span aria-hidden="true">/</span>
-			<a routerLink="/catalog" [queryParams]="catalogParams()">{{ 'kind.' + e.kind + '.plural' | translate }}</a>
-			<span aria-hidden="true">/</span>
-			<span aria-current="page">{{ e | label: lang() : 'short' : 60 }}</span>
-		</nav>
+@if (entity(); as e) {
+	<!-- ============================================================ header -->
+	<header class="hero sm-kind--{{ e.kind }}">
+		<div class="sm-page">
+			<nav class="crumbs" [attr.aria-label]="'entity.breadcrumb' | translate">
+				<a routerLink="/catalog" [queryParams]="catalogParams()">{{ 'nav.catalog' | translate }}</a>
+				<span aria-hidden="true">/</span>
+				<a routerLink="/catalog" [queryParams]="catalogParams()">{{ 'kind.' + e.kind + '.plural' | translate }}</a>
+				<span aria-hidden="true">/</span>
+				<span aria-current="page">{{ e | label: lang() : 'short' : 60 }}</span>
+			</nav>
 
-		<header class="head sm-kind--{{ e.kind }}">
-			<div class="head-main">
-				<span class="kind-badge"
-					><mat-icon [svgIcon]="KIND_ICON[e.kind]" />{{ 'kind.' + e.kind + '.one' | translate }}</span
-				>
-				<h1>{{ e.name | pick: lang() }}</h1>
-				<div class="tags">
-					@if (e.abbreviation) {
-						<span class="sm-tag">{{ e.abbreviation }}</span>
+			<div class="hero-grid">
+				<div class="hero-main">
+					<span class="kind-badge"
+						><mat-icon [svgIcon]="KIND_ICON[e.kind]" />{{ 'kind.' + e.kind + '.one' | translate }}</span
+					>
+					<h1>{{ e.name | pick: lang() }}</h1>
+					<div class="tags">
+						@if (e.abbreviation) {
+							<span class="sm-tag">{{ e.abbreviation }}</span>
+						}
+						@for (t of typeLabels(); track t) {
+							<span class="sm-tag">{{ t }}</span>
+						}
+						@if (e.orgType) {
+							<span class="sm-tag">{{ 'orgType.' + e.orgType | translate }}</span>
+						}
+						@if (e.canton) {
+							<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
+						}
+						@if (e.sensitive) {
+							<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+						} @else if (e.personal) {
+							<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+						}
+						@if (e.master) {
+							<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+						}
+					</div>
+					@if (e.description | pick: lang(); as d) {
+						<p class="desc">{{ d }}</p>
+						@if (descFallback()) {
+							<p class="fallback sm-small sm-muted">{{ 'entity.fallback' | translate }}</p>
+						}
+					} @else {
+						<p class="desc sm-muted">{{ 'entity.noDescription' | translate }}</p>
 					}
-					@for (t of typeLabels(); track t) {
-						<span class="sm-tag">{{ t }}</span>
+					@if (address(); as a) {
+						<p class="fact"><mat-icon svgIcon="location" [matTooltip]="'common.address' | translate" />{{ a }}</p>
 					}
-					@if (e.canton) {
-						<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
-					}
-					@if (e.sensitive) {
-						<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
-					} @else if (e.personal) {
-						<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
-					}
-					@if (e.master) {
-						<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+					@if (parents().length) {
+						<p class="fact belongs">
+							<span class="fact-label">{{
+								(e.kind === 'organization' ? 'entity.belongsTo' : 'entity.partOf') | translate
+							}}</span>
+							@for (p of parents(); track p.id) {
+								<app-entity-chip [entity]="p" icon abbr [max]="40" />
+							}
+						</p>
 					}
 				</div>
-				@if (e.description | pick: lang(); as d) {
-					<p class="desc">{{ d }}</p>
-					@if (descFallback()) {
-						<p class="fallback sm-small sm-muted">{{ 'entity.fallback' | translate }}</p>
-					}
-				} @else {
-					<p class="desc sm-muted">{{ 'entity.noDescription' | translate }}</p>
-				}
-			</div>
-			<div class="head-actions">
-				@if (isMappable()) {
-					<a mat-button obButton="primary" routerLink="/map" [queryParams]="{ focus: e.key }"
-						><mat-icon svgIcon="map" />{{ 'entity.showInMap' | translate }}</a
-					>
-				}
-				@for (u of e.urls; track u) {
-					<a mat-button obButton="secondary" class="ext" [href]="u" target="_blank" rel="noopener"
-						><mat-icon svgIcon="link" />{{ host(u) }}</a
-					>
-				}
-				@for (r of sameAs(); track r.iri) {
-					<a mat-button obButton="secondary" class="ext" [href]="r.iri" target="_blank" rel="noopener"
-						><mat-icon svgIcon="id-card" />{{ r.label }}</a
-					>
-				}
-				<button mat-button obButton="secondary" type="button" (click)="copy(e.id)">
-					<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
-						(copied() ? 'entity.copied' : 'entity.copy') | translate
-					}}
-				</button>
-			</div>
-		</header>
 
-		<div class="blocks">
-			<!-- relations diagram -->
-			<section class="block">
-				<h2>{{ 'entity.relations' | translate }}</h2>
+				<div class="hero-actions">
+					@if (isMappable()) {
+						<a mat-button obButton="primary" routerLink="/map" [queryParams]="{ focus: e.key }"
+							><mat-icon svgIcon="map" />{{ 'entity.showInMap' | translate }}</a
+						>
+					}
+					@for (u of e.urls; track u) {
+						<a mat-button obButton="secondary" class="ext" [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
+					}
+					@for (r of sameAs(); track r.iri) {
+						<a mat-button obButton="secondary" class="ext" [href]="r.iri" target="_blank" rel="noopener">{{
+							r.label
+						}}</a>
+					}
+					<button mat-button obButton="secondary" type="button" (click)="copy(e.id)">
+						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
+							(copied() ? 'entity.copied' : 'entity.copy') | translate
+						}}
+					</button>
+				</div>
+			</div>
+
+			<!-- key figures, the same the inventory shows -->
+			@if (figures().length) {
+				<dl class="figures">
+					@for (f of figures(); track f.count) {
+						<div [class.zero]="!f.n">
+							<dd>{{ f.n }}</dd>
+							<dt>{{ f.label | translate }}</dt>
+						</div>
+					}
+				</dl>
+			}
+		</div>
+	</header>
+
+	<!-- ============================================================ 01 relations diagram -->
+	@if (chapters().includes('relations')) {
+		<section class="chapter" [class.tinted]="tinted('relations')" [attr.aria-labelledby]="'ch-relations'">
+			<div class="sm-page">
+				<header class="ch-head">
+					<span class="ch-num" aria-hidden="true">{{ chapterNo('relations') }}</span>
+					<div>
+						<h2 id="ch-relations">{{ 'entity.relations' | translate }}</h2>
+						<p class="ch-lead">{{ 'entity.relationsSub' | translate: { n: relationCount() } }}</p>
+					</div>
+				</header>
 				@if (ego(); as g) {
-					@if (g.nodes.length || g.hasStructure) {
-						<p class="block-sub">{{ 'entity.relationsSub' | translate: { n: relationCount() } }}</p>
+					<div class="sm-card diagram-card">
 						<div class="ego-wrap" #egoWrap>
 							<svg
-								class="ego"
+								class="ego sm-kind--{{ e.kind }}"
 								[attr.viewBox]="'0 0 ' + g.width + ' ' + g.height"
 								[attr.height]="g.height"
 								preserveAspectRatio="xMinYMin meet"
@@ -180,89 +217,184 @@
 						@if (g.parts.length) {
 							<p class="sm-small sm-muted hint">{{ 'entity.partsHint' | translate }}</p>
 						}
-					} @else {
-						<p class="sm-muted">{{ 'entity.noRelations' | translate }}</p>
-					}
-				}
-			</section>
-
-			@if (structure().length) {
-				<section class="block">
-					<h2>{{ 'entity.structure.' + e.kind | translate }}</h2>
-					<app-entity-tree [nodes]="structure()" />
-				</section>
-			}
-
-			@if (rollup().length) {
-				<section class="block">
-					<h2>{{ 'entity.rollup.' + e.kind | translate }}</h2>
-					<p class="block-sub">{{ 'entity.rollupSub.' + e.kind | translate: { n: rollup().length } }}</p>
-					<ul class="rollup">
-						@for (r of rollup(); track r.target.id) {
-							<li>
-								<app-entity-chip [entity]="r.target" />
-								<span class="via sm-muted">
-									@for (u of r.via; track u.id; let last = $last) {
-										<a [routerLink]="['/entity', u.key]">{{ u | label: lang() : 'short' : 40 }}</a
-										>{{ last ? '' : ', ' }}
-									}
-								</span>
-							</li>
-						}
-					</ul>
-				</section>
-			}
-
-			@if (legal().length) {
-				<section class="block">
-					<h2>{{ 'entity.legal' | translate }}</h2>
-					<ul class="plain">
-						@for (l of legal(); track l.id) {
-							<li>
-								<a [href]="l.id" target="_blank" rel="noopener">{{ (l.name | pick: lang()) || l.id }} ↗</a>
-							</li>
-						}
-					</ul>
-				</section>
-			}
-
-			@if (keywords().length) {
-				<section class="block">
-					<h2>{{ 'catalog.keywords' | translate }}</h2>
-					<div class="chips kw">
-						@for (k of keywords(); track k.id) {
-							<a
-								class="sm-tag kw-tag"
-								routerLink="/catalog"
-								[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
-								>#{{ k.name | pick: lang() }}</a
-							>
-						}
 					</div>
-				</section>
-			}
+				}
+			</div>
+		</section>
+	}
 
-			@if (collections().length) {
-				<section class="block">
-					<h2>{{ 'entity.subgraphs' | translate }}</h2>
-					<ul class="plain">
-						@for (c of collections(); track c.id) {
-							<li>
-								<a routerLink="/map" [queryParams]="{ sub: compactIri(c.id) }">{{ c.name | pick: lang() }}</a>
-							</li>
-						}
-					</ul>
-				</section>
-			}
-		</div>
-	} @else if (graph()) {
+	<!-- ============================================================ structure: tree + roll-up table -->
+	@if (chapters().includes('structure')) {
+		<section class="chapter" [class.tinted]="tinted('structure')" [attr.aria-labelledby]="'ch-structure'">
+			<div class="sm-page">
+				<header class="ch-head">
+					<span class="ch-num" aria-hidden="true">{{ chapterNo('structure') }}</span>
+					<div>
+						<h2 id="ch-structure">{{ 'entity.structure.' + e.kind | translate }}</h2>
+						<p class="ch-lead">{{ 'entity.structureSub' | translate }}</p>
+					</div>
+				</header>
+				<div class="structure-grid" [class.two]="rollup().length">
+					<div class="sm-card pad">
+						<app-entity-tree [nodes]="structure()" />
+					</div>
+					@if (rollup().length) {
+						<div class="sm-card table-card">
+							<h3>
+								{{ 'entity.rollup.' + e.kind | translate }} <span class="count">{{ rollup().length }}</span>
+							</h3>
+							<p class="table-sub">{{ 'entity.rollupSub.' + e.kind | translate: { n: rollup().length } }}</p>
+							<table mat-table class="ob-table ob-table-sm" [dataSource]="rollup()">
+								<ng-container matColumnDef="name">
+									<th mat-header-cell *matHeaderCellDef>{{ 'catalog.col.name' | translate }}</th>
+									<td mat-cell *matCellDef="let r" class="cell-name">
+										<a [routerLink]="['/entity', r.target.key]">{{ r.target | label: lang() : 'title' }}</a>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="via">
+									<th mat-header-cell *matHeaderCellDef>{{ 'entity.via' | translate }}</th>
+									<td mat-cell *matCellDef="let r"><app-name-list [items]="r.via" [max]="3" [chars]="40" abbr /></td>
+								</ng-container>
+								<tr mat-header-row *matHeaderRowDef="['name', 'via']"></tr>
+								<tr mat-row *matRowDef="let row; columns: ['name', 'via']"></tr>
+							</table>
+						</div>
+					}
+				</div>
+			</div>
+		</section>
+	}
+
+	<!-- ============================================================ relations in detail: one small table each -->
+	@if (chapters().includes('tables')) {
+		<section class="chapter" [class.tinted]="tinted('tables')" [attr.aria-labelledby]="'ch-tables'">
+			<div class="sm-page">
+				<header class="ch-head">
+					<span class="ch-num" aria-hidden="true">{{ chapterNo('tables') }}</span>
+					<div>
+						<h2 id="ch-tables">{{ 'entity.tables' | translate }}</h2>
+						<p class="ch-lead">{{ 'entity.tablesSub' | translate }}</p>
+					</div>
+				</header>
+				<div class="tables">
+					@for (t of tables(); track t.id) {
+						<div class="sm-card table-card">
+							<h3>
+								{{ t.title }} <span class="count">{{ t.rows.length }}</span>
+							</h3>
+							<table mat-table class="ob-table ob-table-sm" [dataSource]="tableRows(t)">
+								<ng-container matColumnDef="name">
+									<th mat-header-cell *matHeaderCellDef>{{ 'catalog.col.name' | translate }}</th>
+									<td mat-cell *matCellDef="let r" class="cell-name">
+										<a [routerLink]="['/entity', r.e.key]"
+											><mat-icon [svgIcon]="icon(r.e)" class="row-icon sm-kind--{{ r.e.kind }}" />{{
+												r.e | label: lang() : 'title'
+											}}</a
+										>
+									</td>
+								</ng-container>
+								<ng-container matColumnDef="info">
+									<th mat-header-cell *matHeaderCellDef>{{ t.infoLabel }}</th>
+									<td mat-cell *matCellDef="let r" class="cell-info">
+										@if (r.list) {
+											<app-name-list [items]="r.list" [max]="3" [chars]="40" abbr />
+										} @else if (r.tags) {
+											@for (tag of r.tags; track tag.key) {
+												<span class="sm-tag {{ tag.cls }}">{{ tag.key | translate }}</span>
+											}
+										} @else {
+											{{ r.text ?? '' }}
+										}
+									</td>
+								</ng-container>
+								<tr mat-header-row *matHeaderRowDef="t.columns"></tr>
+								<tr mat-row *matRowDef="let row; columns: t.columns"></tr>
+							</table>
+							@if (t.rows.length > TABLE_LIMIT) {
+								<button mat-button obButton="tertiary" type="button" class="more-btn" (click)="toggleTable(t.id)">
+									{{
+										openTables().has(t.id)
+											? ('entity.less' | translate)
+											: ('entity.more' | translate: { n: t.rows.length - TABLE_LIMIT })
+									}}
+								</button>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		</section>
+	}
+
+	<!-- ============================================================ legal basis, keywords, architectures -->
+	@if (chapters().includes('more')) {
+		<section class="chapter" [class.tinted]="tinted('more')" [attr.aria-labelledby]="'ch-more'">
+			<div class="sm-page">
+				<header class="ch-head">
+					<span class="ch-num" aria-hidden="true">{{ chapterNo('more') }}</span>
+					<div>
+						<h2 id="ch-more">{{ 'entity.moreTitle' | translate }}</h2>
+					</div>
+				</header>
+				<div class="tables">
+					@if (legal().length) {
+						<div class="sm-card table-card">
+							<h3>
+								{{ 'entity.legal' | translate }} <span class="count">{{ legal().length }}</span>
+							</h3>
+							<ul class="plain">
+								@for (l of legal(); track l.id) {
+									<li>
+										<a [href]="l.id" target="_blank" rel="noopener">{{ (l.name | pick: lang()) || l.id }}</a>
+									</li>
+								}
+							</ul>
+						</div>
+					}
+					@if (keywords().length) {
+						<div class="sm-card table-card">
+							<h3>
+								{{ 'catalog.keywords' | translate }} <span class="count">{{ keywords().length }}</span>
+							</h3>
+							<div class="tags">
+								@for (k of keywords(); track k.id) {
+									<a
+										class="sm-tag kw-tag"
+										routerLink="/catalog"
+										[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
+										>{{ k.name | pick: lang() }}</a
+									>
+								}
+							</div>
+						</div>
+					}
+					@if (collections().length) {
+						<div class="sm-card table-card">
+							<h3>
+								{{ 'entity.subgraphs' | translate }} <span class="count">{{ collections().length }}</span>
+							</h3>
+							<ul class="plain">
+								@for (c of collections(); track c.id) {
+									<li>
+										<a routerLink="/map" [queryParams]="{ sub: compactIri(c.id) }">{{ c.name | pick: lang() }}</a>
+									</li>
+								}
+							</ul>
+						</div>
+					}
+				</div>
+			</div>
+		</section>
+	}
+} @else if (graph()) {
+	<div class="sm-page">
 		<div class="sm-card sm-card-pad notfound">
 			<h1>{{ 'entity.notFound' | translate }}</h1>
 			<p class="sm-muted">{{ key() }}</p>
 			<a routerLink="/catalog">{{ 'nav.catalog' | translate }} →</a>
 		</div>
-	} @else {
-		<app-page-state />
-	}
-</div>
+	</div>
+} @else {
+	<div class="sm-page"><app-page-state /></div>
+}
 <app-data-footer />

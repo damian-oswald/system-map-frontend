@@ -252,7 +252,7 @@ export class NameList {
 	/** cut each name to this many characters (0 = full names) */
 	readonly chars = input(0);
 	/** show abbreviations where they exist (dense tables) */
-	readonly abbr = input(false);
+	readonly abbr = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
 	private readonly translate = inject(TranslateService);
 	protected readonly shown = computed(() => this.items().slice(0, this.max()));
