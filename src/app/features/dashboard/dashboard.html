@@ -1,0 +1,257 @@
+<div class="sm-page">
+	@if (data(); as d) {
+		<header class="hero">
+			<h1>{{ 'dash.title' | translate }}</h1>
+			<p class="lead">{{ graph()!.meta.description | pick: lang() }}</p>
+		</header>
+
+		<!-- KPI tiles -->
+		<section class="kpis" [attr.aria-label]="'dash.kpis' | translate">
+			@for (k of KINDS; track k) {
+				<a class="kpi sm-card sm-kind--{{ k }}" routerLink="/catalog" [queryParams]="{ kind: k }">
+					<span class="kpi-icon"><mat-icon [svgIcon]="KIND_ICON[k]" /></span>
+					<span class="kpi-value">{{ d.counts[k] }}</span>
+					<span class="kpi-label">{{ 'kind.' + k + '.plural' | translate }}</span>
+					<span class="kpi-sub">
+						@switch (k) {
+							@case ('organization') {
+								{{ 'dash.kpi.orgs' | translate: { top: d.topLevelOrgs, cantons: d.cantonsCovered } }}
+							}
+							@case ('system') {
+								{{ 'dash.kpi.systems' | translate: { fmis: d.fmis } }}
+							}
+							@case ('dataset') {
+								{{ 'dash.kpi.datasets' | translate: { personal: d.personal } }}
+							}
+							@case ('service') {
+								{{ 'dash.kpi.services' | translate: { n: d.serviceUsages } }}
+							}
+						}
+					</span>
+				</a>
+			}
+		</section>
+
+		<div class="grid">
+			<!-- operators -->
+			<section class="sm-card sm-card-pad span-7">
+				<h2 class="sm-card-title">{{ 'dash.operators.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.operators.sub' | translate: { n: d.operatorsTotal } }}</p>
+				<app-bar-list [items]="operatorBars()" [unit]="'dash.unit.systems' | translate" labelWidth="46%" />
+				<ul class="legend">
+					@for (t of d.orgTypes; track t.type) {
+						<li><i class="swatch" [style.background]="ORG_COLOR[t.type]"></i>{{ 'orgType.' + t.type | translate }}</li>
+					}
+				</ul>
+			</section>
+
+			<!-- organisations landscape -->
+			<section class="sm-card sm-card-pad span-5">
+				<h2 class="sm-card-title">{{ 'dash.orgs.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.orgs.sub' | translate: { n: d.counts.organization } }}</p>
+				<div class="stack" role="img" [attr.aria-label]="'dash.orgs.title' | translate">
+					@for (t of d.orgTypes; track t.type) {
+						@if (t.count) {
+							<span
+								class="seg"
+								[style.flex-grow]="t.count"
+								[style.background]="ORG_COLOR[t.type]"
+								[appTip]="[t.count, 'orgType.' + t.type | translate]"
+								tabindex="0"
+							></span>
+						}
+					}
+				</div>
+				<ul class="stack-legend">
+					@for (t of d.orgTypes; track t.type) {
+						<li>
+							<i class="swatch" [style.background]="ORG_COLOR[t.type]"></i>
+							<span class="name">{{ 'orgType.' + t.type | translate }}</span>
+							<strong>{{ t.count }}</strong>
+							<span class="sm-muted">{{ t.count / orgTotal() | percent: '1.0-0' : locale() }}</span>
+						</li>
+					}
+				</ul>
+
+				<h3 class="sub-title">{{ 'dash.cantons.title' | translate }}</h3>
+				<p class="sm-card-sub">{{ 'dash.cantons.sub' | translate }}</p>
+				<div class="canton-map" role="list">
+					@for (c of d.cantons; track c.code) {
+						@if (c.root) {
+							<a
+								role="listitem"
+								class="canton"
+								[style.grid-column]="c.x + 1"
+								[style.grid-row]="c.y + 1"
+								[style.background]="cantonFill(c.orgs)"
+								[style.color]="cantonInk(c.orgs)"
+								[routerLink]="['/entity', c.root.key]"
+								[appTip]="[
+									c.orgs + ' ' + ('dash.unit.orgs' | translate),
+									c.code + ' · ' + c.systems + ' ' + ('dash.unit.systems' | translate),
+								]"
+								>{{ c.code }}</a
+							>
+						} @else {
+							<span
+								role="listitem"
+								class="canton empty"
+								[style.grid-column]="c.x + 1"
+								[style.grid-row]="c.y + 1"
+								[appTip]="[0, c.code]"
+								>{{ c.code }}</span
+							>
+						}
+					}
+				</div>
+				<div class="seq-legend" aria-hidden="true">
+					<span>1</span><i></i><span>{{ cantonMax() }} {{ 'dash.unit.orgs' | translate }}</span>
+				</div>
+			</section>
+
+			<!-- data protection -->
+			<section class="sm-card sm-card-pad span-5">
+				<h2 class="sm-card-title">{{ 'dash.privacy.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.privacy.sub' | translate: { n: d.counts.dataset } }}</p>
+				<div class="privacy-stats">
+					<div>
+						<strong>{{ d.sensitive }}</strong
+						><span><i class="swatch sw-sensitive"></i>{{ 'flags.sensitive' | translate }}</span>
+					</div>
+					<div>
+						<strong>{{ d.personal - d.sensitive }}</strong
+						><span><i class="swatch sw-personal"></i>{{ 'flags.personal' | translate }}</span>
+					</div>
+					<div>
+						<strong>{{ d.counts.dataset - d.personal }}</strong
+						><span><i class="swatch sw-none"></i>{{ 'dash.privacy.none' | translate }}</span>
+					</div>
+				</div>
+				<div class="waffle">
+					@for (e of d.waffle; track e.id) {
+						<a
+							class="cell"
+							[class.sensitive]="e.sensitive"
+							[class.personal]="e.personal && !e.sensitive"
+							[class.master]="e.master"
+							[routerLink]="['/entity', e.key]"
+							[appTip]="[
+								(e.sensitive ? 'flags.sensitive' : e.personal ? 'flags.personal' : 'dash.privacy.none') | translate,
+								e | label: lang() : 'title',
+							]"
+							[attr.aria-label]="e | label: lang()"
+						></a>
+					}
+				</div>
+				<p class="sm-small sm-muted note">
+					<i class="swatch master-key"></i>{{ 'dash.privacy.master' | translate: { n: d.master } }}
+				</p>
+			</section>
+
+			<!-- systems by information units -->
+			<section class="sm-card sm-card-pad span-7">
+				<h2 class="sm-card-title">{{ 'dash.systems.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.systems.sub' | translate }}</p>
+				<app-bar-list [items]="systemBars()" [unit]="'dash.unit.datasets' | translate" />
+			</section>
+
+			<!-- hubs -->
+			<section class="sm-card sm-card-pad span-6">
+				<h2 class="sm-card-title">{{ 'dash.hubs.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.hubs.sub' | translate }}</p>
+				<app-bar-list [items]="hubBars()" [unit]="'dash.unit.links' | translate" />
+			</section>
+
+			<!-- relation types -->
+			<section class="sm-card sm-card-pad span-6">
+				<h2 class="sm-card-title">{{ 'dash.relations.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.relations.sub' | translate: { n: d.relations } }}</p>
+				<app-bar-list [items]="relationBars()" [unit]="'map.edges' | translate" labelWidth="52%" />
+			</section>
+
+			<!-- subgraphs -->
+			<section class="sm-card sm-card-pad span-7">
+				<h2 class="sm-card-title">{{ 'dash.subgraphs.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.subgraphs.sub' | translate }}</p>
+				<ul class="subgraphs">
+					@for (s of subgraphs(); track s.c.id) {
+						<li>
+							<a [routerLink]="['/map']" [queryParams]="{ sub: compactIri(s.c.id) }" class="sg-name">{{
+								s.c.name | pick: lang()
+							}}</a>
+							<div class="sg-bar" role="img" [attr.aria-label]="s.total + ' ' + ('map.nodes' | translate)">
+								@for (p of s.comp; track p.kind) {
+									@if (p.n) {
+										<span
+											class="sm-kind--{{ p.kind }}"
+											[style.flex-grow]="p.n"
+											[appTip]="[p.n, 'kind.' + p.kind + '.plural' | translate]"
+										></span>
+									}
+								}
+							</div>
+							<span class="sg-total">{{ s.total }}</span>
+						</li>
+					}
+				</ul>
+				<ul class="legend">
+					@for (k of KINDS; track k) {
+						<li class="sm-kind--{{ k }}">
+							<i class="swatch" style="background: var(--k)"></i>{{ 'kind.' + k + '.plural' | translate }}
+						</li>
+					}
+				</ul>
+			</section>
+
+			<!-- services -->
+			<section class="sm-card sm-card-pad span-5">
+				<h2 class="sm-card-title">{{ 'dash.services.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.services.sub' | translate }}</p>
+				<p class="sm-small sm-muted">
+					{{ 'dash.services.note' | translate: { n: d.counts.service - serviceBars().length } }}
+				</p>
+				<app-bar-list [items]="serviceBars()" [unit]="'dash.unit.consumers' | translate" />
+			</section>
+
+			<!-- documentation quality -->
+			<section class="sm-card sm-card-pad span-12">
+				<h2 class="sm-card-title">{{ 'dash.quality.title' | translate }}</h2>
+				<p class="sm-card-sub">{{ 'dash.quality.sub' | translate }}</p>
+				<div class="quality-wrap">
+					<table class="quality">
+						<thead>
+							<tr>
+								<th scope="col"></th>
+								<th scope="col">{{ 'dash.quality.description' | translate }}</th>
+								<th scope="col">{{ 'dash.quality.multilingual' | translate }}</th>
+								<th scope="col">{{ 'dash.quality.website' | translate }}</th>
+								<th scope="col">{{ 'dash.quality.connected' | translate }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (q of d.quality; track q.kind) {
+								<tr class="sm-kind--{{ q.kind }}">
+									<th scope="row">
+										<i class="sm-dot"></i>{{ 'kind.' + q.kind + '.plural' | translate }}
+										<span class="sm-muted">{{ q.total }}</span>
+									</th>
+									@for (v of [q.description, q.multilingual, q.website, q.connected]; track $index) {
+										<td>
+											<div class="meter" [appTip]="[v + ' / ' + q.total, 'kind.' + q.kind + '.plural' | translate]">
+												<span class="meter-fill" [style.width.%]="(v / q.total) * 100"></span>
+											</div>
+											<span class="meter-value">{{ v / q.total | percent: '1.0-0' : locale() }}</span>
+										</td>
+									}
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</div>
+	} @else {
+		<app-page-state />
+	}
+</div>
+<app-data-footer />

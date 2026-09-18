@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8" />
+		<title>AgriFood Daten- und Systemlandkarte</title>
+		<base href="/" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="AgriFood Daten- und Systemlandkarte: Übersicht, Karte und Inventar der IT-Systeme, Informationseinheiten und Organisationen im Schweizer Agrar- und Lebensmittelsektor."
+		/>
+		<meta name="theme-color" content="#2f4356" />
+		<link rel="icon" href="assets/images/favicon.png" />
+		<link rel="preconnect" href="https://lindas.admin.ch" crossorigin />
+		<script>
+			// Fire the one and only graph query before Angular even boots, so the
+			// network round trip overlaps with parsing and bootstrapping the bundle.
+			(function () {
+				var q =
+					'CONSTRUCT{?s ?p ?o}WHERE{GRAPH<https://lindas.admin.ch/foag/system-map>{?s ?p ?o ' +
+					'FILTER(!isBlank(?s)&&!isBlank(?o)&&!STRSTARTS(STR(?p),"http://www.w3.org/ns/shacl#"))}}';
+				window.__SM_QUERY__ = q;
+				try {
+					window.__SM_GRAPH__ = fetch('https://lindas.admin.ch/query?query=' + encodeURIComponent(q), {
+						headers: { Accept: 'application/n-triples' },
+					}).then(function (r) {
+						if (!r.ok) throw new Error('HTTP ' + r.status);
+						return r.text();
+					});
+					window.__SM_GRAPH__.catch(function () {});
+				} catch (e) {}
+			})();
+		</script>
+	</head>
+	<body>
+		<noscript class="ob-no-script">
+			<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+				<section lang="de">
+					<strong>JavaScript ist erforderlich!</strong>
+					<p>Bitte aktivieren Sie JavaScript, da es für die Ausführung dieser Anwendung erforderlich ist.</p>
+				</section>
+				<section lang="fr">
+					<strong>JavaScript est nécessaire!</strong>
+					<p>Veuillez activer JavaScript car il est nécessaire pour le fonctionnement de cette application.</p>
+				</section>
+				<section lang="it">
+					<strong>JavaScript è richiesto!</strong>
+					<p>Si prega di attivare JavaScript perché è necessario per l'esecuzione di questa applicazione.</p>
+				</section>
+				<section lang="en">
+					<strong>JavaScript is required!</strong>
+					<p>Please activate JavaScript as it is required for this application to run.</p>
+				</section>
+			</div>
+		</noscript>
+		<div
+			class="ob-compatibility"
+			data-nosnippet
+			hidden
+			style="position: fixed; inset: 0; background: white; z-index: 9999"
+		>
+			<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+				<section lang="de">
+					<strong>Nicht unterstützter Browser!</strong>
+					<p>
+						Bitte beachten Sie, dass die Schweizerische Eidgenossenschaft nur Chrome, Firefox, Edge und Safari in ihren
+						jeweils 2 letzten Versionen unterstützt.
+					</p>
+				</section>
+				<section lang="fr">
+					<strong>Navigateur non pris en charge!</strong>
+					<p>
+						Veuillez noter que la Confédération suisse ne supporte que Chrome, Firefox, Edge et Safari dans leurs 2
+						dernières versions respectives.
+					</p>
+				</section>
+				<section lang="it">
+					<strong>Browser non supportato!</strong>
+					<p>
+						Si prega di notare che la Confederazione Svizzera supporta solo Chrome, Firefox, Edge e Safari nelle loro
+						rispettive ultime 2 versioni.
+					</p>
+				</section>
+				<section lang="en">
+					<strong>Unsupported browser!</strong>
+					<p>
+						Please note that the Swiss Confederation only supports Chrome, Firefox, Edge and Safari in their respective
+						latest 2 versions.
+					</p>
+				</section>
+			</div>
+		</div>
+		<app-root></app-root>
+	</body>
+</html>

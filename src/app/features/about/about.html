@@ -1,0 +1,121 @@
+<div class="sm-page about">
+	<header class="sm-page-header">
+		<div>
+			<h1>{{ 'about.title' | translate }}</h1>
+			<p class="sm-lead">{{ 'about.lead' | translate }}</p>
+		</div>
+	</header>
+
+	<div class="cols">
+		<div class="main">
+			<section>
+				<h2>{{ 'about.what.title' | translate }}</h2>
+				<p>{{ 'about.what.p1' | translate }}</p>
+				<p>{{ 'about.what.p2' | translate }}</p>
+			</section>
+
+			<section>
+				<h2>{{ 'about.how.title' | translate }}</h2>
+				<ol class="static-stepper" [attr.aria-label]="'about.how.title' | translate">
+					<li>
+						<div class="ss-head">
+							<span class="ss-icon" aria-hidden="true">1</span><span class="ss-label">LINDAS</span>
+						</div>
+						<div class="ss-content">
+							<p>{{ 'about.how.s1' | translate }}</p>
+						</div>
+					</li>
+					<li>
+						<div class="ss-head">
+							<span class="ss-icon" aria-hidden="true">2</span><span class="ss-label">SPARQL CONSTRUCT</span>
+						</div>
+						<div class="ss-content">
+							<p>{{ 'about.how.s2' | translate }}</p>
+							<details class="query">
+								<summary>{{ 'about.how.query' | translate }}</summary>
+								<pre><code>{{ prettyQuery }}</code></pre>
+								<a [href]="editorLink" target="_blank" rel="noopener">{{ 'about.how.openEditor' | translate }} ↗</a>
+							</details>
+						</div>
+					</li>
+					<li>
+						<div class="ss-head">
+							<span class="ss-icon" aria-hidden="true">3</span
+							><span class="ss-label">{{ 'about.how.s3title' | translate }}</span>
+						</div>
+						<div class="ss-content">
+							<p>{{ 'about.how.s3' | translate }}</p>
+						</div>
+					</li>
+					<li>
+						<div class="ss-head">
+							<span class="ss-icon" aria-hidden="true">4</span><span class="ss-label">Angular · Oblique</span>
+						</div>
+						<div class="ss-content">
+							<p>{{ 'about.how.s4' | translate }}</p>
+						</div>
+					</li>
+				</ol>
+				<p>{{ 'about.how.p' | translate }}</p>
+			</section>
+
+			@if (graph(); as g) {
+				<section>
+					<h2>{{ 'about.glossary.title' | translate }}</h2>
+					<p>{{ 'about.glossary.p' | translate }}</p>
+					<dl class="glossary">
+						@for (c of classes(); track c.iri) {
+							<div class="sm-kind--{{ c.kind }}">
+								<dt><i class="sm-dot"></i>{{ c.info.name | pick: lang() }}</dt>
+								<dd>{{ c.info.description | pick: lang() }}</dd>
+							</div>
+						}
+					</dl>
+					<h3>{{ 'map.relations.title' | translate }}</h3>
+					<dl class="glossary rels">
+						@for (r of relations(); track r.key) {
+							<div>
+								<dt>
+									{{ r.info.name | pick: lang() }} <span class="sm-muted sm-small">· {{ r.count }}</span>
+								</dt>
+								<dd>{{ r.info.description | pick: lang() }}</dd>
+							</div>
+						}
+					</dl>
+				</section>
+			}
+		</div>
+
+		<aside class="side">
+			<section class="sm-card sm-card-pad">
+				<h2 class="sm-card-title">{{ 'about.links.title' | translate }}</h2>
+				<ul class="links">
+					<li>
+						<a [href]="REPO_URL" target="_blank" rel="noopener"
+							><mat-icon svgIcon="github" />{{ 'about.links.repo' | translate }}</a
+						>
+					</li>
+					<li>
+						<a [href]="REPO_URL + '/wiki'" target="_blank" rel="noopener"
+							><mat-icon svgIcon="book" />{{ 'about.links.wiki' | translate }}</a
+						>
+					</li>
+					<li>
+						<a [href]="REPO_URL + '/issues'" target="_blank" rel="noopener"
+							><mat-icon svgIcon="message" />{{ 'about.links.issues' | translate }}</a
+						>
+					</li>
+					<li>
+						<a href="https://lindas.admin.ch" target="_blank" rel="noopener"><mat-icon svgIcon="database" />LINDAS</a>
+					</li>
+					<li>
+						<a href="https://oblique.bit.admin.ch" target="_blank" rel="noopener"
+							><mat-icon svgIcon="palette" />Oblique</a
+						>
+					</li>
+				</ul>
+			</section>
+		</aside>
+	</div>
+</div>
+<app-data-footer />

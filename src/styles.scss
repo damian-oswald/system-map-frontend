@@ -1,0 +1,485 @@
+// Global tokens & utility classes. Oblique provides the federal base (Noto Sans, header, footer, form controls);
+// everything here builds on its secondary (slate) palette so the app stays within the CD Bund look.
+
+:root {
+	--sm-ink: #131b22;
+	--sm-ink-2: #46596b;
+	--sm-ink-3: #596978;
+	--sm-line: #dfe4e9;
+	--sm-line-strong: #acb4bd;
+	--sm-surface: #ffffff;
+	--sm-surface-2: #f0f4f7;
+	--sm-surface-3: #f8fafb;
+	--sm-accent: #d8232a; // Swiss federal red – used sparingly
+	--sm-focus: #2563eb;
+	--sm-radius: 6px;
+	--sm-shadow: 0 1px 2px rgba(19, 27, 34, 0.06), 0 1px 1px rgba(19, 27, 34, 0.04);
+	--sm-shadow-lg: 0 10px 30px rgba(19, 27, 34, 0.12), 0 2px 6px rgba(19, 27, 34, 0.06);
+
+	// entity classes in federal branding — organization: federal red, IT system: light grey (Oblique secondary-300,
+	// the lightest grey with 3:1 contrast on the grid), information unit: footer dark blue, IT service: light blue
+	// (the lightest blue with 3:1 contrast on the grid that stays ≥16 ΔE from the grey).
+	// Adjacent pairs keep ≥14 ΔE under colour-vision deficiency; every colour is accompanied by a text label.
+	--kind-organization: #d8232a;
+	--kind-system: #828e9a;
+	--kind-dataset: #263645;
+	--kind-service: #3b82f6;
+	--kind-organization-bg: #fdeeee;
+	--kind-system-bg: #f0f4f7;
+	--kind-dataset-bg: #e9eef2;
+	--kind-service-bg: #eaf2fe;
+	--kind-organization-ink: #99191e;
+	--kind-system-ink: #46596b;
+	--kind-dataset-ink: #1c2834;
+	--kind-service-ink: #1d4ed8;
+
+	// organization sectors — ordinal shades of the dark blue (Oblique secondary 800/500/300/200), always labelled
+	--org-federal: #1c2834;
+	--org-cantonal: #46596b;
+	--org-private: #828e9a;
+	--org-other: #acb4bd;
+
+	--seq-1: #dbeafe;
+	--seq-5: #1d4ed8;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	background: var(--sm-surface);
+	color: var(--sm-ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.app-title {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+// full-bleed data section at the end of every page (cancels Oblique's main padding)
+// pages fill the main area so the data section always sits right above the Oblique footer
+.ob-master-layout .ob-main-layout {
+	display: flex;
+	flex-direction: column;
+}
+
+.ob-main-layout > .sm-routed {
+	display: flex;
+	flex: 1 0 auto;
+	flex-direction: column;
+}
+
+app-data-footer {
+	margin: auto -16px -16px;
+}
+
+.ob-layout-expanded app-data-footer {
+	margin-inline: -24px;
+}
+
+// ---- page scaffolding -------------------------------------------------------------------------
+
+.sm-page {
+	width: 100%; // needed inside the flex column of .sm-routed, otherwise margin:auto shrinks it to max-content
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 8px 0 48px;
+}
+
+.sm-page-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 8px 0 24px;
+
+	h1 {
+		margin: 0;
+	}
+
+	.sm-lead {
+		margin: 6px 0 0;
+		max-width: 72ch;
+		color: var(--sm-ink-2);
+		font-size: 1.0625rem;
+		line-height: 1.5;
+	}
+}
+
+.sm-card {
+	background: var(--sm-surface);
+	border: 1px solid var(--sm-line);
+	border-radius: var(--sm-radius);
+	box-shadow: var(--sm-shadow);
+}
+
+.sm-card-pad {
+	padding: 20px 24px;
+}
+
+.sm-card-title {
+	margin: 0 0 4px;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	color: var(--sm-ink);
+}
+
+.sm-card-sub {
+	margin: 0 0 16px;
+	color: var(--sm-ink-3);
+	font-size: 0.875rem;
+}
+
+.sm-muted {
+	color: var(--sm-ink-3);
+}
+
+.sm-small {
+	font-size: 0.875rem;
+}
+
+.sm-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+// ---- kind markers & chips ----------------------------------------------------------------------
+
+.sm-dot {
+	display: inline-block;
+	flex: none;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.sm-kind {
+	&--organization {
+		--k: var(--kind-organization);
+		--k-bg: var(--kind-organization-bg);
+		--k-ink: var(--kind-organization-ink);
+	}
+	&--system {
+		--k: var(--kind-system);
+		--k-bg: var(--kind-system-bg);
+		--k-ink: var(--kind-system-ink);
+	}
+	&--dataset {
+		--k: var(--kind-dataset);
+		--k-bg: var(--kind-dataset-bg);
+		--k-ink: var(--kind-dataset-ink);
+	}
+	&--service {
+		--k: var(--kind-service);
+		--k-bg: var(--kind-service-bg);
+		--k-ink: var(--kind-service-ink);
+	}
+	&--legislation,
+	&--keyword,
+	&--collection,
+	&--other {
+		--k: var(--sm-ink-3);
+		--k-bg: var(--sm-surface-2);
+		--k-ink: var(--sm-ink-2);
+	}
+}
+
+.sm-chip {
+	// an instance: rectangular node with a class-coloured bar, same shape as in the map
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+	min-height: 26px;
+	padding: 2px 10px 2px 13px;
+	border: 1px solid color-mix(in srgb, var(--k, var(--sm-ink-3)) 35%, var(--sm-line));
+	border-radius: 5px;
+	background: var(--sm-surface);
+	box-shadow: inset 4px 0 0 var(--k, var(--sm-ink-3));
+	color: var(--sm-ink);
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	text-decoration: none;
+	white-space: nowrap;
+
+	span {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+a.sm-chip:hover,
+a.sm-chip:focus-visible {
+	border-color: var(--k, var(--sm-ink-3));
+	background: var(--k-bg, var(--sm-surface-2));
+	text-decoration: none;
+}
+
+// small class-coloured bar used in lists of instances (e.g. search results)
+.sm-bar {
+	display: inline-block;
+	flex: none;
+	width: 4px;
+	height: 16px;
+	border-radius: 2px;
+	background: var(--k, var(--sm-ink-3));
+}
+
+.sm-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 1px 8px;
+	border-radius: 4px;
+	background: var(--sm-surface-2);
+	color: var(--sm-ink-2);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+
+	&--warn {
+		background: #fff1f2;
+		color: #9f1239;
+	}
+	&--info {
+		background: #eff6ff;
+		color: #1e40af;
+	}
+	&--ok {
+		background: #ecfdf5;
+		color: #065f46;
+	}
+}
+
+// ---- toolbars & filter panels -------------------------------------------------------------------
+
+.sm-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 16px;
+}
+
+.sm-filter-label {
+	display: block;
+	margin: 0 0 6px;
+	color: var(--sm-ink-3);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.sm-search {
+	position: relative;
+	display: flex;
+	align-items: center;
+
+	input {
+		width: 100%;
+		height: 40px;
+		padding: 0 12px 0 38px;
+		border: 1px solid var(--sm-line-strong);
+		border-radius: var(--sm-radius);
+		background: var(--sm-surface);
+		color: var(--sm-ink);
+		font: inherit;
+
+		&:focus {
+			outline: 2px solid var(--sm-focus);
+			outline-offset: -1px;
+			border-color: transparent;
+		}
+	}
+
+	svg {
+		position: absolute;
+		left: 12px;
+		width: 18px;
+		height: 18px;
+		color: var(--sm-ink-3);
+		pointer-events: none;
+	}
+}
+
+// toggle chip (multi-select filter)
+.sm-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 12px 5px 10px;
+	border: 1px solid var(--sm-line-strong);
+	border-radius: 999px;
+	background: var(--sm-surface);
+	color: var(--sm-ink-2);
+	font: inherit;
+	font-size: 0.8125rem;
+	cursor: pointer;
+	transition:
+		background 0.12s,
+		border-color 0.12s;
+
+	.sm-dot {
+		width: 8px;
+		height: 8px;
+		color: var(--k, var(--sm-ink-3));
+		opacity: 0.35;
+	}
+
+	.count {
+		color: var(--sm-ink-3);
+		font-size: 0.75rem;
+	}
+
+	&:hover {
+		border-color: var(--sm-ink-3);
+	}
+
+	&[aria-pressed='true'] {
+		border-color: var(--k, var(--sm-ink-2));
+		background: var(--k-bg, var(--sm-surface-2));
+		color: var(--sm-ink);
+
+		.sm-dot {
+			opacity: 1;
+		}
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--sm-focus);
+		outline-offset: 1px;
+	}
+}
+
+// ---- loading skeleton ---------------------------------------------------------------------------
+
+.sm-skeleton {
+	border-radius: var(--sm-radius);
+	background: linear-gradient(90deg, var(--sm-surface-2) 0%, #e8edf1 50%, var(--sm-surface-2) 100%);
+	background-size: 200% 100%;
+	animation: sm-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes sm-shimmer {
+	0% {
+		background-position: 100% 0;
+	}
+	100% {
+		background-position: -100% 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sm-skeleton {
+		animation: none;
+	}
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+// ---- chart tooltip (shared) ---------------------------------------------------------------------
+
+.sm-tooltip {
+	position: fixed;
+	z-index: 1000;
+	max-width: 320px;
+	padding: 8px 12px;
+	border-radius: 6px;
+	background: var(--sm-ink);
+	color: #fff;
+	font-size: 0.8125rem;
+	line-height: 1.4;
+	pointer-events: none;
+	box-shadow: var(--sm-shadow-lg);
+
+	strong {
+		display: block;
+		font-size: 1rem;
+	}
+}
+
+// multiselect options in the map filter (rendered in the CDK overlay, hence global)
+.option-row .mdc-list-item__primary-text {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+
+	.line-key {
+		width: 22px;
+		height: 8px;
+		flex: none;
+
+		path {
+			stroke: var(--sm-ink-3);
+			stroke-width: 2;
+		}
+	}
+
+	.count {
+		margin-left: auto;
+		color: var(--sm-ink-3);
+		font-size: 0.75rem;
+	}
+}
+
+// Material button-toggle groups sized via --seg-h (their inner elements are outside component view encapsulation;
+// selectors are deliberately specific because Material injects its component styles after this sheet)
+.mat-button-toggle-group.sm-seg-h {
+	--mat-button-toggle-height: var(--seg-h, 40px);
+	--mat-standard-button-toggle-height: var(--seg-h, 40px);
+	height: var(--seg-h, 40px);
+	box-sizing: border-box;
+
+	.mat-button-toggle.mat-button-toggle-appearance-standard,
+	.mat-button-toggle.mat-button-toggle-appearance-standard .mat-button-toggle-button {
+		height: calc(var(--seg-h, 40px) - 2px);
+	}
+
+	.mat-button-toggle.mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
+		height: calc(var(--seg-h, 40px) - 2px);
+		padding: 0 var(--seg-px, 12px);
+		line-height: calc(var(--seg-h, 40px) - 2px);
+	}
+
+	mat-icon {
+		vertical-align: -3px;
+	}
+
+	// same thin dark outline as Oblique's form fields and buttons
+	&.mat-button-toggle-group-appearance-standard {
+		border: 1px solid #1c2834;
+		border-radius: 4px;
+	}
+
+	.mat-button-toggle.mat-button-toggle-appearance-standard + .mat-button-toggle.mat-button-toggle-appearance-standard {
+		border-left: 1px solid #1c2834;
+	}
+}
+
+// autocomplete groups in the map search (overlay): class icon in the group label
+.search-group .mat-mdc-optgroup-label {
+	color: var(--sm-ink);
+	font-weight: 600;
+
+	mat-icon {
+		width: 16px;
+		height: 16px;
+		margin-right: 8px;
+		vertical-align: -3px;
+		color: var(--sm-ink);
+	}
+}
+
+.search-option .mdc-list-item__primary-text {
+	color: var(--sm-ink);
+}

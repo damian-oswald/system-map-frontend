@@ -1,0 +1,349 @@
+{
+	"app": {
+		"title": "AgriFood Daten- und Systemlandkarte",
+		"footer": {
+			"operator": "Bundesamt für Landwirtschaft BLW",
+			"data": "Daten: live aus"
+		}
+	},
+	"nav": {
+		"dashboard": "Übersicht",
+		"map": "Karte",
+		"catalog": "Inventar",
+		"about": "Über"
+	},
+	"common": {
+		"all": "alle",
+		"none": "keine",
+		"close": "Schliessen",
+		"showAll": "Alle anzeigen",
+		"showLess": "Weniger anzeigen",
+		"of": "von"
+	},
+	"state": {
+		"loading": "Die Daten werden aus LINDAS geladen…",
+		"error": {
+			"title": "Die Daten konnten nicht geladen werden",
+			"text": "LINDAS hat nicht wie erwartet geantwortet:",
+			"retry": "Erneut versuchen"
+		}
+	},
+	"kind": {
+		"organization": {
+			"one": "Organisation",
+			"plural": "Organisationen"
+		},
+		"system": {
+			"one": "IT-System",
+			"plural": "IT-Systeme"
+		},
+		"dataset": {
+			"one": "Informationseinheit",
+			"plural": "Informationseinheiten"
+		},
+		"service": {
+			"one": "IT-Service",
+			"plural": "IT-Services"
+		},
+		"legislation": {
+			"one": "Rechtsgrundlage",
+			"plural": "Rechtsgrundlagen"
+		},
+		"keyword": {
+			"one": "Schlagwort",
+			"plural": "Schlagwörter"
+		},
+		"collection": {
+			"one": "Teilgraph",
+			"plural": "Teilgraphen"
+		},
+		"other": {
+			"one": "Andere",
+			"plural": "Andere"
+		}
+	},
+	"orgType": {
+		"federal": "Bund",
+		"cantonal": "Kantone",
+		"private": "Privatwirtschaft",
+		"other": "Weitere öffentliche"
+	},
+	"flags": {
+		"personal": "Personendaten",
+		"sensitive": "Besonders schützenswerte Personendaten",
+		"master": "Stammdaten"
+	},
+	"relInverse": {
+		"operates": "wird betrieben von",
+		"contains": "ist enthalten in",
+		"provides": "wird angeboten von",
+		"consumes": "wird genutzt von",
+		"isPartOf": "hat Teil",
+		"parentOrganization": "hat Unterorganisation",
+		"memberOf": "hat Mitglied",
+		"owns": "ist (teilweise) im Besitz von",
+		"develops": "wird entwickelt von",
+		"access": "ist zugänglich für",
+		"wasDerivedFrom": "ist Quelle von",
+		"informs": "wird informiert von",
+		"usesMasterData": "ist Stammdatum von",
+		"references": "wird referenziert von",
+		"hasLegalBasis": "ist Rechtsgrundlage von"
+	},
+	"map": {
+		"controls": "Einstellungen der Karte",
+		"reset": "Zurücksetzen",
+		"search": "Suchen",
+		"scope": "Ausschnitt",
+		"scopeAll": "Alle Elemente",
+		"classes": "Klassen",
+		"relations": {
+			"title": "Beziehungen"
+		},
+		"display": "Darstellung",
+		"hideIsolated": "Elemente ohne Beziehungen ausblenden",
+		"hidePanel": "Einstellungen ausblenden",
+		"showPanel": "Einstellungen einblenden",
+		"view": "Layout",
+		"viewLayers": "Ebenen",
+		"viewNetwork": "Netzwerk",
+		"hops": "Umgebungstiefe",
+		"hop": "Schritt",
+		"hopsLabel": "Schritte",
+		"clearFocus": "Fokus entfernen",
+		"nodes": "Elemente",
+		"edges": "Beziehungen",
+		"zoomIn": "Vergrössern",
+		"zoomOut": "Verkleinern",
+		"fit": "An Bildschirm anpassen",
+		"computing": "Layout wird berechnet…",
+		"empty": "Mit den aktuellen Einstellungen gibt es nichts anzuzeigen.",
+		"canvasLabel": "Graph der Organisationen, IT-Systeme, IT-Services und Informationseinheiten",
+		"interactionHint": "Scrollen zum Verschieben · Ctrl + Scrollen zum Zoomen · Doppelklick für Fokus",
+		"details": "Details",
+		"openDetails": "Detailseite",
+		"filterTitle": "Filter",
+		"level": {
+			"off": "Aus",
+			"collapsed": "Gruppiert",
+			"detailed": "Detailliert"
+		},
+		"merged": "Umfasst {{n}} untergeordnete Elemente",
+		"allSectors": "Alle Sektoren",
+		"allRelations": "Alle Beziehungen",
+		"nOfM": "{{n}} von {{m}}",
+		"activeFilters": "{{n}} aktive Filter"
+	},
+	"dash": {
+		"title": "Auf einen Blick",
+		"kpis": "Kennzahlen",
+		"kpi": {
+			"orgs": "{{top}} oberste Ebene · {{cantons}} Kantone",
+			"systems": "davon {{fmis}} Farm-Management-Systeme",
+			"datasets": "{{personal}} enthalten Personendaten",
+			"services": "{{n}} dokumentierte Nutzungen"
+		},
+		"operators": {
+			"title": "Wer betreibt die IT-Systeme?",
+			"sub": "Organisationen der obersten Ebene nach Anzahl IT-Systeme, die sie (oder ihre Einheiten) betreiben. {{n}} Organisationen betreiben mindestens ein System."
+		},
+		"orgs": {
+			"title": "Organisationen nach Sektor",
+			"sub": "Alle {{n}} Organisationen und Organisationseinheiten"
+		},
+		"cantons": {
+			"title": "Kantonale Abdeckung",
+			"sub": "Dokumentierte kantonale Organisationen pro Kanton. Wählen Sie einen Kanton, um ihn zu öffnen."
+		},
+		"privacy": {
+			"title": "Datenschutz",
+			"sub": "Jedes Quadrat ist eine der {{n}} Informationseinheiten, geordnet nach Schutzbedarf.",
+			"none": "Keine Personendaten",
+			"master": "Umrandete Quadrate sind Stammdaten ({{n}})."
+		},
+		"systems": {
+			"title": "Grösste IT-Systeme",
+			"sub": "IT-Systeme nach Anzahl enthaltener Informationseinheiten"
+		},
+		"hubs": {
+			"title": "Am stärksten vernetzt",
+			"sub": "IT-Systeme und Informationseinheiten mit den meisten unterschiedlichen Beziehungen"
+		},
+		"services": {
+			"title": "Gemeinsam genutzte IT-Services",
+			"sub": "IT-Services nach Anzahl nutzender Systeme und Organisationen",
+			"note": "{{n}} weitere Services haben noch keine dokumentierten Nutzer."
+		},
+		"subgraphs": {
+			"title": "Dokumentierte Architekturen",
+			"sub": "Kuratierte Teilgraphen und ihre Zusammensetzung. Auf der Karte öffnen."
+		},
+		"relations": {
+			"title": "Beziehungstypen",
+			"sub": "Insgesamt {{n}} Beziehungen"
+		},
+		"quality": {
+			"title": "Dokumentationsqualität",
+			"sub": "Wie vollständig jede Klasse im Wissensgraphen beschrieben ist",
+			"description": "Mit Beschreibung",
+			"multilingual": "Name auf DE/FR/IT/EN",
+			"website": "Mit Website",
+			"connected": "Verknüpft"
+		},
+		"unit": {
+			"systems": "IT-Systeme",
+			"orgs": "Organisationen",
+			"datasets": "Informationseinheiten",
+			"links": "Beziehungen",
+			"consumers": "Nutzende"
+		}
+	},
+	"catalog": {
+		"lead": "Alle Organisationen, IT-Systeme, IT-Services und Informationseinheiten – wo die Daten liegen und wer dafür verantwortlich ist.",
+		"classes": "Klassen",
+		"filters": "Filter",
+		"clear": "Filter zurücksetzen",
+		"results": "Resultate",
+		"protection": "Datenschutz",
+		"masterOnly": "Nur Stammdaten",
+		"type": "Typ",
+		"fmisOnly": "Nur Farm-Management-Systeme",
+		"sector": "Sektor",
+		"topLevelOnly": "Nur oberste Ebene",
+		"canton": "Kanton",
+		"any": "Alle",
+		"subgraph": "Architektur / Teilgraph",
+		"keywords": "Schlagwörter",
+		"responsible": {
+			"dataset": "Verantwortliche Organisation",
+			"system": "Betreiberin",
+			"organization": "Gehört zu",
+			"service": "Anbieterin (Organisation)"
+		},
+		"search": "Inventar durchsuchen",
+		"searchPlaceholder": {
+			"dataset": "Informationseinheiten, Systeme, Organisationen suchen…",
+			"system": "IT-Systeme suchen…",
+			"organization": "Organisationen suchen…",
+			"service": "IT-Services suchen…"
+		},
+		"groupBy": "Gruppieren nach",
+		"group": {
+			"none": "Keine Gruppierung",
+			"operator": "Verantwortliche Organisation"
+		},
+		"sort": "Sortieren",
+		"sortName": "Name",
+		"sortConnections": "Beziehungen",
+		"view": "Ansicht",
+		"cards": "Karten",
+		"table": "Tabelle",
+		"empty": "Keine Einträge entsprechen der Suche und den Filtern.",
+		"unassigned": "Nicht zugeordnet",
+		"where": {
+			"dataset": "Gespeichert in",
+			"system": "Gespeichert in",
+			"organization": "Betreibt",
+			"service": "Angeboten von"
+		},
+		"who": {
+			"dataset": "Verantwortlich",
+			"system": "Betrieben von",
+			"organization": "Gehört zu",
+			"service": "Betrieben von"
+		},
+		"contains": "Enthält",
+		"col": {
+			"name": "Name",
+			"flags": "Einstufung",
+			"orgType": "Sektor",
+			"website": "Website",
+			"description": "Beschreibung"
+		},
+		"level": "Ebene"
+	},
+	"entity": {
+		"breadcrumb": "Brotkrümelnavigation",
+		"fallback": "Keine Beschreibung in dieser Sprache – in einer anderen Sprache angezeigt.",
+		"noDescription": "Keine Beschreibung vorhanden.",
+		"showInMap": "Auf der Karte zeigen",
+		"relations": "Beziehungen",
+		"relationsSub": "{{n}} direkte Beziehungen: eingehende links, ausgehende rechts. Wählen Sie ein Element, um weiter zu erkunden.",
+		"noRelations": "Es sind noch keine Beziehungen dokumentiert.",
+		"copy": "IRI kopieren",
+		"copied": "IRI kopiert",
+		"legal": "Rechtsgrundlage",
+		"subgraphs": "Teil der Architekturen",
+		"notFound": "Element nicht gefunden",
+		"more": "+ {{n}} weitere anzeigen",
+		"less": "weniger anzeigen",
+		"partOf": "Teil von",
+		"partsCount": "{{n}} Teile",
+		"partsHint": "Untergeordnete Elemente (Untereinheiten, Teile) werden innerhalb des Rahmens gezeigt; ihre Beziehungen gehen von der jeweiligen Zeile aus. Gestrichelte Bögen sind Beziehungen zwischen ihnen. P = Personendaten, M = Stammdaten, Zahl = Anzahl weiterer untergeordneter Elemente.",
+		"belongsTo": "Gehört zu",
+		"structure": {
+			"organization": "Organisationsstruktur",
+			"system": "Systemstruktur",
+			"dataset": "Struktur der Informationseinheit",
+			"service": "Servicestruktur"
+		},
+		"rollup": {
+			"organization": "IT-Systeme innerhalb dieser Organisation",
+			"system": "Informationseinheiten in Teilsystemen",
+			"dataset": "Speicherorte der Teile",
+			"service": "Nutzung der Teilservices"
+		},
+		"rollupSub": {
+			"organization": "{{n}} IT-Systeme werden von Einheiten dieser Organisation betrieben.",
+			"system": "{{n}} Informationseinheiten sind in Teilsystemen dieses Systems enthalten.",
+			"dataset": "{{n}} IT-Systeme enthalten Teile dieser Informationseinheit.",
+			"service": "{{n}} Systeme und Organisationen nutzen Teilservices dieses Services."
+		}
+	},
+	"about": {
+		"title": "Über das Projekt",
+		"lead": "Ein gemeinsames, maschinenlesbares Bild davon, wer im Schweizer Agrar- und Lebensmittelsektor welche IT-Systeme betreibt und wo welche Daten liegen.",
+		"what": {
+			"title": "Was ist das?",
+			"p1": "Die DigiAgriFoodCH-Systemlandkarte ist ein Wissensgraph, der vom Bundesamt für Landwirtschaft BLW gepflegt wird. Er beschreibt Organisationen, die von ihnen betriebenen IT-Systeme, die IT-Services, die diese Systeme anbieten und nutzen, sowie die darin enthaltenen Informationseinheiten (Datensätze) – mitsamt ihren Beziehungen, ihrem Schutzbedarf und ihren Rechtsgrundlagen.",
+			"p2": "Diese Anwendung bietet drei Sichten auf dieselben Daten: eine Übersicht mit Kennzahlen, eine interaktive Karte, welche die Struktur des Graphen sichtbar macht, und ein Inventar zum Durchsuchen und Filtern aller dokumentierten Elemente."
+		},
+		"how": {
+			"title": "So funktioniert es",
+			"s1": "Der Graph ist als Linked Data auf der Bundesplattform LINDAS publiziert.",
+			"s2": "Der Browser lädt den ganzen Graphen mit einer einzigen Abfrage (rund 170 kB komprimiert).",
+			"s3title": "Modell im Speicher",
+			"s3": "Die Tripel werden in wenigen Millisekunden gelesen und in ein typisiertes Modell überführt.",
+			"s4": "Alle Seiten berechnen ihre Sichten lokal – Filtern geht sofort, ohne Server.",
+			"p": "Die Abfrage wird schon abgeschickt, bevor die Anwendung gestartet ist, und das letzte Resultat wird im Browser gespeichert: Wiederholte Besuche erscheinen sofort, während im Hintergrund eine frische Kopie geladen wird. Bezeichnungen und Beschreibungen erscheinen in der gewählten Sprache; wo noch keine Übersetzung existiert, wird auf eine andere Sprache zurückgegriffen.",
+			"query": "SPARQL-Abfrage anzeigen",
+			"openEditor": "Im SPARQL-Editor von LINDAS öffnen"
+		},
+		"glossary": {
+			"title": "Glossar",
+			"p": "Die folgenden Begriffe stammen direkt aus der Ontologie der Systemlandkarte auf LINDAS."
+		},
+		"links": {
+			"title": "Links",
+			"repo": "Quelldaten auf GitHub",
+			"wiki": "Technische Dokumentation",
+			"issues": "Fehler melden oder Ergänzung vorschlagen"
+		}
+	},
+	"footer": {
+		"title": "Daten",
+		"lead": "Alle Inhalte stammen live aus dem Wissensgraphen der Systemlandkarte auf LINDAS, der Linked-Data-Plattform des Bundes.",
+		"live": "Live-Daten aus LINDAS",
+		"queried": "Abgefragt am {{date}}",
+		"syncing": "Wird aktualisiert…",
+		"reload": "Neu laden",
+		"name": "Name",
+		"created": "Erstellt",
+		"modified": "Daten zuletzt geändert",
+		"source": "Quelle",
+		"graph": "Benannter Graph",
+		"endpoint": "SPARQL-Endpunkt",
+		"triples": "Tripel",
+		"editor": "Im SPARQL-Editor öffnen"
+	}
+}

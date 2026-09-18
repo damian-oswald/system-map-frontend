@@ -1,0 +1,349 @@
+{
+	"app": {
+		"title": "AgriFood Data and System Map",
+		"footer": {
+			"operator": "Federal Office for Agriculture FOAG",
+			"data": "Data: live from"
+		}
+	},
+	"nav": {
+		"dashboard": "Dashboard",
+		"map": "Map",
+		"catalog": "Inventory",
+		"about": "About"
+	},
+	"common": {
+		"all": "all",
+		"none": "none",
+		"close": "Close",
+		"showAll": "Show all",
+		"showLess": "Show less",
+		"of": "of"
+	},
+	"state": {
+		"loading": "Loading the data from LINDAS…",
+		"error": {
+			"title": "The data could not be loaded",
+			"text": "LINDAS did not respond as expected:",
+			"retry": "Try again"
+		}
+	},
+	"kind": {
+		"organization": {
+			"one": "Organization",
+			"plural": "Organizations"
+		},
+		"system": {
+			"one": "IT system",
+			"plural": "IT systems"
+		},
+		"dataset": {
+			"one": "Information unit",
+			"plural": "Information units"
+		},
+		"service": {
+			"one": "IT service",
+			"plural": "IT services"
+		},
+		"legislation": {
+			"one": "Legislation",
+			"plural": "Legislation"
+		},
+		"keyword": {
+			"one": "Keyword",
+			"plural": "Keywords"
+		},
+		"collection": {
+			"one": "Subgraph",
+			"plural": "Subgraphs"
+		},
+		"other": {
+			"one": "Other",
+			"plural": "Other"
+		}
+	},
+	"orgType": {
+		"federal": "Federal",
+		"cantonal": "Cantonal",
+		"private": "Private sector",
+		"other": "Other public"
+	},
+	"flags": {
+		"personal": "Personal data",
+		"sensitive": "Sensitive personal data",
+		"master": "Master data"
+	},
+	"relInverse": {
+		"operates": "is operated by",
+		"contains": "is contained in",
+		"provides": "is provided by",
+		"consumes": "is used by",
+		"isPartOf": "has part",
+		"parentOrganization": "has sub-organization",
+		"memberOf": "has member",
+		"owns": "is (partially) owned by",
+		"develops": "is developed by",
+		"access": "is accessible to",
+		"wasDerivedFrom": "is source of",
+		"informs": "is informed by",
+		"usesMasterData": "is master data of",
+		"references": "is referenced by",
+		"hasLegalBasis": "is legal basis of"
+	},
+	"map": {
+		"controls": "Map settings",
+		"reset": "Reset",
+		"search": "Search",
+		"scope": "Scope",
+		"scopeAll": "All elements",
+		"classes": "Classes",
+		"relations": {
+			"title": "Relations"
+		},
+		"display": "Display",
+		"hideIsolated": "Hide unconnected elements",
+		"hidePanel": "Hide settings",
+		"showPanel": "Show settings",
+		"view": "Layout",
+		"viewLayers": "Layers",
+		"viewNetwork": "Network",
+		"hops": "Neighbourhood depth",
+		"hop": "step",
+		"hopsLabel": "steps",
+		"clearFocus": "Remove focus",
+		"nodes": "elements",
+		"edges": "relations",
+		"zoomIn": "Zoom in",
+		"zoomOut": "Zoom out",
+		"fit": "Fit to screen",
+		"computing": "Computing layout…",
+		"empty": "Nothing to show with the current settings.",
+		"canvasLabel": "Graph of organizations, IT systems, IT services and information units",
+		"interactionHint": "Scroll to pan · Ctrl + scroll to zoom · double-click to focus",
+		"details": "Details",
+		"openDetails": "Details page",
+		"filterTitle": "Filters",
+		"level": {
+			"off": "Off",
+			"collapsed": "Grouped",
+			"detailed": "Detailed"
+		},
+		"merged": "Includes {{n}} subordinate elements",
+		"allSectors": "All sectors",
+		"allRelations": "All relations",
+		"nOfM": "{{n}} of {{m}}",
+		"activeFilters": "{{n}} active filters"
+	},
+	"dash": {
+		"title": "At a glance",
+		"kpis": "Key figures",
+		"kpi": {
+			"orgs": "{{top}} top-level · {{cantons}} cantons",
+			"systems": "incl. {{fmis}} farm management systems",
+			"datasets": "{{personal}} contain personal data",
+			"services": "{{n}} documented usages"
+		},
+		"operators": {
+			"title": "Who operates the IT systems?",
+			"sub": "Top-level organizations by number of IT systems they (or their units) operate. {{n}} organizations operate at least one system."
+		},
+		"orgs": {
+			"title": "Organizations by sector",
+			"sub": "All {{n}} organizations and organizational units"
+		},
+		"cantons": {
+			"title": "Cantonal coverage",
+			"sub": "Documented cantonal organizations per canton. Select a canton to open it."
+		},
+		"privacy": {
+			"title": "Data protection",
+			"sub": "Each square is one of the {{n}} information units, ordered by protection need.",
+			"none": "No personal data",
+			"master": "Outlined squares are master data ({{n}})."
+		},
+		"systems": {
+			"title": "Largest IT systems",
+			"sub": "IT systems by number of information units they contain"
+		},
+		"hubs": {
+			"title": "Most connected",
+			"sub": "IT systems and information units with the most distinct relations"
+		},
+		"services": {
+			"title": "Shared IT services",
+			"sub": "IT services by number of systems and organizations using them",
+			"note": "{{n}} further services have no documented users yet."
+		},
+		"subgraphs": {
+			"title": "Documented architectures",
+			"sub": "Curated subgraphs and their composition. Open one on the map."
+		},
+		"relations": {
+			"title": "Relation types",
+			"sub": "{{n}} relations in total"
+		},
+		"quality": {
+			"title": "Documentation quality",
+			"sub": "How completely each class is described in the knowledge graph",
+			"description": "Has description",
+			"multilingual": "Name in DE/FR/IT/EN",
+			"website": "Has website",
+			"connected": "Connected"
+		},
+		"unit": {
+			"systems": "IT systems",
+			"orgs": "organizations",
+			"datasets": "information units",
+			"links": "relations",
+			"consumers": "users"
+		}
+	},
+	"catalog": {
+		"lead": "Every organization, IT system, IT service and information unit – where the data lives and who is responsible for it.",
+		"classes": "Classes",
+		"filters": "Filters",
+		"clear": "Reset filters",
+		"results": "Results",
+		"protection": "Data protection",
+		"masterOnly": "Master data only",
+		"type": "Type",
+		"fmisOnly": "Farm management systems only",
+		"sector": "Sector",
+		"topLevelOnly": "Top-level organizations only",
+		"canton": "Canton",
+		"any": "Any",
+		"subgraph": "Architecture / subgraph",
+		"keywords": "Keywords",
+		"responsible": {
+			"dataset": "Responsible organization",
+			"system": "Operator",
+			"organization": "Belongs to",
+			"service": "Provider (organization)"
+		},
+		"search": "Search the inventory",
+		"searchPlaceholder": {
+			"dataset": "Search information units, systems, organizations…",
+			"system": "Search IT systems…",
+			"organization": "Search organizations…",
+			"service": "Search IT services…"
+		},
+		"groupBy": "Group by",
+		"group": {
+			"none": "No grouping",
+			"operator": "Responsible organization"
+		},
+		"sort": "Sort",
+		"sortName": "Name",
+		"sortConnections": "Connections",
+		"view": "View",
+		"cards": "Cards",
+		"table": "Table",
+		"empty": "No entries match the current search and filters.",
+		"unassigned": "Not assigned",
+		"where": {
+			"dataset": "Stored in",
+			"system": "Stored in",
+			"organization": "Operates",
+			"service": "Provided by"
+		},
+		"who": {
+			"dataset": "Responsible",
+			"system": "Operated by",
+			"organization": "Belongs to",
+			"service": "Operated by"
+		},
+		"contains": "Contains",
+		"col": {
+			"name": "Name",
+			"flags": "Classification",
+			"orgType": "Sector",
+			"website": "Website",
+			"description": "Description"
+		},
+		"level": "Level"
+	},
+	"entity": {
+		"breadcrumb": "Breadcrumb",
+		"fallback": "No description in this language – shown in another language.",
+		"noDescription": "No description available.",
+		"showInMap": "Show on map",
+		"relations": "Relations",
+		"relationsSub": "{{n}} direct relations: incoming on the left, outgoing on the right. Select an element to continue exploring.",
+		"noRelations": "No relations are documented yet.",
+		"copy": "Copy IRI",
+		"copied": "IRI copied",
+		"legal": "Legal basis",
+		"subgraphs": "Part of architectures",
+		"notFound": "Element not found",
+		"more": "+ show {{n}} more",
+		"less": "show less",
+		"partOf": "Part of",
+		"partsCount": "{{n}} parts",
+		"partsHint": "Subordinate elements (sub-units, parts) are shown inside the frame; their relations start from the respective row. Dashed arcs are relations between them. P = personal data, M = master data, number = further subordinate elements.",
+		"belongsTo": "Belongs to",
+		"structure": {
+			"organization": "Organizational structure",
+			"system": "System structure",
+			"dataset": "Structure of the information unit",
+			"service": "Service structure"
+		},
+		"rollup": {
+			"organization": "IT systems within this organization",
+			"system": "Information units in sub-systems",
+			"dataset": "Where the parts are stored",
+			"service": "Use of the sub-services"
+		},
+		"rollupSub": {
+			"organization": "{{n}} IT systems are operated by units of this organization.",
+			"system": "{{n}} information units are contained in sub-systems of this system.",
+			"dataset": "{{n}} IT systems contain parts of this information unit.",
+			"service": "{{n}} systems and organizations use sub-services of this service."
+		}
+	},
+	"about": {
+		"title": "About the project",
+		"lead": "A shared, machine-readable picture of who runs which IT systems and where which data is kept in the Swiss agri-food sector.",
+		"what": {
+			"title": "What is it?",
+			"p1": "The DigiAgriFoodCH system map is a knowledge graph maintained by the Federal Office for Agriculture FOAG. It describes organizations, the IT systems they operate, the IT services these systems provide and use, and the information units (datasets) they contain – together with their relations, protection needs and legal bases.",
+			"p2": "This application offers three views on the same data: an overview with key figures, an interactive map that makes the graph structure visible, and an inventory to search and filter every documented element."
+		},
+		"how": {
+			"title": "How it works",
+			"s1": "The graph is published as Linked Data on the Swiss federal LINDAS platform.",
+			"s2": "The browser loads the whole graph with a single query (about 170 kB compressed).",
+			"s3title": "In-memory model",
+			"s3": "The triples are parsed and turned into a typed model in a few milliseconds.",
+			"s4": "All pages compute their views locally – filtering is instant, no server needed.",
+			"p": "The query is sent before the application has even started and the last result is kept in the browser, so repeat visits appear instantly while a fresh copy is loaded in the background. Labels and descriptions are shown in the selected language, falling back to another language where no translation exists yet.",
+			"query": "Show the SPARQL query",
+			"openEditor": "Open in the LINDAS SPARQL editor"
+		},
+		"glossary": {
+			"title": "Glossary",
+			"p": "The terms below come straight from the system map ontology on LINDAS."
+		},
+		"links": {
+			"title": "Links",
+			"repo": "Source data on GitHub",
+			"wiki": "Technical documentation",
+			"issues": "Report an error or suggest an addition"
+		}
+	},
+	"footer": {
+		"title": "Data",
+		"lead": "All content comes live from the system map knowledge graph on LINDAS, the Swiss federal Linked Data platform.",
+		"live": "Live data from LINDAS",
+		"queried": "Queried on {{date}}",
+		"syncing": "Updating…",
+		"reload": "Reload",
+		"name": "Name",
+		"created": "Created",
+		"modified": "Data last modified",
+		"source": "Source",
+		"graph": "Named graph",
+		"endpoint": "SPARQL endpoint",
+		"triples": "triples",
+		"editor": "Open in SPARQL editor"
+	}
+}

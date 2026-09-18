@@ -1,0 +1,349 @@
+{
+	"app": {
+		"title": "Mappa dei dati e dei sistemi AgriFood",
+		"footer": {
+			"operator": "Ufficio federale dell'agricoltura UFAG",
+			"data": "Dati: in diretta da"
+		}
+	},
+	"nav": {
+		"dashboard": "Panoramica",
+		"map": "Mappa",
+		"catalog": "Inventario",
+		"about": "Informazioni"
+	},
+	"common": {
+		"all": "tutti",
+		"none": "nessuno",
+		"close": "Chiudi",
+		"showAll": "Mostra tutto",
+		"showLess": "Mostra meno",
+		"of": "di"
+	},
+	"state": {
+		"loading": "Caricamento dei dati da LINDAS…",
+		"error": {
+			"title": "Non è stato possibile caricare i dati",
+			"text": "LINDAS non ha risposto come previsto:",
+			"retry": "Riprova"
+		}
+	},
+	"kind": {
+		"organization": {
+			"one": "Organizzazione",
+			"plural": "Organizzazioni"
+		},
+		"system": {
+			"one": "Sistema IT",
+			"plural": "Sistemi IT"
+		},
+		"dataset": {
+			"one": "Unità d'informazione",
+			"plural": "Unità d'informazione"
+		},
+		"service": {
+			"one": "Servizio IT",
+			"plural": "Servizi IT"
+		},
+		"legislation": {
+			"one": "Base legale",
+			"plural": "Basi legali"
+		},
+		"keyword": {
+			"one": "Parola chiave",
+			"plural": "Parole chiave"
+		},
+		"collection": {
+			"one": "Sottografo",
+			"plural": "Sottografi"
+		},
+		"other": {
+			"one": "Altro",
+			"plural": "Altri"
+		}
+	},
+	"orgType": {
+		"federal": "Confederazione",
+		"cantonal": "Cantoni",
+		"private": "Settore privato",
+		"other": "Altre pubbliche"
+	},
+	"flags": {
+		"personal": "Dati personali",
+		"sensitive": "Dati personali degni di particolare protezione",
+		"master": "Dati di base"
+	},
+	"relInverse": {
+		"operates": "è gestito da",
+		"contains": "è contenuto in",
+		"provides": "è fornito da",
+		"consumes": "è utilizzato da",
+		"isPartOf": "comprende",
+		"parentOrganization": "ha come sotto-organizzazione",
+		"memberOf": "ha come membro",
+		"owns": "è (parzialmente) di proprietà di",
+		"develops": "è sviluppato da",
+		"access": "è accessibile a",
+		"wasDerivedFrom": "è fonte di",
+		"informs": "è informato da",
+		"usesMasterData": "è dato di base di",
+		"references": "è referenziato da",
+		"hasLegalBasis": "è base legale di"
+	},
+	"map": {
+		"controls": "Impostazioni della mappa",
+		"reset": "Reimposta",
+		"search": "Cerca",
+		"scope": "Ambito",
+		"scopeAll": "Tutti gli elementi",
+		"classes": "Classi",
+		"relations": {
+			"title": "Relazioni"
+		},
+		"display": "Visualizzazione",
+		"hideIsolated": "Nascondi elementi senza relazioni",
+		"hidePanel": "Nascondi impostazioni",
+		"showPanel": "Mostra impostazioni",
+		"view": "Layout",
+		"viewLayers": "Livelli",
+		"viewNetwork": "Rete",
+		"hops": "Profondità del vicinato",
+		"hop": "passo",
+		"hopsLabel": "passi",
+		"clearFocus": "Rimuovi focus",
+		"nodes": "elementi",
+		"edges": "relazioni",
+		"zoomIn": "Ingrandisci",
+		"zoomOut": "Riduci",
+		"fit": "Adatta allo schermo",
+		"computing": "Calcolo del layout…",
+		"empty": "Nulla da mostrare con le impostazioni attuali.",
+		"canvasLabel": "Grafo di organizzazioni, sistemi IT, servizi IT e unità d'informazione",
+		"interactionHint": "Scorrere per spostare · Ctrl + scorrere per zoomare · doppio clic per il focus",
+		"details": "Dettagli",
+		"openDetails": "Pagina di dettaglio",
+		"filterTitle": "Filtri",
+		"level": {
+			"off": "Spento",
+			"collapsed": "Raggruppato",
+			"detailed": "Dettagliato"
+		},
+		"merged": "Comprende {{n}} elementi subordinati",
+		"allSectors": "Tutti i settori",
+		"allRelations": "Tutte le relazioni",
+		"nOfM": "{{n}} di {{m}}",
+		"activeFilters": "{{n}} filtri attivi"
+	},
+	"dash": {
+		"title": "In sintesi",
+		"kpis": "Cifre chiave",
+		"kpi": {
+			"orgs": "{{top}} di livello superiore · {{cantons}} Cantoni",
+			"systems": "di cui {{fmis}} sistemi di gestione aziendale",
+			"datasets": "{{personal}} contengono dati personali",
+			"services": "{{n}} utilizzi documentati"
+		},
+		"operators": {
+			"title": "Chi gestisce i sistemi IT?",
+			"sub": "Organizzazioni di livello superiore per numero di sistemi IT che esse (o le loro unità) gestiscono. {{n}} organizzazioni gestiscono almeno un sistema."
+		},
+		"orgs": {
+			"title": "Organizzazioni per settore",
+			"sub": "Tutte le {{n}} organizzazioni e unità organizzative"
+		},
+		"cantons": {
+			"title": "Copertura cantonale",
+			"sub": "Organizzazioni cantonali documentate per Cantone. Selezionate un Cantone per aprirlo."
+		},
+		"privacy": {
+			"title": "Protezione dei dati",
+			"sub": "Ogni quadrato è una delle {{n}} unità d'informazione, ordinate per necessità di protezione.",
+			"none": "Nessun dato personale",
+			"master": "I quadrati bordati sono dati di base ({{n}})."
+		},
+		"systems": {
+			"title": "Sistemi IT più grandi",
+			"sub": "Sistemi IT per numero di unità d'informazione contenute"
+		},
+		"hubs": {
+			"title": "I più collegati",
+			"sub": "Sistemi IT e unità d'informazione con il maggior numero di relazioni distinte"
+		},
+		"services": {
+			"title": "Servizi IT condivisi",
+			"sub": "Servizi IT per numero di sistemi e organizzazioni che li utilizzano",
+			"note": "Altri {{n}} servizi non hanno ancora utenti documentati."
+		},
+		"subgraphs": {
+			"title": "Architetture documentate",
+			"sub": "Sottografi curati e loro composizione. Apritene uno sulla mappa."
+		},
+		"relations": {
+			"title": "Tipi di relazione",
+			"sub": "{{n}} relazioni in totale"
+		},
+		"quality": {
+			"title": "Qualità della documentazione",
+			"sub": "Quanto completamente ogni classe è descritta nel grafo della conoscenza",
+			"description": "Con descrizione",
+			"multilingual": "Nome in DE/FR/IT/EN",
+			"website": "Con sito web",
+			"connected": "Collegato"
+		},
+		"unit": {
+			"systems": "sistemi IT",
+			"orgs": "organizzazioni",
+			"datasets": "unità d'informazione",
+			"links": "relazioni",
+			"consumers": "utenti"
+		}
+	},
+	"catalog": {
+		"lead": "Tutte le organizzazioni, i sistemi IT, i servizi IT e le unità d'informazione – dove si trovano i dati e chi ne è responsabile.",
+		"classes": "Classi",
+		"filters": "Filtri",
+		"clear": "Reimposta filtri",
+		"results": "Risultati",
+		"protection": "Protezione dei dati",
+		"masterOnly": "Solo dati di base",
+		"type": "Tipo",
+		"fmisOnly": "Solo sistemi di gestione aziendale",
+		"sector": "Settore",
+		"topLevelOnly": "Solo livello superiore",
+		"canton": "Cantone",
+		"any": "Tutti",
+		"subgraph": "Architettura / sottografo",
+		"keywords": "Parole chiave",
+		"responsible": {
+			"dataset": "Organizzazione responsabile",
+			"system": "Gestore",
+			"organization": "Appartiene a",
+			"service": "Fornitore (organizzazione)"
+		},
+		"search": "Cerca nell'inventario",
+		"searchPlaceholder": {
+			"dataset": "Cerca unità d'informazione, sistemi, organizzazioni…",
+			"system": "Cerca sistemi IT…",
+			"organization": "Cerca organizzazioni…",
+			"service": "Cerca servizi IT…"
+		},
+		"groupBy": "Raggruppa per",
+		"group": {
+			"none": "Nessun raggruppamento",
+			"operator": "Organizzazione responsabile"
+		},
+		"sort": "Ordina",
+		"sortName": "Nome",
+		"sortConnections": "Relazioni",
+		"view": "Vista",
+		"cards": "Schede",
+		"table": "Tabella",
+		"empty": "Nessuna voce corrisponde alla ricerca e ai filtri.",
+		"unassigned": "Non assegnato",
+		"where": {
+			"dataset": "Salvato in",
+			"system": "Salvato in",
+			"organization": "Gestisce",
+			"service": "Fornito da"
+		},
+		"who": {
+			"dataset": "Responsabile",
+			"system": "Gestito da",
+			"organization": "Appartiene a",
+			"service": "Gestito da"
+		},
+		"contains": "Contiene",
+		"col": {
+			"name": "Nome",
+			"flags": "Classificazione",
+			"orgType": "Settore",
+			"website": "Sito web",
+			"description": "Descrizione"
+		},
+		"level": "Livello"
+	},
+	"entity": {
+		"breadcrumb": "Percorso di navigazione",
+		"fallback": "Nessuna descrizione in questa lingua – mostrata in un'altra lingua.",
+		"noDescription": "Nessuna descrizione disponibile.",
+		"showInMap": "Mostra sulla mappa",
+		"relations": "Relazioni",
+		"relationsSub": "{{n}} relazioni dirette: in entrata a sinistra, in uscita a destra. Selezionate un elemento per continuare l'esplorazione.",
+		"noRelations": "Non sono ancora documentate relazioni.",
+		"copy": "Copia IRI",
+		"copied": "IRI copiato",
+		"legal": "Base legale",
+		"subgraphs": "Parte delle architetture",
+		"notFound": "Elemento non trovato",
+		"more": "+ mostra altri {{n}}",
+		"less": "mostra meno",
+		"partOf": "Parte di",
+		"partsCount": "{{n}} parti",
+		"partsHint": "Gli elementi subordinati (sottounità, parti) sono mostrati all'interno del riquadro; le loro relazioni partono dalla riga corrispondente. Gli archi tratteggiati sono relazioni tra di essi. P = dati personali, M = dati di base, numero = ulteriori elementi subordinati.",
+		"belongsTo": "Appartiene a",
+		"structure": {
+			"organization": "Struttura organizzativa",
+			"system": "Struttura del sistema",
+			"dataset": "Struttura dell'unità d'informazione",
+			"service": "Struttura del servizio"
+		},
+		"rollup": {
+			"organization": "Sistemi IT all'interno di questa organizzazione",
+			"system": "Unità d'informazione nei sottosistemi",
+			"dataset": "Dove sono salvate le parti",
+			"service": "Utilizzo dei sottoservizi"
+		},
+		"rollupSub": {
+			"organization": "{{n}} sistemi IT sono gestiti da unità di questa organizzazione.",
+			"system": "{{n}} unità d'informazione sono contenute in sottosistemi di questo sistema.",
+			"dataset": "{{n}} sistemi IT contengono parti di questa unità d'informazione.",
+			"service": "{{n}} sistemi e organizzazioni utilizzano sottoservizi di questo servizio."
+		}
+	},
+	"about": {
+		"title": "Informazioni sul progetto",
+		"lead": "Un quadro condiviso e leggibile da macchina di chi gestisce quali sistemi IT e dove si trovano quali dati nel settore agroalimentare svizzero.",
+		"what": {
+			"title": "Di cosa si tratta?",
+			"p1": "La mappa del sistema DigiAgriFoodCH è un grafo della conoscenza curato dall'Ufficio federale dell'agricoltura UFAG. Descrive le organizzazioni, i sistemi IT che gestiscono, i servizi IT che questi sistemi forniscono e utilizzano e le unità d'informazione (set di dati) che contengono – con le loro relazioni, la loro necessità di protezione e le loro basi legali.",
+			"p2": "Questa applicazione offre tre viste sugli stessi dati: una panoramica con cifre chiave, una mappa interattiva che rende visibile la struttura del grafo e un inventario per cercare e filtrare tutti gli elementi documentati."
+		},
+		"how": {
+			"title": "Come funziona",
+			"s1": "Il grafo è pubblicato come Linked Data sulla piattaforma federale LINDAS.",
+			"s2": "Il browser carica l'intero grafo con un'unica interrogazione (circa 170 kB compressi).",
+			"s3title": "Modello in memoria",
+			"s3": "Le triple vengono lette e trasformate in un modello tipizzato in pochi millisecondi.",
+			"s4": "Tutte le pagine calcolano le loro viste localmente – il filtraggio è immediato, senza server.",
+			"p": "L'interrogazione viene inviata prima ancora che l'applicazione sia avviata e l'ultimo risultato viene conservato nel browser: le visite successive appaiono subito, mentre in background viene caricata una copia aggiornata. Etichette e descrizioni sono mostrate nella lingua scelta; dove manca una traduzione si ricorre a un'altra lingua.",
+			"query": "Mostra l'interrogazione SPARQL",
+			"openEditor": "Apri nell'editor SPARQL di LINDAS"
+		},
+		"glossary": {
+			"title": "Glossario",
+			"p": "I termini seguenti provengono direttamente dall'ontologia della mappa del sistema su LINDAS."
+		},
+		"links": {
+			"title": "Link",
+			"repo": "Dati di origine su GitHub",
+			"wiki": "Documentazione tecnica",
+			"issues": "Segnala un errore o proponi un'aggiunta"
+		}
+	},
+	"footer": {
+		"title": "Dati",
+		"lead": "Tutti i contenuti provengono in diretta dal grafo della conoscenza della mappa del sistema su LINDAS, la piattaforma Linked Data della Confederazione.",
+		"live": "Dati in diretta da LINDAS",
+		"queried": "Interrogato il {{date}}",
+		"syncing": "Aggiornamento…",
+		"reload": "Ricarica",
+		"name": "Nome",
+		"created": "Creato",
+		"modified": "Ultima modifica dei dati",
+		"source": "Fonte",
+		"graph": "Grafo denominato",
+		"endpoint": "Endpoint SPARQL",
+		"triples": "triple",
+		"editor": "Apri nell'editor SPARQL"
+	}
+}

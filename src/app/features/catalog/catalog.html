@@ -1,0 +1,416 @@
+<div class="sm-page">
+	<header class="sm-page-header">
+		<div>
+			<h1>{{ 'nav.catalog' | translate }}</h1>
+			<p class="sm-lead">{{ 'catalog.lead' | translate }}</p>
+		</div>
+	</header>
+
+	@if (rowsByKind(); as all) {
+		<!-- class tabs -->
+		<nav class="tabs" [attr.aria-label]="'catalog.classes' | translate">
+			@for (k of KINDS; track k) {
+				<button type="button" class="tab sm-kind--{{ k }}" [attr.aria-pressed]="kind() === k" (click)="setKind(k)">
+					<mat-icon [svgIcon]="KIND_ICON[k]" />
+					<span>{{ 'kind.' + k + '.plural' | translate }}</span>
+					<span class="tab-count">{{ all[k].length }}</span>
+				</button>
+			}
+		</nav>
+
+		<div class="layout" [class.filters-open]="filtersOpen()">
+			<!-- ========================================= filters -->
+			<aside class="filters" [attr.aria-label]="'catalog.filters' | translate">
+				<div class="filters-head">
+					<h2>{{ 'catalog.filters' | translate }}</h2>
+					@if (activeFilterCount()) {
+						<button mat-button obButton="tertiary" type="button" (click)="clearFilters()">
+							{{ 'catalog.clear' | translate }} ({{ activeFilterCount() }})
+						</button>
+					}
+				</div>
+
+				@if (kind() === 'dataset') {
+					<fieldset>
+						<legend class="sm-filter-label">{{ 'catalog.protection' | translate }}</legend>
+						<div class="toggles">
+							<button
+								type="button"
+								class="sm-toggle prot-sensitive"
+								[attr.aria-pressed]="protection().has('sensitive')"
+								(click)="toggleProtection('sensitive')"
+							>
+								<i class="sm-dot"></i>{{ 'flags.sensitive' | translate }}
+							</button>
+							<button
+								type="button"
+								class="sm-toggle prot-personal"
+								[attr.aria-pressed]="protection().has('personal')"
+								(click)="toggleProtection('personal')"
+							>
+								<i class="sm-dot"></i>{{ 'flags.personal' | translate }}
+							</button>
+							<button
+								type="button"
+								class="sm-toggle prot-none"
+								[attr.aria-pressed]="protection().has('none')"
+								(click)="toggleProtection('none')"
+							>
+								<i class="sm-dot"></i>{{ 'dash.privacy.none' | translate }}
+							</button>
+						</div>
+						<mat-slide-toggle class="slide" [checked]="masterOnly()" (change)="masterOnly.set($event.checked)">{{
+							'catalog.masterOnly' | translate
+						}}</mat-slide-toggle>
+					</fieldset>
+				}
+
+				@if (kind() === 'system') {
+					<fieldset>
+						<legend class="sm-filter-label">{{ 'catalog.type' | translate }}</legend>
+						<mat-slide-toggle [checked]="fmisOnly()" (change)="fmisOnly.set($event.checked)">{{
+							'catalog.fmisOnly' | translate
+						}}</mat-slide-toggle>
+					</fieldset>
+				}
+
+				@if (kind() === 'organization') {
+					<fieldset>
+						<legend class="sm-filter-label">{{ 'catalog.sector' | translate }}</legend>
+						<div class="toggles">
+							@for (t of ORG_TYPES; track t) {
+								<button
+									type="button"
+									class="sm-toggle org-{{ t }}"
+									[attr.aria-pressed]="orgTypes().has(t)"
+									(click)="toggleOrgType(t)"
+								>
+									{{ 'orgType.' + t | translate }}
+								</button>
+							}
+						</div>
+					</fieldset>
+					<fieldset>
+						<mat-form-field class="full" subscriptSizing="dynamic">
+							<mat-label>{{ 'catalog.canton' | translate }}</mat-label>
+							<mat-select [value]="canton()" (selectionChange)="canton.set($event.value)">
+								<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
+								@for (c of CANTONS; track c.code) {
+									<mat-option [value]="c.code">{{ c.code }} – {{ c.names[0] }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</fieldset>
+				}
+
+				<fieldset>
+					<legend class="sm-filter-label">{{ 'catalog.level' | translate }}</legend>
+					<mat-slide-toggle [checked]="topLevelOnly()" (change)="topLevelOnly.set($event.checked)">{{
+						'catalog.topLevelOnly' | translate
+					}}</mat-slide-toggle>
+				</fieldset>
+
+				@if (operatorOptions().length) {
+					<fieldset>
+						<mat-form-field class="full" subscriptSizing="dynamic">
+							<mat-label>{{ 'catalog.responsible.' + kind() | translate }}</mat-label>
+							<mat-select [value]="operator()" (selectionChange)="operator.set($event.value)">
+								<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
+								@for (o of operatorOptions(); track o.e.id) {
+									<mat-option [value]="o.e.id">{{ o.e | label: lang() : 'short' : 44 }} ({{ o.n }})</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</fieldset>
+				}
+
+				<fieldset>
+					<mat-form-field class="full" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.subgraph' | translate }}</mat-label>
+						<mat-select [value]="subgraph()" (selectionChange)="subgraph.set($event.value)">
+							<mat-option value="">{{ 'catalog.any' | translate }}</mat-option>
+							@for (c of graph()!.collections; track c.id) {
+								<mat-option [value]="c.id">{{ c.name | pick: lang() }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</fieldset>
+
+				@if (keywordOptions().length) {
+					<fieldset>
+						<legend class="sm-filter-label">{{ 'catalog.keywords' | translate }}</legend>
+						<div class="toggles">
+							@for (k of keywordOptions(); track k.e.id) {
+								<button
+									type="button"
+									class="sm-toggle"
+									[attr.aria-pressed]="keyword() === k.e.id"
+									(click)="keyword.set(keyword() === k.e.id ? '' : k.e.id)"
+								>
+									{{ k.e.name | pick: lang() }} <span class="count">{{ k.n }}</span>
+								</button>
+							}
+						</div>
+					</fieldset>
+				}
+			</aside>
+
+			<!-- ========================================= results -->
+			<section class="results" [attr.aria-label]="'catalog.results' | translate">
+				<div class="toolbar">
+					<mat-form-field class="grow search-field" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.search' | translate }}</mat-label>
+						<mat-icon matPrefix svgIcon="search" />
+						<input
+							matInput
+							type="search"
+							[placeholder]="'catalog.searchPlaceholder.' + kind() | translate"
+							[value]="query()"
+							(input)="query.set($any($event.target).value)"
+						/>
+					</mat-form-field>
+					<button
+						mat-button
+						obButton="secondary"
+						type="button"
+						class="filter-btn"
+						(click)="filtersOpen.set(!filtersOpen())"
+						[attr.aria-expanded]="filtersOpen()"
+					>
+						<mat-icon svgIcon="filter" />{{ 'catalog.filters' | translate }}
+						@if (activeFilterCount()) {
+							<span class="badge">{{ activeFilterCount() }}</span>
+						}
+					</button>
+				</div>
+
+				<div class="toolbar sub">
+					<p class="count" role="status">
+						<strong>{{ filtered().length }}</strong> {{ 'common.of' | translate }} {{ rows().length }}
+						{{ 'kind.' + kind() + '.plural' | translate }}
+					</p>
+					<span class="spacer"></span>
+					@if (kind() === 'dataset' || kind() === 'system') {
+						<mat-form-field class="inline-field" subscriptSizing="dynamic">
+							<mat-label>{{ 'catalog.groupBy' | translate }}</mat-label>
+							<mat-select [value]="groupBy()" (selectionChange)="groupBy.set($event.value)">
+								<mat-option value="none">{{ 'catalog.group.none' | translate }}</mat-option>
+								@if (kind() === 'dataset') {
+									<mat-option value="system">{{ 'kind.system.one' | translate }}</mat-option>
+								}
+								<mat-option value="operator">{{ 'catalog.group.operator' | translate }}</mat-option>
+							</mat-select>
+						</mat-form-field>
+					}
+					<mat-form-field class="inline-field" subscriptSizing="dynamic">
+						<mat-label>{{ 'catalog.sort' | translate }}</mat-label>
+						<mat-select [value]="sortBy()" (selectionChange)="sortBy.set($event.value)">
+							<mat-option value="name">{{ 'catalog.sortName' | translate }}</mat-option>
+							<mat-option value="connections">{{ 'catalog.sortConnections' | translate }}</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-button-toggle-group
+						hideSingleSelectionIndicator
+						[value]="view()"
+						(change)="view.set($event.value)"
+						[attr.aria-label]="'catalog.view' | translate"
+					>
+						<mat-button-toggle
+							value="cards"
+							[attr.aria-label]="'catalog.cards' | translate"
+							[matTooltip]="'catalog.cards' | translate"
+							><mat-icon svgIcon="grid"
+						/></mat-button-toggle>
+						<mat-button-toggle
+							value="table"
+							[attr.aria-label]="'catalog.table' | translate"
+							[matTooltip]="'catalog.table' | translate"
+							><mat-icon svgIcon="list"
+						/></mat-button-toggle>
+					</mat-button-toggle-group>
+					<button mat-button obButton="secondary" type="button" (click)="exportCsv()">
+						<mat-icon svgIcon="download" />CSV
+					</button>
+				</div>
+
+				@if (!filtered().length) {
+					<div class="empty sm-card sm-card-pad">
+						<p>{{ 'catalog.empty' | translate }}</p>
+						<button mat-button obButton="secondary" type="button" (click)="clearFilters(); query.set('')">
+							{{ 'catalog.clear' | translate }}
+						</button>
+					</div>
+				}
+
+				@for (grp of groups(); track grp.key) {
+					@if (grp.key) {
+						<h3 class="group-title">
+							@if (grp.entity; as ge) {
+								<a class="sm-kind--{{ ge.kind }}" [routerLink]="['/entity', ge.key]"
+									><i class="sm-dot"></i>{{ ge | label: lang() : 'title' }}</a
+								>
+							} @else {
+								<span class="sm-muted">{{ 'catalog.unassigned' | translate }}</span>
+							}
+							<span class="group-count">{{ grp.rows.length }}</span>
+						</h3>
+					}
+
+					@if (view() === 'cards') {
+						<ul class="cards">
+							@for (r of grp.rows; track r.e.id) {
+								<li class="card sm-card sm-kind--{{ r.e.kind }}">
+									<div class="card-head">
+										<a class="card-title" [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
+										<div class="tags">
+											@if (r.e.sensitive) {
+												<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+											} @else if (r.e.personal) {
+												<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+											}
+											@if (r.e.master) {
+												<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+											}
+											@if (r.e.fmis) {
+												<span class="sm-tag sm-tag--ok">FMIS</span>
+											}
+											@if (r.e.orgType) {
+												<span class="sm-tag">{{ 'orgType.' + r.e.orgType | translate }}</span>
+											}
+											@if (r.e.canton) {
+												<span class="sm-tag">{{ r.e.canton }}</span>
+											}
+										</div>
+									</div>
+									@if (r.description) {
+										<p class="card-desc">{{ r.description }}</p>
+									}
+									<dl class="facts">
+										@if (r.systems.length) {
+											<div>
+												<dt>{{ 'catalog.where.' + r.e.kind | translate }}</dt>
+												<dd>
+													@for (s of r.systems.slice(0, 6); track s.id) {
+														<app-entity-chip [entity]="s" [max]="32" />
+													}
+													@if (r.systems.length > 6) {
+														<span class="more">+{{ r.systems.length - 6 }}</span>
+													}
+												</dd>
+											</div>
+										}
+										@if (r.operators.length) {
+											<div>
+												<dt>{{ 'catalog.who.' + r.e.kind | translate }}</dt>
+												<dd>
+													@for (o of r.operators.slice(0, 5); track o.id) {
+														<app-entity-chip [entity]="o" [max]="32" />
+													}
+													@if (r.operators.length > 5) {
+														<span class="more">+{{ r.operators.length - 5 }}</span>
+													}
+												</dd>
+											</div>
+										}
+										@if (r.datasets.length) {
+											<div>
+												<dt>{{ 'catalog.contains' | translate }}</dt>
+												<dd>
+													@for (d of r.datasets.slice(0, 5); track d.id) {
+														<app-entity-chip [entity]="d" [max]="32" />
+													}
+													@if (r.datasets.length > 5) {
+														<span class="more">+{{ r.datasets.length - 5 }}</span>
+													}
+												</dd>
+											</div>
+										}
+										@if (r.e.kind === 'service' && r.users.length) {
+											<div>
+												<dt>{{ 'relInverse.consumes' | translate }}</dt>
+												<dd>
+													<span class="more">{{ r.users.length }} {{ 'dash.unit.consumers' | translate }}</span>
+												</dd>
+											</div>
+										}
+									</dl>
+									<div class="card-foot">
+										@for (k of r.keywords; track k.id) {
+											<span class="kw">#{{ k.name | pick: lang() }}</span>
+										}
+										<span class="spacer"></span>
+										@if (r.e.urls[0]; as url) {
+											<a class="ext" [href]="url" target="_blank" rel="noopener">{{ host(url) }} ↗</a>
+										}
+									</div>
+								</li>
+							}
+						</ul>
+					} @else {
+						<div class="table-wrap sm-card">
+							<table class="table">
+								<thead>
+									<tr>
+										<th scope="col">{{ 'catalog.col.name' | translate }}</th>
+										<th scope="col">{{ 'catalog.where.' + kind() | translate }}</th>
+										<th scope="col">{{ 'catalog.who.' + kind() | translate }}</th>
+										<th scope="col">
+											{{ (kind() === 'organization' ? 'catalog.col.orgType' : 'catalog.col.flags') | translate }}
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for (r of grp.rows; track r.e.id) {
+										<tr>
+											<td class="name-cell">
+												<a [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
+												@if (r.description) {
+													<span class="desc">{{ r.description }}</span>
+												}
+											</td>
+											<td>
+												@for (s of r.systems.slice(0, 4); track s.id) {
+													<app-entity-chip [entity]="s" [max]="26" />
+												}
+												@if (r.systems.length > 4) {
+													<span class="more">+{{ r.systems.length - 4 }}</span>
+												}
+											</td>
+											<td>
+												@for (o of r.operators.slice(0, 3); track o.id) {
+													<app-entity-chip [entity]="o" [max]="26" />
+												}
+												@if (r.operators.length > 3) {
+													<span class="more">+{{ r.operators.length - 3 }}</span>
+												}
+											</td>
+											<td class="flags">
+												@if (r.e.orgType) {
+													<span class="sm-tag">{{ 'orgType.' + r.e.orgType | translate }}</span>
+												}
+												@if (r.e.sensitive) {
+													<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+												} @else if (r.e.personal) {
+													<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+												}
+												@if (r.e.master) {
+													<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+												}
+												@if (r.e.fmis) {
+													<span class="sm-tag sm-tag--ok">FMIS</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				}
+			</section>
+		</div>
+	} @else {
+		<app-page-state />
+	}
+</div>
+<app-data-footer />
