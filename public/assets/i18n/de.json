@@ -271,7 +271,22 @@
 			"organization": "Inklusive Untereinheiten",
 			"system": "Inklusive Teilsysteme"
 		},
-		"pagination": "Seiten"
+		"pagination": "Seiten",
+		"numOne": {
+			"systems": "System",
+			"datasets": "Datensatz",
+			"services": "Service",
+			"legal": "Rechtsgrundlage",
+			"parts": {
+				"dataset": "Teil",
+				"system": "Teilsystem",
+				"organization": "Untereinheit"
+			},
+			"users": {
+				"system": "Genutzter Service",
+				"service": "Nutzer"
+			}
+		}
 	},
 	"entity": {
 		"breadcrumb": "Brotkrümelnavigation",

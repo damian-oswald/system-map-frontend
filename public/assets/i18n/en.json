@@ -271,7 +271,22 @@
 			"organization": "Including sub-units",
 			"system": "Including sub-systems"
 		},
-		"pagination": "Pages"
+		"pagination": "Pages",
+		"numOne": {
+			"systems": "System",
+			"datasets": "Data set",
+			"services": "Service",
+			"legal": "Legal basis",
+			"parts": {
+				"dataset": "Part",
+				"system": "Sub-system",
+				"organization": "Sub-unit"
+			},
+			"users": {
+				"system": "Service used",
+				"service": "User"
+			}
+		}
 	},
 	"entity": {
 		"breadcrumb": "Breadcrumb",

@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, inject, input } from '@angular/core';
+import { Component, booleanAttribute, computed, forwardRef, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -20,14 +20,17 @@ export const KIND_ICON: Record<EntityKind, string> = {
 	other: 'info',
 };
 
-/** Pill linking to an entity's detail page, colour-coded by class. */
+/** Pill linking to an entity's detail page, colour-coded by class; optionally with the class icon and the abbreviation. */
 @Component({
 	selector: 'app-entity-chip',
-	imports: [RouterLink, LabelPipe],
+	imports: [RouterLink, LabelPipe, MatIconModule],
 	template: `
 		@if (entity(); as e) {
 			<a class="sm-chip sm-kind--{{ e.kind }}" [routerLink]="['/entity', e.key]" [attr.title]="title()">
-				<span>{{ e | label: lang() : 'short' : max() }}</span>
+				@if (icon()) {
+					<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
+				}
+				<span>{{ e | label: lang() : (abbr() ? 'abbr' : 'short') : max() }}</span>
 			</a>
 		}
 	`,
@@ -36,12 +39,24 @@ export const KIND_ICON: Record<EntityKind, string> = {
 			display: inline-flex;
 			max-width: 100%;
 		}
+		mat-icon {
+			flex: none;
+			width: 14px;
+			height: 14px;
+			margin-right: 7px;
+			color: var(--k, var(--sm-ink-3));
+		}
 	`,
 })
 export class EntityChip {
 	readonly entity = input.required<Entity | undefined>();
 	readonly max = input(48);
+	/** show the class icon in front of the label */
+	readonly icon = input(false, { transform: booleanAttribute });
+	/** prefer the abbreviation over the (shortened) name */
+	readonly abbr = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
+	protected readonly KIND_ICON = KIND_ICON;
 	protected readonly title = computed(() => entityTitle(this.entity(), this.lang()));
 }
 

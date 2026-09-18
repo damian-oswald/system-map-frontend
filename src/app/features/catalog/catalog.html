@@ -321,30 +321,23 @@
 						<ul class="cards">
 							@for (r of grp.rows; track r.e.id) {
 								<li class="card sm-card sm-kind--{{ r.e.kind }}">
-									<a class="card-title" [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
+									<a class="card-title" [routerLink]="['/entity', r.e.key]" [title]="r.name">{{ r.name }}</a>
 									@if (r.description) {
 										<p class="card-desc">{{ r.description }}</p>
 									}
-									<dl class="facts">
+									<div class="chips">
 										@if (r.e.kind === 'organization') {
-											<div>
-												<dt>{{ 'catalog.sector' | translate }}</dt>
-												<dd>{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</dd>
-											</div>
+											<span class="sm-tag">{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</span>
 										}
-										@if (r.systems.length && r.e.kind !== 'organization') {
-											<div>
-												<dt>{{ 'catalog.where.' + r.e.kind | translate }}</dt>
-												<dd><app-name-list [items]="r.systems" [max]="4" /></dd>
-											</div>
+										@if (chips(r); as c) {
+											@for (x of c.list; track x.id) {
+												<app-entity-chip [entity]="x" icon abbr [max]="36" />
+											}
+											@if (c.more) {
+												<span class="more" [title]="'common.andMore' | translate: { n: c.more }">+{{ c.more }}</span>
+											}
 										}
-										@if (r.operators.length) {
-											<div>
-												<dt>{{ 'catalog.who.' + r.e.kind | translate }}</dt>
-												<dd><app-name-list [items]="r.operators" [max]="4" /></dd>
-											</div>
-										}
-									</dl>
+									</div>
 									<!-- the same figures as the table's numeric columns -->
 									<p class="nums">
 										@for (col of columns(); track col) {
@@ -352,7 +345,8 @@
 												@for (c of NUM_COLUMNS; track c.id) {
 													@if (c.id === col && r.counts[c.count]) {
 														<span class="num-fact"
-															><strong>{{ r.counts[c.count] }}</strong> {{ numLabel(c) | translate }}</span
+															><strong>{{ r.counts[c.count] }}</strong>
+															{{ numLabel(c, r.counts[c.count]) | translate }}</span
 														>
 													}
 												}
