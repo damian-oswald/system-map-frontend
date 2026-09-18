@@ -150,14 +150,21 @@ mat-button-toggle mat-icon {
 	position: relative;
 	min-width: 0;
 	container: stage / inline-size;
+
+	// while the details drawer is open the control bar stops short of it, so the focus chip wraps instead of
+	// disappearing underneath
+	&.has-drawer .stage-bar {
+		right: 404px;
+
+		// the search keeps its size; the focus chip's label gives way instead
+		.focus-pill {
+			max-width: 340px;
+		}
+	}
 }
 
 // the element/relation count is the first thing to go when the bar gets tight
 @container stage (max-width: 1180px) {
-	.stage-bar .stats {
-		display: none;
-	}
-
 	// more specific than the base rule below, which comes later in the file
 	.stage-bar .bar-search.mat-mdc-form-field {
 		width: 300px;
@@ -209,10 +216,6 @@ mat-button-toggle mat-icon {
 
 	.spacer {
 		flex: 1;
-	}
-
-	.stats {
-		font-size: 0.8125rem;
 	}
 }
 
@@ -660,10 +663,11 @@ mat-button-toggle mat-icon {
 .drawer {
 	position: absolute;
 	z-index: 5;
-	top: 66px;
+	top: 12px;
 	right: 12px;
 	width: min(380px, calc(100% - 24px));
-	max-height: calc(100% - 78px);
+	// ends above the zoom controls (3 × 40px + gaps + margins), which never move
+	max-height: calc(100% - 176px);
 	overflow-y: auto;
 	padding: 16px 18px 20px;
 	border-top: 4px solid var(--k);
@@ -715,50 +719,32 @@ mat-button-toggle mat-icon {
 	line-height: 1.5;
 }
 
-.merged {
-	margin: 0 0 12px;
-	font-size: 0.875rem;
-
-	summary {
-		cursor: pointer;
-		color: var(--sm-ink-2);
-		font-weight: 600;
-	}
-
-	.chips {
-		margin-top: 8px;
-	}
-}
-
-.rel-block {
-	padding: 10px 0;
+.sentences {
+	margin-top: 12px;
+	padding-top: 12px;
 	border-top: 1px solid var(--sm-line);
 }
 
-.rel-title {
-	display: flex;
-	align-items: center;
-	gap: 6px;
+.rel-sentence {
 	margin: 0 0 8px;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--sm-ink-2);
+	font-size: 0.9375rem;
+	line-height: 1.55;
+	color: var(--sm-ink);
+	// the parts are separate inline elements; keep their spacing exactly as generated
+	white-space: pre-wrap;
 
-	.dir {
-		color: var(--sm-ink-3);
+	// enumerated elements read as normal text; the underline appears on hover, a click opens the details page
+	a,
+	a:visited {
+		color: inherit;
+		font: inherit;
+		text-decoration: none;
 	}
 
-	.count {
-		margin-left: auto;
-		color: var(--sm-ink-3);
-		font-weight: 400;
+	a:hover,
+	a:focus-visible {
+		text-decoration: underline;
 	}
-}
-
-.chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
 }
 
 .drawer-actions {
@@ -799,6 +785,10 @@ mat-button-toggle mat-icon {
 		top: auto;
 		bottom: 12px;
 		max-height: 60%;
+	}
+
+	.stage.has-drawer .stage-bar {
+		right: 12px;
 	}
 
 	.focus-pill {

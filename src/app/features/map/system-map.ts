@@ -25,17 +25,17 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { select } from 'd3-selection';
 import { ZoomBehavior, ZoomTransform, zoom, zoomIdentity } from 'd3-zoom';
 
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
-import { LangService, PickPipe, entityTitle, shortLabel } from '../../core/i18n';
+import { LabelPipe, LangService, PickPipe, entityTitle, pick, shortLabel } from '../../core/i18n';
 import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { EntityChip, KIND_ICON, PageState } from '../../shared/ui';
+import { KIND_ICON, PageState } from '../../shared/ui';
 import { ForceRequest, ForceResponse } from './force-layout';
 import { Band, Column, NODE_H, NODE_W, TreeLink, layeredEdgePath, layoutLayers } from './layered-layout';
 import {
@@ -92,6 +92,19 @@ interface Scene {
 	bounds: { x: number; y: number; w: number; h: number };
 }
 
+/** elements linked in a relation sentence before "and n more" */
+const SENTENCE_MAX = 5;
+
+interface SentencePart {
+	text?: string;
+	entity?: Entity;
+}
+
+interface Sentence {
+	key: string;
+	parts: SentencePart[];
+}
+
 /** height of the floating control bar (incl. its offset) the fitted scene keeps clear of */
 const BAR_INSET = 66;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
@@ -116,7 +129,7 @@ const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, d
 		MatTooltipModule,
 		ObButtonDirective,
 		RouterLink,
-		EntityChip,
+		LabelPipe,
 		PageState,
 		PickPipe,
 		DataFooter,
@@ -129,6 +142,7 @@ export class SystemMap implements AfterViewInit {
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly zone = inject(NgZone);
+	private readonly translate = inject(TranslateService);
 	private readonly destroyRef = inject(DestroyRef);
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
@@ -332,27 +346,60 @@ export class SystemMap implements AfterViewInit {
 		const id = this.selected();
 		return id ? (this.mapGraph()?.nodeById.get(id) ?? null) : null;
 	});
-	/** Relations of the selected node as shown in the map (after collapse), grouped by relation & direction. */
-	protected readonly selectedRelations = computed(() => {
-		const id = this.selected();
-		const mg = this.mapGraph();
-		const g = this.graph();
-		if (!id || !mg || !g) return [];
-		const groups = new Map<string, { key: string; out: boolean; items: Entity[] }>();
-		for (const e of mg.edges) {
-			if (e.s !== id && e.o !== id) continue;
-			const out = e.s === id;
-			const k = `${e.key}|${out}`;
-			if (!groups.has(k)) groups.set(k, { key: e.key, out, items: [] });
-			groups.get(k)!.items.push(g.entities.get(out ? e.o : e.s)!);
-		}
-		return [...groups.values()].sort((a, b) => b.items.length - a.items.length);
-	});
+	/** Elements merged into the selected node when its class is collapsed. */
 	protected readonly mergedChildren = computed(() => {
 		const e = this.selectedEntity();
 		const g = this.graph();
 		if (!e || !g || this.levels()[e.kind as Kind] !== 'collapsed') return [];
-		return [...g.entities.values()].filter((o) => o.kind === e.kind && o.root === e.id && o.id !== e.id);
+		const lang = this.lang();
+		return [...g.entities.values()]
+			.filter((o) => o.kind === e.kind && o.root === e.id && o.id !== e.id)
+			.sort((a, b) => entityTitle(a, lang).localeCompare(entityTitle(b, lang), lang));
+	});
+
+	/**
+	 * The selected node's relations as short sentences: "Wird betrieben von A, B und C." – at most SENTENCE_MAX
+	 * elements are linked, the rest is summarised as "und n weitere".
+	 */
+	protected readonly sentences = computed<Sentence[]>(() => {
+		const id = this.selected();
+		const mg = this.mapGraph();
+		const g = this.graph();
+		const lang = this.lang();
+		if (!id || !mg || !g) return [];
+		const and = this.translate.instant('common.and');
+		const build = (label: string, items: Entity[]): Sentence => {
+			const shown = items.slice(0, SENTENCE_MAX);
+			const more = items.length - shown.length;
+			const parts: SentencePart[] = [{ text: `${label} ` }];
+			shown.forEach((entity, k) => {
+				if (k > 0) parts.push({ text: k === shown.length - 1 && !more ? ` ${and} ` : ', ' });
+				parts.push({ entity });
+			});
+			if (more) parts.push({ text: ` ${this.translate.instant('map.andMore', { n: more })}` });
+			parts.push({ text: '.' });
+			return { key: label, parts };
+		};
+		const out: Sentence[] = [];
+		const merged = this.mergedChildren();
+		if (merged.length) out.push(build(`${this.translate.instant('map.merged', { n: merged.length })}:`, merged));
+		const groups = new Map<string, { key: string; out: boolean; items: Entity[] }>();
+		for (const e of mg.edges) {
+			if (e.s !== id && e.o !== id) continue;
+			const isOut = e.s === id;
+			const k = `${e.key}|${isOut}`;
+			if (!groups.has(k)) groups.set(k, { key: e.key, out: isOut, items: [] });
+			groups.get(k)!.items.push(g.entities.get(isOut ? e.o : e.s)!);
+		}
+		for (const grp of [...groups.values()].sort((a, b) => b.items.length - a.items.length)) {
+			const raw = grp.out
+				? pick(g.relationInfo.get(grp.key)?.name, lang)
+				: this.translate.instant(`relInverse.${grp.key}`);
+			const label = raw.charAt(0).toLocaleUpperCase(lang) + raw.slice(1);
+			grp.items.sort((a, b) => entityTitle(a, lang).localeCompare(entityTitle(b, lang), lang));
+			out.push(build(label, grp.items));
+		}
+		return out;
 	});
 
 	protected readonly counts = computed(() => {

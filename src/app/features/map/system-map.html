@@ -109,7 +109,7 @@
 	</aside>
 
 	<!-- ============================================================ stage -->
-	<section class="stage" [attr.aria-label]="'nav.map' | translate">
+	<section class="stage" [class.has-drawer]="!!selectedEntity()" [attr.aria-label]="'nav.map' | translate">
 		<div class="stage-bar">
 			<button
 				mat-icon-button
@@ -203,11 +203,6 @@
 			}
 
 			<span class="spacer"></span>
-			@if (mapGraph(); as mg) {
-				<span class="stats sm-muted">
-					{{ mg.nodes.length }} {{ 'map.nodes' | translate }} · {{ mg.edges.length }} {{ 'map.edges' | translate }}
-				</span>
-			}
 		</div>
 
 		<div class="canvas-wrap">
@@ -396,11 +391,8 @@
 							<mat-icon svgIcon="xmark" />
 						</button>
 					</div>
-					<h2>{{ e.name | pick: lang() }}</h2>
+					<h2>{{ e | label: lang() : 'title' }}</h2>
 					<div class="drawer-tags">
-						@if (e.abbreviation) {
-							<span class="sm-tag">{{ e.abbreviation }}</span>
-						}
 						@if (e.orgType) {
 							<span class="sm-tag">{{ 'orgType.' + e.orgType | translate }}</span>
 						}
@@ -423,36 +415,19 @@
 						<p class="desc">{{ d }}</p>
 					}
 
-					@if (mergedChildren().length) {
-						<details class="merged">
-							<summary>{{ 'map.merged' | translate: { n: mergedChildren().length } }}</summary>
-							<div class="chips">
-								@for (c of mergedChildren(); track c.id) {
-									<app-entity-chip [entity]="c" />
-								}
-							</div>
-						</details>
-					}
-
-					@for (grp of selectedRelations(); track grp.key + grp.out) {
-						<div class="rel-block">
-							<p class="rel-title">
-								<span class="dir">{{ grp.out ? '→' : '←' }}</span>
-								@if (grp.out) {
-									{{ graph()?.relationInfo?.get(grp.key)?.name | pick: lang() }}
-								} @else {
-									{{ 'relInverse.' + grp.key | translate }}
-								}
-								<span class="count">{{ grp.items.length }}</span>
-							</p>
-							<div class="chips">
-								@for (x of grp.items.slice(0, 24); track x.id) {
-									<app-entity-chip [entity]="x" [max]="36" />
-								}
-								@if (grp.items.length > 24) {
-									<span class="sm-muted sm-small">+{{ grp.items.length - 24 }}</span>
-								}
-							</div>
+					@if (sentences().length) {
+						<div class="sentences">
+							@for (sen of sentences(); track sen.key) {
+								<p class="rel-sentence">
+									@for (p of sen.parts; track $index) {
+										@if (p.entity; as x) {
+											<a [routerLink]="['/entity', x.key]">{{ x | label: lang() }}</a>
+										} @else {
+											<span>{{ p.text }}</span>
+										}
+									}
+								</p>
+							}
 						</div>
 					}
 
