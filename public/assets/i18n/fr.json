@@ -19,7 +19,8 @@
 		"showAll": "Tout afficher",
 		"showLess": "Afficher moins",
 		"of": "sur",
-		"and": "et"
+		"and": "et",
+		"andMore": "et {{n}} autres"
 	},
 	"state": {
 		"loading": "Chargement des données depuis LINDAS…",
@@ -39,8 +40,8 @@
 			"plural": "Systèmes informatiques"
 		},
 		"dataset": {
-			"one": "Unité d'information",
-			"plural": "Unités d'information"
+			"one": "Jeu de données",
+			"plural": "Jeux de données"
 		},
 		"service": {
 			"one": "Service informatique",
@@ -119,7 +120,7 @@
 		"fit": "Ajuster à l'écran",
 		"computing": "Calcul de la disposition…",
 		"empty": "Rien à afficher avec les paramètres actuels.",
-		"canvasLabel": "Graphe des organisations, systèmes informatiques, services informatiques et unités d'information",
+		"canvasLabel": "Graphe des organisations, systèmes informatiques, services informatiques et jeux de données",
 		"interactionHint": "Défiler pour déplacer · Ctrl + défiler pour zoomer · double-clic pour le focus",
 		"details": "Détails",
 		"openDetails": "Page de détail",
@@ -133,8 +134,7 @@
 		"allSectors": "Tous les secteurs",
 		"allRelations": "Toutes les relations",
 		"nOfM": "{{n}} sur {{m}}",
-		"activeFilters": "{{n}} filtres actifs",
-		"andMore": "et {{n}} autres"
+		"activeFilters": "{{n}} filtres actifs"
 	},
 	"dash": {
 		"title": "En un coup d'œil",
@@ -159,17 +159,17 @@
 		},
 		"privacy": {
 			"title": "Protection des données",
-			"sub": "Chaque carré représente l'une des {{n}} unités d'information, classées selon le besoin de protection.",
+			"sub": "Chaque carré représente l'un des {{n}} jeux de données, classés selon le besoin de protection.",
 			"none": "Pas de données personnelles",
 			"master": "Les carrés encadrés sont des données de base ({{n}})."
 		},
 		"systems": {
 			"title": "Principaux systèmes informatiques",
-			"sub": "Systèmes informatiques selon le nombre d'unités d'information qu'ils contiennent"
+			"sub": "Systèmes informatiques selon le nombre de jeux de données qu'ils contiennent"
 		},
 		"hubs": {
 			"title": "Les plus connectés",
-			"sub": "Systèmes informatiques et unités d'information avec le plus de relations distinctes"
+			"sub": "Systèmes informatiques et jeux de données avec le plus de relations distinctes"
 		},
 		"services": {
 			"title": "Services informatiques partagés",
@@ -195,26 +195,23 @@
 		"unit": {
 			"systems": "systèmes informatiques",
 			"orgs": "organisations",
-			"datasets": "unités d'information",
+			"datasets": "jeux de données",
 			"links": "relations",
 			"consumers": "utilisateurs"
 		}
 	},
 	"catalog": {
-		"lead": "Toutes les organisations, systèmes informatiques, services informatiques et unités d'information – où se trouvent les données et qui en est responsable.",
 		"classes": "Classes",
 		"filters": "Filtres",
 		"clear": "Réinitialiser les filtres",
 		"results": "Résultats",
 		"protection": "Protection des données",
 		"masterOnly": "Données de base uniquement",
-		"type": "Type",
 		"fmisOnly": "Systèmes de gestion d'exploitation uniquement",
 		"sector": "Secteur",
 		"topLevelOnly": "Niveau supérieur uniquement",
 		"canton": "Canton",
 		"any": "Tous",
-		"subgraph": "Architecture / sous-graphe",
 		"keywords": "Mots-clés",
 		"responsible": {
 			"dataset": "Organisation responsable",
@@ -222,21 +219,11 @@
 			"organization": "Appartient à",
 			"service": "Fournisseur (organisation)"
 		},
-		"search": "Rechercher dans l'inventaire",
-		"searchPlaceholder": {
-			"dataset": "Rechercher unités d'information, systèmes, organisations…",
-			"system": "Rechercher des systèmes informatiques…",
-			"organization": "Rechercher des organisations…",
-			"service": "Rechercher des services informatiques…"
-		},
 		"groupBy": "Grouper par",
 		"group": {
 			"none": "Aucun regroupement",
 			"operator": "Organisation responsable"
 		},
-		"sort": "Trier",
-		"sortName": "Nom",
-		"sortConnections": "Relations",
 		"view": "Vue",
 		"cards": "Cartes",
 		"table": "Tableau",
@@ -258,11 +245,15 @@
 		"col": {
 			"name": "Nom",
 			"flags": "Classification",
-			"orgType": "Secteur",
 			"website": "Site web",
 			"description": "Description"
 		},
-		"level": "Niveau"
+		"uses": "Utilise",
+		"usedBy": "Utilisé par",
+		"csv": "Télécharger en CSV",
+		"count": "{{n}} sur {{m}} entrées",
+		"showFilters": "Afficher les filtres",
+		"hideFilters": "Masquer les filtres"
 	},
 	"entity": {
 		"breadcrumb": "Fil d'Ariane",
@@ -286,19 +277,19 @@
 		"structure": {
 			"organization": "Structure organisationnelle",
 			"system": "Structure du système",
-			"dataset": "Structure de l'unité d'information",
+			"dataset": "Structure du jeu de données",
 			"service": "Structure du service"
 		},
 		"rollup": {
 			"organization": "Systèmes informatiques au sein de cette organisation",
-			"system": "Unités d'information dans les sous-systèmes",
+			"system": "Jeux de données dans les sous-systèmes",
 			"dataset": "Stockage des parties",
 			"service": "Utilisation des sous-services"
 		},
 		"rollupSub": {
 			"organization": "{{n}} systèmes informatiques sont exploités par des unités de cette organisation.",
-			"system": "{{n}} unités d'information sont contenues dans des sous-systèmes de ce système.",
-			"dataset": "{{n}} systèmes informatiques contiennent des parties de cette unité d'information.",
+			"system": "{{n}} jeux de données sont contenus dans des sous-systèmes de ce système.",
+			"dataset": "{{n}} systèmes informatiques contiennent des parties de ce jeu de données.",
 			"service": "{{n}} systèmes et organisations utilisent des sous-services de ce service."
 		}
 	},
@@ -307,7 +298,7 @@
 		"lead": "Une image partagée et lisible par machine de qui exploite quels systèmes informatiques et où se trouvent quelles données dans le secteur agroalimentaire suisse.",
 		"what": {
 			"title": "De quoi s'agit-il ?",
-			"p1": "La carte du système DigiAgriFoodCH est un graphe de connaissances géré par l'Office fédéral de l'agriculture OFAG. Elle décrit les organisations, les systèmes informatiques qu'elles exploitent, les services informatiques que ces systèmes fournissent et utilisent ainsi que les unités d'information (jeux de données) qu'ils contiennent – avec leurs relations, leur besoin de protection et leurs bases légales.",
+			"p1": "La carte du système DigiAgriFoodCH est un graphe de connaissances géré par l'Office fédéral de l'agriculture OFAG. Elle décrit les organisations, les systèmes informatiques qu'elles exploitent, les services informatiques que ces systèmes fournissent et utilisent ainsi que les jeux de données qu'ils contiennent – avec leurs relations, leur besoin de protection et leurs bases légales.",
 			"p2": "Cette application propose trois vues sur les mêmes données : une vue d'ensemble avec des chiffres clés, une carte interactive qui rend visible la structure du graphe et un inventaire pour rechercher et filtrer tous les éléments documentés."
 		},
 		"how": {

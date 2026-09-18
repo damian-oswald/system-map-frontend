@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Entity, EntityKind } from '../core/graph.model';
 import { GraphService } from '../core/graph.service';
@@ -180,4 +180,53 @@ export class EntityTree {
 	readonly nodes = input.required<TreeNode[]>();
 	readonly root = input(true);
 	protected readonly lang = inject(LangService).lang;
+}
+
+/** Names as running text – "A, B und C" or "A, B, C und n weitere" – as plain links that underline on hover. */
+@Component({
+	selector: 'app-name-list',
+	imports: [RouterLink, LabelPipe],
+	template: `@for (x of shown(); track x.id; let i = $index; let last = $last) {
+			<span>{{ separator(i, last) }}</span
+			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{
+				chars() ? (x | label: lang() : 'short' : chars()) : (x | label: lang())
+			}}</a>
+		}
+		@if (more()) {
+			<span>{{ moreText() }}</span>
+		}`,
+	styles: `
+		:host {
+			display: inline;
+			white-space: pre-wrap;
+		}
+		a,
+		a:visited {
+			color: inherit;
+			text-decoration: none;
+		}
+		a:hover,
+		a:focus-visible {
+			text-decoration: underline;
+		}
+	`,
+})
+export class NameList {
+	readonly items = input.required<Entity[]>();
+	readonly max = input(3);
+	/** cut each name to this many characters (0 = full names) */
+	readonly chars = input(0);
+	protected readonly lang = inject(LangService).lang;
+	private readonly translate = inject(TranslateService);
+	protected readonly shown = computed(() => this.items().slice(0, this.max()));
+	protected readonly more = computed(() => this.items().length - this.shown().length);
+	protected readonly moreText = computed(() => {
+		this.lang();
+		return ` ${this.translate.instant('common.andMore', { n: this.more() })}`;
+	});
+
+	protected separator(i: number, last: boolean): string {
+		if (i === 0) return '';
+		return last && !this.more() ? ` ${this.translate.instant('common.and')} ` : ', ';
+	}
 }

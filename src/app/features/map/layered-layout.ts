@@ -3,7 +3,7 @@ import { Kind } from '../../core/vocab';
 import { MapGraph, MapNode, ORG_TYPES } from './map-model';
 
 /**
- * Deterministic "swim-lane" layout: one column per class (organizations → systems → services → information units),
+ * Deterministic "swim-lane" layout: one column per class (organizations → systems → services → data sets),
  * rows ordered by barycentre sweeps to minimize edge crossings, and short columns aligned to their neighbours by
  * order-preserving isotonic regression. Hierarchies (sub-units, parts) are drawn as indented trees directly below
  * their parent. No simulation, no wiggle — the same input always yields the same picture.

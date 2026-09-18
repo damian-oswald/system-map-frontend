@@ -19,7 +19,8 @@
 		"showAll": "Mostra tutto",
 		"showLess": "Mostra meno",
 		"of": "di",
-		"and": "e"
+		"and": "e",
+		"andMore": "e altri {{n}}"
 	},
 	"state": {
 		"loading": "Caricamento dei dati da LINDAS…",
@@ -39,8 +40,8 @@
 			"plural": "Sistemi IT"
 		},
 		"dataset": {
-			"one": "Unità d'informazione",
-			"plural": "Unità d'informazione"
+			"one": "Set di dati",
+			"plural": "Set di dati"
 		},
 		"service": {
 			"one": "Servizio IT",
@@ -119,7 +120,7 @@
 		"fit": "Adatta allo schermo",
 		"computing": "Calcolo del layout…",
 		"empty": "Nulla da mostrare con le impostazioni attuali.",
-		"canvasLabel": "Grafo di organizzazioni, sistemi IT, servizi IT e unità d'informazione",
+		"canvasLabel": "Grafo di organizzazioni, sistemi IT, servizi IT e set di dati",
 		"interactionHint": "Scorrere per spostare · Ctrl + scorrere per zoomare · doppio clic per il focus",
 		"details": "Dettagli",
 		"openDetails": "Pagina di dettaglio",
@@ -133,8 +134,7 @@
 		"allSectors": "Tutti i settori",
 		"allRelations": "Tutte le relazioni",
 		"nOfM": "{{n}} di {{m}}",
-		"activeFilters": "{{n}} filtri attivi",
-		"andMore": "e altri {{n}}"
+		"activeFilters": "{{n}} filtri attivi"
 	},
 	"dash": {
 		"title": "In sintesi",
@@ -159,17 +159,17 @@
 		},
 		"privacy": {
 			"title": "Protezione dei dati",
-			"sub": "Ogni quadrato è una delle {{n}} unità d'informazione, ordinate per necessità di protezione.",
+			"sub": "Ogni quadrato è uno dei {{n}} set di dati, ordinati per necessità di protezione.",
 			"none": "Nessun dato personale",
 			"master": "I quadrati bordati sono dati di base ({{n}})."
 		},
 		"systems": {
 			"title": "Sistemi IT più grandi",
-			"sub": "Sistemi IT per numero di unità d'informazione contenute"
+			"sub": "Sistemi IT per numero di set di dati contenute"
 		},
 		"hubs": {
 			"title": "I più collegati",
-			"sub": "Sistemi IT e unità d'informazione con il maggior numero di relazioni distinte"
+			"sub": "Sistemi IT e set di dati con il maggior numero di relazioni distinte"
 		},
 		"services": {
 			"title": "Servizi IT condivisi",
@@ -195,26 +195,23 @@
 		"unit": {
 			"systems": "sistemi IT",
 			"orgs": "organizzazioni",
-			"datasets": "unità d'informazione",
+			"datasets": "set di dati",
 			"links": "relazioni",
 			"consumers": "utenti"
 		}
 	},
 	"catalog": {
-		"lead": "Tutte le organizzazioni, i sistemi IT, i servizi IT e le unità d'informazione – dove si trovano i dati e chi ne è responsabile.",
 		"classes": "Classi",
 		"filters": "Filtri",
 		"clear": "Reimposta filtri",
 		"results": "Risultati",
 		"protection": "Protezione dei dati",
 		"masterOnly": "Solo dati di base",
-		"type": "Tipo",
 		"fmisOnly": "Solo sistemi di gestione aziendale",
 		"sector": "Settore",
 		"topLevelOnly": "Solo livello superiore",
 		"canton": "Cantone",
 		"any": "Tutti",
-		"subgraph": "Architettura / sottografo",
 		"keywords": "Parole chiave",
 		"responsible": {
 			"dataset": "Organizzazione responsabile",
@@ -222,21 +219,11 @@
 			"organization": "Appartiene a",
 			"service": "Fornitore (organizzazione)"
 		},
-		"search": "Cerca nell'inventario",
-		"searchPlaceholder": {
-			"dataset": "Cerca unità d'informazione, sistemi, organizzazioni…",
-			"system": "Cerca sistemi IT…",
-			"organization": "Cerca organizzazioni…",
-			"service": "Cerca servizi IT…"
-		},
 		"groupBy": "Raggruppa per",
 		"group": {
 			"none": "Nessun raggruppamento",
 			"operator": "Organizzazione responsabile"
 		},
-		"sort": "Ordina",
-		"sortName": "Nome",
-		"sortConnections": "Relazioni",
 		"view": "Vista",
 		"cards": "Schede",
 		"table": "Tabella",
@@ -258,11 +245,15 @@
 		"col": {
 			"name": "Nome",
 			"flags": "Classificazione",
-			"orgType": "Settore",
 			"website": "Sito web",
 			"description": "Descrizione"
 		},
-		"level": "Livello"
+		"uses": "Utilizza",
+		"usedBy": "Utilizzato da",
+		"csv": "Scarica come CSV",
+		"count": "{{n}} di {{m}} voci",
+		"showFilters": "Mostra i filtri",
+		"hideFilters": "Nascondi i filtri"
 	},
 	"entity": {
 		"breadcrumb": "Percorso di navigazione",
@@ -286,19 +277,19 @@
 		"structure": {
 			"organization": "Struttura organizzativa",
 			"system": "Struttura del sistema",
-			"dataset": "Struttura dell'unità d'informazione",
+			"dataset": "Struttura del set di dati",
 			"service": "Struttura del servizio"
 		},
 		"rollup": {
 			"organization": "Sistemi IT all'interno di questa organizzazione",
-			"system": "Unità d'informazione nei sottosistemi",
+			"system": "Set di dati nei sottosistemi",
 			"dataset": "Dove sono salvate le parti",
 			"service": "Utilizzo dei sottoservizi"
 		},
 		"rollupSub": {
 			"organization": "{{n}} sistemi IT sono gestiti da unità di questa organizzazione.",
-			"system": "{{n}} unità d'informazione sono contenute in sottosistemi di questo sistema.",
-			"dataset": "{{n}} sistemi IT contengono parti di questa unità d'informazione.",
+			"system": "{{n}} set di dati sono contenuti in sottosistemi di questo sistema.",
+			"dataset": "{{n}} sistemi IT contengono parti di questo set di dati.",
 			"service": "{{n}} sistemi e organizzazioni utilizzano sottoservizi di questo servizio."
 		}
 	},
@@ -307,7 +298,7 @@
 		"lead": "Un quadro condiviso e leggibile da macchina di chi gestisce quali sistemi IT e dove si trovano quali dati nel settore agroalimentare svizzero.",
 		"what": {
 			"title": "Di cosa si tratta?",
-			"p1": "La mappa del sistema DigiAgriFoodCH è un grafo della conoscenza curato dall'Ufficio federale dell'agricoltura UFAG. Descrive le organizzazioni, i sistemi IT che gestiscono, i servizi IT che questi sistemi forniscono e utilizzano e le unità d'informazione (set di dati) che contengono – con le loro relazioni, la loro necessità di protezione e le loro basi legali.",
+			"p1": "La mappa del sistema DigiAgriFoodCH è un grafo della conoscenza curato dall'Ufficio federale dell'agricoltura UFAG. Descrive le organizzazioni, i sistemi IT che gestiscono, i servizi IT che questi sistemi forniscono e utilizzano e i set di dati che contengono – con le loro relazioni, la loro necessità di protezione e le loro basi legali.",
 			"p2": "Questa applicazione offre tre viste sugli stessi dati: una panoramica con cifre chiave, una mappa interattiva che rende visibile la struttura del grafo e un inventario per cercare e filtrare tutti gli elementi documentati."
 		},
 		"how": {

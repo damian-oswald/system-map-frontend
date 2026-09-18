@@ -19,7 +19,8 @@
 		"showAll": "Alle anzeigen",
 		"showLess": "Weniger anzeigen",
 		"of": "von",
-		"and": "und"
+		"and": "und",
+		"andMore": "und {{n}} weitere"
 	},
 	"state": {
 		"loading": "Die Daten werden aus LINDAS geladen…",
@@ -39,8 +40,8 @@
 			"plural": "IT-Systeme"
 		},
 		"dataset": {
-			"one": "Informationseinheit",
-			"plural": "Informationseinheiten"
+			"one": "Datensatz",
+			"plural": "Datensätze"
 		},
 		"service": {
 			"one": "IT-Service",
@@ -119,7 +120,7 @@
 		"fit": "An Bildschirm anpassen",
 		"computing": "Layout wird berechnet…",
 		"empty": "Mit den aktuellen Einstellungen gibt es nichts anzuzeigen.",
-		"canvasLabel": "Graph der Organisationen, IT-Systeme, IT-Services und Informationseinheiten",
+		"canvasLabel": "Graph der Organisationen, IT-Systeme, IT-Services und Datensätze",
 		"interactionHint": "Scrollen zum Verschieben · Ctrl + Scrollen zum Zoomen · Doppelklick für Fokus",
 		"details": "Details",
 		"openDetails": "Detailseite",
@@ -133,8 +134,7 @@
 		"allSectors": "Alle Sektoren",
 		"allRelations": "Alle Beziehungen",
 		"nOfM": "{{n}} von {{m}}",
-		"activeFilters": "{{n}} aktive Filter",
-		"andMore": "und {{n}} weitere"
+		"activeFilters": "{{n}} aktive Filter"
 	},
 	"dash": {
 		"title": "Auf einen Blick",
@@ -159,17 +159,17 @@
 		},
 		"privacy": {
 			"title": "Datenschutz",
-			"sub": "Jedes Quadrat ist eine der {{n}} Informationseinheiten, geordnet nach Schutzbedarf.",
+			"sub": "Jedes Quadrat ist einer der {{n}} Datensätze, geordnet nach Schutzbedarf.",
 			"none": "Keine Personendaten",
 			"master": "Umrandete Quadrate sind Stammdaten ({{n}})."
 		},
 		"systems": {
 			"title": "Grösste IT-Systeme",
-			"sub": "IT-Systeme nach Anzahl enthaltener Informationseinheiten"
+			"sub": "IT-Systeme nach Anzahl enthaltener Datensätze"
 		},
 		"hubs": {
 			"title": "Am stärksten vernetzt",
-			"sub": "IT-Systeme und Informationseinheiten mit den meisten unterschiedlichen Beziehungen"
+			"sub": "IT-Systeme und Datensätze mit den meisten unterschiedlichen Beziehungen"
 		},
 		"services": {
 			"title": "Gemeinsam genutzte IT-Services",
@@ -195,26 +195,23 @@
 		"unit": {
 			"systems": "IT-Systeme",
 			"orgs": "Organisationen",
-			"datasets": "Informationseinheiten",
+			"datasets": "Datensätze",
 			"links": "Beziehungen",
 			"consumers": "Nutzende"
 		}
 	},
 	"catalog": {
-		"lead": "Alle Organisationen, IT-Systeme, IT-Services und Informationseinheiten – wo die Daten liegen und wer dafür verantwortlich ist.",
 		"classes": "Klassen",
 		"filters": "Filter",
 		"clear": "Filter zurücksetzen",
 		"results": "Resultate",
 		"protection": "Datenschutz",
 		"masterOnly": "Nur Stammdaten",
-		"type": "Typ",
 		"fmisOnly": "Nur Farm-Management-Systeme",
 		"sector": "Sektor",
 		"topLevelOnly": "Nur oberste Ebene",
 		"canton": "Kanton",
 		"any": "Alle",
-		"subgraph": "Architektur / Teilgraph",
 		"keywords": "Schlagwörter",
 		"responsible": {
 			"dataset": "Verantwortliche Organisation",
@@ -222,21 +219,11 @@
 			"organization": "Gehört zu",
 			"service": "Anbieterin (Organisation)"
 		},
-		"search": "Inventar durchsuchen",
-		"searchPlaceholder": {
-			"dataset": "Informationseinheiten, Systeme, Organisationen suchen…",
-			"system": "IT-Systeme suchen…",
-			"organization": "Organisationen suchen…",
-			"service": "IT-Services suchen…"
-		},
 		"groupBy": "Gruppieren nach",
 		"group": {
 			"none": "Keine Gruppierung",
 			"operator": "Verantwortliche Organisation"
 		},
-		"sort": "Sortieren",
-		"sortName": "Name",
-		"sortConnections": "Beziehungen",
 		"view": "Ansicht",
 		"cards": "Karten",
 		"table": "Tabelle",
@@ -258,11 +245,15 @@
 		"col": {
 			"name": "Name",
 			"flags": "Einstufung",
-			"orgType": "Sektor",
 			"website": "Website",
 			"description": "Beschreibung"
 		},
-		"level": "Ebene"
+		"uses": "Nutzt",
+		"usedBy": "Genutzt von",
+		"csv": "Als CSV herunterladen",
+		"count": "{{n}} von {{m}} Einträgen",
+		"showFilters": "Filter einblenden",
+		"hideFilters": "Filter ausblenden"
 	},
 	"entity": {
 		"breadcrumb": "Brotkrümelnavigation",
@@ -286,19 +277,19 @@
 		"structure": {
 			"organization": "Organisationsstruktur",
 			"system": "Systemstruktur",
-			"dataset": "Struktur der Informationseinheit",
+			"dataset": "Struktur des Datensatzes",
 			"service": "Servicestruktur"
 		},
 		"rollup": {
 			"organization": "IT-Systeme innerhalb dieser Organisation",
-			"system": "Informationseinheiten in Teilsystemen",
+			"system": "Datensätze in Teilsystemen",
 			"dataset": "Speicherorte der Teile",
 			"service": "Nutzung der Teilservices"
 		},
 		"rollupSub": {
 			"organization": "{{n}} IT-Systeme werden von Einheiten dieser Organisation betrieben.",
-			"system": "{{n}} Informationseinheiten sind in Teilsystemen dieses Systems enthalten.",
-			"dataset": "{{n}} IT-Systeme enthalten Teile dieser Informationseinheit.",
+			"system": "{{n}} Datensätze sind in Teilsystemen dieses Systems enthalten.",
+			"dataset": "{{n}} IT-Systeme enthalten Teile dieses Datensatzes.",
 			"service": "{{n}} Systeme und Organisationen nutzen Teilservices dieses Services."
 		}
 	},
@@ -307,7 +298,7 @@
 		"lead": "Ein gemeinsames, maschinenlesbares Bild davon, wer im Schweizer Agrar- und Lebensmittelsektor welche IT-Systeme betreibt und wo welche Daten liegen.",
 		"what": {
 			"title": "Was ist das?",
-			"p1": "Die DigiAgriFoodCH-Systemlandkarte ist ein Wissensgraph, der vom Bundesamt für Landwirtschaft BLW gepflegt wird. Er beschreibt Organisationen, die von ihnen betriebenen IT-Systeme, die IT-Services, die diese Systeme anbieten und nutzen, sowie die darin enthaltenen Informationseinheiten (Datensätze) – mitsamt ihren Beziehungen, ihrem Schutzbedarf und ihren Rechtsgrundlagen.",
+			"p1": "Die DigiAgriFoodCH-Systemlandkarte ist ein Wissensgraph, der vom Bundesamt für Landwirtschaft BLW gepflegt wird. Er beschreibt Organisationen, die von ihnen betriebenen IT-Systeme, die IT-Services, die diese Systeme anbieten und nutzen, sowie die darin enthaltenen Datensätze – mitsamt ihren Beziehungen, ihrem Schutzbedarf und ihren Rechtsgrundlagen.",
 			"p2": "Diese Anwendung bietet drei Sichten auf dieselben Daten: eine Übersicht mit Kennzahlen, eine interaktive Karte, welche die Struktur des Graphen sichtbar macht, und ein Inventar zum Durchsuchen und Filtern aller dokumentierten Elemente."
 		},
 		"how": {

@@ -40,7 +40,7 @@ export function buildRows(g: SystemMapGraph, kind: Kind, lang: Lang): CatalogRow
 			let users: Entity[] = [];
 			if (kind === 'dataset') {
 				systems = incoming(e, 'contains');
-				// parts of a larger information unit inherit where the whole is stored
+				// parts of a larger data set inherit where the whole is stored
 				if (!systems.length) systems = uniq(outgoing(e, 'isPartOf').flatMap((p) => incoming(p, 'contains')));
 				operators = operatorsOf(systems);
 			} else if (kind === 'system') {

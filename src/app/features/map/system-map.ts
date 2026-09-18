@@ -376,7 +376,7 @@ export class SystemMap implements AfterViewInit {
 				if (k > 0) parts.push({ text: k === shown.length - 1 && !more ? ` ${and} ` : ', ' });
 				parts.push({ entity });
 			});
-			if (more) parts.push({ text: ` ${this.translate.instant('map.andMore', { n: more })}` });
+			if (more) parts.push({ text: ` ${this.translate.instant('common.andMore', { n: more })}` });
 			parts.push({ text: '.' });
 			return { key: label, parts };
 		};
