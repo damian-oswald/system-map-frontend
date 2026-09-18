@@ -14,9 +14,7 @@ import { GraphService } from './core/graph.service';
 			</ng-container>
 			<ng-container obFooterInfo>
 				<p>
-					{{ 'app.footer.operator' | translate }} ·
-					{{ 'app.footer.data' | translate }}
-					<a href="https://lindas.admin.ch" target="_blank" rel="noopener">LINDAS</a>
+					{{ 'app.footer.operator' | translate }}
 				</p>
 			</ng-container>
 		</ob-master-layout>

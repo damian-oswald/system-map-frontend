@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ObExternalLinkDirective } from '@oblique/oblique';
 
 import { GraphService } from '../../core/graph.service';
-import { DataFooter } from '../../shared/data-footer';
 import { LangService, PickPipe } from '../../core/i18n';
-import { CLS, ENDPOINT, GRAPH_IRI, KINDS, REPO_URL, RELATIONS } from '../../core/vocab';
+import { CLS, RELATIONS, REPO_URL } from '../../core/vocab';
+import { DataFooter } from '../../shared/data-footer';
 
 /** Classes explained in the glossary, in display order, with the class colour they map to. */
 const GLOSSARY: { iri: string; kind: string }[] = [
@@ -22,34 +22,29 @@ const GLOSSARY: { iri: string; kind: string }[] = [
 	{ iri: CLS.sensitiveData, kind: 'dataset' },
 ];
 
+/** "Further information" – title and description come from `about.links.<key>` / `<key>Desc` */
+const LINKS: { key: string; url: string }[] = [
+	{ key: 'repo', url: REPO_URL },
+	{ key: 'wiki', url: `${REPO_URL}/wiki` },
+	{ key: 'issues', url: `${REPO_URL}/issues` },
+	{ key: 'project', url: 'https://blw-ofag-ufag.github.io/system-map' },
+	{ key: 'lindas', url: 'https://lindas.admin.ch' },
+	{ key: 'oblique', url: 'https://oblique.bit.admin.ch' },
+];
+
 @Component({
 	selector: 'app-about',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: { class: 'sm-routed' },
-	imports: [TranslatePipe, MatIconModule, PickPipe, DataFooter],
+	imports: [TranslatePipe, PickPipe, DataFooter, ObExternalLinkDirective],
 	templateUrl: './about.html',
 	styleUrl: './about.scss',
 })
 export class About {
-	protected readonly graphService = inject(GraphService);
-	private readonly langService = inject(LangService);
-	protected readonly lang = this.langService.lang;
+	private readonly graphService = inject(GraphService);
+	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
-	protected readonly ENDPOINT = ENDPOINT;
-	protected readonly GRAPH_IRI = GRAPH_IRI;
-	protected readonly REPO_URL = REPO_URL;
-	protected readonly KINDS = KINDS;
-
-	protected readonly prettyQuery = this.graphService.query
-		.replace('CONSTRUCT{?s ?p ?o}WHERE{', 'CONSTRUCT { ?s ?p ?o }\nWHERE {\n  ')
-		.replace('GRAPH<', 'GRAPH <')
-		.replace('>{?s ?p ?o ', '> {\n    ?s ?p ?o\n    ')
-		.replace(/}}$/, '\n  }\n}');
-	protected readonly editorLink =
-		'https://lindas.admin.ch/sparql/#query=' +
-		encodeURIComponent(this.prettyQuery) +
-		'&endpoint=' +
-		encodeURIComponent(ENDPOINT);
+	protected readonly LINKS = LINKS;
 
 	protected readonly classes = computed(() => {
 		const g = this.graph();

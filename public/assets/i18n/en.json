@@ -326,35 +326,39 @@
 			"s3title": "In-memory model",
 			"s3": "The triples are parsed and turned into a typed model in a few milliseconds.",
 			"s4": "All pages compute their views locally – filtering is instant, no server needed.",
-			"p": "The query is sent before the application has even started and the last result is kept in the browser, so repeat visits appear instantly while a fresh copy is loaded in the background. Labels and descriptions are shown in the selected language, falling back to another language where no translation exists yet.",
-			"query": "Show the SPARQL query",
-			"openEditor": "Open in the LINDAS SPARQL editor"
+			"p": "The query is sent before the application has even started and the last result is kept in the browser, so repeat visits appear instantly while a fresh copy is loaded in the background. Labels and descriptions are shown in the selected language, falling back to another language where no translation exists yet."
 		},
 		"glossary": {
 			"title": "Glossary",
 			"p": "The terms below come straight from the system map ontology on LINDAS."
 		},
 		"links": {
-			"title": "Links",
+			"title": "Further information",
 			"repo": "Source data on GitHub",
 			"wiki": "Technical documentation",
-			"issues": "Report an error or suggest an addition"
+			"issues": "Report an error or suggest an addition",
+			"repoDesc": "The repository with the graph, its ontology and the validation rules.",
+			"wikiDesc": "Data model, conventions and guides for maintaining the system map.",
+			"issuesDesc": "Something missing or wrong? Open an issue on GitHub.",
+			"project": "System map project page",
+			"projectDesc": "Background and documentation of the DigiAgriFoodCH project.",
+			"lindas": "LINDAS – Linked Data Service",
+			"lindasDesc": "The Confederation's linked data platform, where the graph is published.",
+			"oblique": "Oblique – the federal design system",
+			"obliqueDesc": "The design system this application is built with."
 		}
 	},
 	"footer": {
 		"title": "Data",
 		"lead": "All content comes live from the system map knowledge graph on LINDAS, the Swiss federal Linked Data platform.",
 		"live": "Live data from LINDAS",
-		"queried": "Queried on {{date}}",
 		"syncing": "Updating…",
 		"reload": "Reload",
-		"name": "Name",
-		"created": "Created",
-		"modified": "Data last modified",
-		"source": "Source",
-		"graph": "Named graph",
-		"endpoint": "SPARQL endpoint",
 		"triples": "triples",
-		"editor": "Open in SPARQL editor"
+		"createdOn": "Created on {{date}}",
+		"modifiedOn": "Data last changed on {{date}}",
+		"unavailable": "LINDAS is currently unavailable.",
+		"repo": "Source data on GitHub",
+		"issues": "Report an error or suggest an addition"
 	}
 }
