@@ -238,19 +238,8 @@ mat-paginator {
 	color: inherit;
 
 	.mat-mdc-card {
-		position: relative;
 		height: 100%;
-		overflow: hidden;
 		padding: 16px 18px 14px;
-
-		// class colour as a bar on the left (a pseudo element, so Oblique's hover border leaves it alone)
-		&::before {
-			content: '';
-			position: absolute;
-			inset: 0 auto 0 0;
-			width: 3px;
-			background: var(--k);
-		}
 	}
 
 	.mat-mdc-card-header {

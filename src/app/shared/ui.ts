@@ -34,7 +34,7 @@ export const KIND_ICON: Record<EntityKind, string> = {
 					<span>{{ label() }}</span>
 				</a>
 			} @else {
-				<span class="sm-chip static sm-kind--{{ e.kind }}" [attr.title]="title()">
+				<span class="sm-chip static sm-kind--{{ e.kind }}">
 					@if (icon()) {
 						<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
 					}
