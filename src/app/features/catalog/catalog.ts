@@ -5,6 +5,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -14,7 +15,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { CANTONS } from '../../core/cantons';
+import { AddressService } from '../../core/address.service';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel } from '../../core/i18n';
@@ -22,25 +23,62 @@ import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { KIND_ICON, NameList, PageState } from '../../shared/ui';
 import { ORG_TYPES } from '../map/map-model';
-import { CatalogRow, buildRows, normalize, toCsv } from './catalog-data';
+import { CatalogRow, CountKey, buildRows, normalize, toCsv } from './catalog-data';
 
 type Protection = 'sensitive' | 'personal' | 'none';
-type GroupBy = 'none' | 'system' | 'operator';
+type GroupBy = 'none' | 'system' | 'operator' | 'sector';
 type View = 'table' | 'cards';
 
 interface Group {
 	key: string;
 	entity?: Entity;
+	/** translated title for groups that are not an element (sectors) */
+	label?: string;
 	rows: CatalogRow[];
+	/** size of the whole group – `rows` may hold only the part on the current page */
+	total: number;
 }
 
-/** table columns per class – every cell is text, names are plain links */
-const COLUMNS: Record<Kind, string[]> = {
-	dataset: ['name', 'description', 'systems', 'operators', 'keywords'],
-	system: ['name', 'description', 'operators', 'datasets', 'users'],
-	service: ['name', 'description', 'systems', 'users'],
-	organization: ['name', 'description', 'sector', 'canton', 'operators', 'systems'],
+/** numeric column → the figure it shows */
+export interface NumColumn {
+	id: string;
+	count: CountKey;
+}
+const NUM: Record<CountKey, NumColumn> = {
+	systems: { id: 'nSystems', count: 'systems' },
+	datasets: { id: 'nDatasets', count: 'datasets' },
+	services: { id: 'nServices', count: 'services' },
+	users: { id: 'nUsers', count: 'users' },
+	parts: { id: 'nParts', count: 'parts' },
+	legal: { id: 'nLegal', count: 'legal' },
 };
+const NUM_COLUMNS = Object.values(NUM);
+const NUM_ID = new Map(NUM_COLUMNS.map((c) => [c.id, c.count]));
+
+/** table columns per class – text cells first, figures to the right */
+const COLUMNS: Record<Kind, string[]> = {
+	dataset: ['name', 'systems', 'operators', 'keywords', NUM.parts.id, NUM.legal.id],
+	system: ['name', 'operators', NUM.datasets.id, NUM.services.id, NUM.users.id, NUM.parts.id],
+	service: ['name', 'systems', 'operators', NUM.users.id],
+	organization: [
+		'name',
+		'sector',
+		'operators',
+		'address',
+		NUM.parts.id,
+		NUM.systems.id,
+		NUM.datasets.id,
+		NUM.services.id,
+	],
+};
+/** figures that roll up along the hierarchy get a hint in the header */
+const ROLLUP: Partial<Record<Kind, Set<CountKey>>> = {
+	organization: new Set(['systems', 'datasets', 'services']),
+	system: new Set(['datasets', 'services']),
+};
+
+const PAGE_SIZES = [12, 24, 48, 96];
+const DEFAULT_PAGE_SIZE = 24;
 
 @Component({
 	selector: 'app-catalog',
@@ -54,6 +92,7 @@ const COLUMNS: Record<Kind, string[]> = {
 		MatFormFieldModule,
 		MatIconModule,
 		MatInputModule,
+		MatPaginatorModule,
 		MatSelectModule,
 		MatSlideToggleModule,
 		MatSortModule,
@@ -72,6 +111,7 @@ const COLUMNS: Record<Kind, string[]> = {
 })
 export class Catalog {
 	private readonly graphService = inject(GraphService);
+	private readonly addressService = inject(AddressService);
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly translate = inject(TranslateService);
@@ -81,13 +121,14 @@ export class Catalog {
 	protected readonly KINDS: Kind[] = ['dataset', 'system', 'service', 'organization'];
 	protected readonly KIND_ICON = KIND_ICON;
 	protected readonly ORG_TYPES = ORG_TYPES;
-	protected readonly CANTONS = CANTONS;
 	protected readonly PROTECTIONS: Protection[] = ['sensitive', 'personal', 'none'];
 	protected readonly PROTECTION_KEY: Record<Protection, string> = {
 		sensitive: 'flags.sensitive',
 		personal: 'flags.personal',
 		none: 'dash.privacy.none',
 	};
+	protected readonly NUM_COLUMNS = NUM_COLUMNS;
+	protected readonly PAGE_SIZES = PAGE_SIZES;
 
 	// ---- state (mirrored in the URL)
 	protected readonly kind = signal<Kind>('dataset');
@@ -95,28 +136,43 @@ export class Catalog {
 	protected readonly operator = signal('');
 	protected readonly keywords = signal(new Set<string>());
 	protected readonly protection = signal(new Set<Protection>());
-	protected readonly masterOnly = signal(false);
-	protected readonly fmisOnly = signal(false);
 	protected readonly orgTypes = signal(new Set<OrgType>(ORG_TYPES));
-	protected readonly canton = signal('');
 	protected readonly topLevelOnly = signal(false);
 	protected readonly groupBy = signal<GroupBy>('none');
 	protected readonly view = signal<View>('table');
 	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' });
+	protected readonly pageIndex = signal(0);
+	protected readonly pageSize = signal(DEFAULT_PAGE_SIZE);
 	protected readonly panelOpen = signal(false);
 
 	protected readonly keywordList = computed(() => [...this.keywords()]);
 	protected readonly protectionList = computed(() => [...this.protection()]);
 	protected readonly orgTypeList = computed(() => [...this.orgTypes()]);
+	/** "top level only" has no meaning once the organizations are already narrowed to one parent */
+	protected readonly topLevelDisabled = computed(() => this.kind() === 'organization' && !!this.operator());
 
 	protected readonly rowsByKind = computed(() => {
 		const g = this.graph();
 		const lang = this.lang();
+		const addresses = this.addressService.addresses();
 		if (!g) return null;
-		return Object.fromEntries(KINDS.map((k) => [k, buildRows(g, k, lang)])) as Record<Kind, CatalogRow[]>;
+		return Object.fromEntries(KINDS.map((k) => [k, buildRows(g, k, lang, addresses)])) as Record<Kind, CatalogRow[]>;
 	});
 	protected readonly rows = computed(() => this.rowsByKind()?.[this.kind()] ?? []);
 	protected readonly columns = computed(() => COLUMNS[this.kind()]);
+	/** group-by choices per class */
+	protected readonly groupOptions = computed<GroupBy[]>(() => {
+		switch (this.kind()) {
+			case 'dataset':
+				return ['system', 'operator'];
+			case 'system':
+				return ['operator'];
+			case 'organization':
+				return ['sector'];
+			default:
+				return [];
+		}
+	});
 
 	/** top-level organizations responsible for elements of the current class (filter options) */
 	protected readonly operatorOptions = computed(() => {
@@ -134,10 +190,6 @@ export class Catalog {
 		for (const r of this.rows()) for (const k of r.keywords) map.set(k.id, { e: k, n: (map.get(k.id)?.n ?? 0) + 1 });
 		return [...map.values()].sort((a, b) => b.n - a.n);
 	});
-	protected readonly cantonOptions = computed(() => {
-		const used = new Set(this.rows().map((r) => r.e.canton));
-		return CANTONS.filter((c) => used.has(c.code));
-	});
 
 	protected readonly filtered = computed(() => {
 		const terms = normalize(this.query().trim()).split(/\s+/).filter(Boolean);
@@ -146,31 +198,29 @@ export class Catalog {
 		const prot = this.protection();
 		const kind = this.kind();
 		const lang = this.lang();
+		const topLevel = this.topLevelOnly() && !this.topLevelDisabled();
 		const rows = this.rows().filter((r) => {
 			if (terms.length && !terms.every((t) => r.search.includes(t))) return false;
 			if (op && !r.operatorRoots.has(op)) return false;
 			if (kws.size && !r.e.keywords.some((k) => kws.has(k))) return false;
-			if (kind === 'dataset') {
-				if (prot.size && !prot.has(r.e.sensitive ? 'sensitive' : r.e.personal ? 'personal' : 'none')) return false;
-				if (this.masterOnly() && !r.e.master) return false;
+			if (kind === 'dataset' && prot.size) {
+				if (!prot.has(r.e.sensitive ? 'sensitive' : r.e.personal ? 'personal' : 'none')) return false;
 			}
-			if (kind === 'system' && this.fmisOnly() && !r.e.fmis) return false;
-			if (kind === 'organization') {
-				if (!this.orgTypes().has(r.e.orgType ?? 'other')) return false;
-				if (this.canton() && r.e.canton !== this.canton()) return false;
-			}
-			if (this.topLevelOnly() && r.e.root !== r.e.id) return false;
+			if (kind === 'organization' && !this.orgTypes().has(r.e.orgType ?? 'other')) return false;
+			if (topLevel && r.e.root !== r.e.id) return false;
 			return true;
 		});
 		const { active, direction } = this.sort();
 		const dir = direction === 'desc' ? -1 : 1;
 		const names = (list: Entity[]): string => list.map((x) => entityLabel(x, lang)).join(' ');
-		const key = (r: CatalogRow): string => {
+		const count = NUM_ID.get(active);
+		const key = (r: CatalogRow): string | number => {
+			if (count) return r.counts[count];
 			switch (active) {
 				case 'sector':
 					return this.translate.instant(`orgType.${r.e.orgType ?? 'other'}`);
-				case 'canton':
-					return r.e.canton ?? '';
+				case 'address':
+					return r.address ?? '';
 				case 'operators':
 					return names(r.operators);
 				case 'systems':
@@ -179,23 +229,32 @@ export class Catalog {
 					return r.name;
 			}
 		};
-		return [...rows].sort((a, b) => dir * key(a).localeCompare(key(b), lang) || a.name.localeCompare(b.name, lang));
+		const cmp = (a: string | number, b: string | number): number =>
+			typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), lang);
+		return [...rows].sort((a, b) => dir * cmp(key(a), key(b)) || a.name.localeCompare(b.name, lang));
 	});
 
+	/** all groups over the filtered rows (sizes and order) */
 	protected readonly groups = computed<Group[]>(() => {
 		const rows = this.filtered();
 		const by = this.groupBy();
-		if (by === 'none') return [{ key: '', rows }];
+		if (by === 'none' || !this.groupOptions().includes(by)) return [{ key: '', rows, total: rows.length }];
 		const g = this.graph()!;
 		const lang = this.lang();
+		if (by === 'sector') {
+			return ORG_TYPES.map((t) => {
+				const grpRows = rows.filter((r) => (r.e.orgType ?? 'other') === t);
+				return { key: t, label: this.translate.instant(`orgType.${t}`), rows: grpRows, total: grpRows.length };
+			}).filter((grp) => grp.total);
+		}
 		const map = new Map<string, Group>();
-		const none: Group = { key: '∅', rows: [] };
+		const none: Group = { key: '∅', rows: [], total: 0 };
 		for (const r of rows) {
 			const keys =
 				by === 'system' ? (this.kind() === 'system' ? [r.e] : r.systems).map((s) => s.id) : [...r.operatorRoots];
 			if (!keys.length) none.rows.push(r);
 			for (const k of keys) {
-				if (!map.has(k)) map.set(k, { key: k, entity: g.entities.get(k), rows: [] });
+				if (!map.has(k)) map.set(k, { key: k, entity: g.entities.get(k), rows: [], total: 0 });
 				map.get(k)!.rows.push(r);
 			}
 		}
@@ -203,31 +262,88 @@ export class Catalog {
 			(a, b) => b.rows.length - a.rows.length || entityLabel(a.entity, lang).localeCompare(entityLabel(b.entity, lang)),
 		);
 		if (none.rows.length) out.push(none);
+		for (const grp of out) grp.total = grp.rows.length;
+		return out;
+	});
+
+	/** rows over all groups (an element in two groups counts twice, as it is shown twice) */
+	protected readonly total = computed(() => this.groups().reduce((n, grp) => n + grp.rows.length, 0));
+	protected readonly page = computed(() =>
+		Math.min(this.pageIndex(), Math.max(0, Math.ceil(this.total() / this.pageSize()) - 1)),
+	);
+	/** the groups cut to the current page, keeping the group order */
+	protected readonly pagedGroups = computed<Group[]>(() => {
+		const start = this.page() * this.pageSize();
+		const end = start + this.pageSize();
+		const out: Group[] = [];
+		let offset = 0;
+		for (const grp of this.groups()) {
+			const from = Math.max(start - offset, 0);
+			const to = Math.min(end - offset, grp.rows.length);
+			if (from < to) out.push({ ...grp, rows: grp.rows.slice(from, to) });
+			offset += grp.rows.length;
+			if (offset >= end) break;
+		}
 		return out;
 	});
 
 	/** filters that deviate from their defaults – shown as a badge on the filter button */
 	protected readonly activeFilterCount = computed(
 		() =>
-			[this.operator(), this.canton()].filter(Boolean).length +
+			(this.operator() ? 1 : 0) +
 			(this.keywords().size ? 1 : 0) +
 			(this.protection().size ? 1 : 0) +
 			(this.orgTypes().size !== ORG_TYPES.length ? 1 : 0) +
 			(this.groupBy() !== 'none' ? 1 : 0) +
-			[this.masterOnly(), this.fmisOnly(), this.topLevelOnly()].filter(Boolean).length,
+			(this.topLevelOnly() && !this.topLevelDisabled() ? 1 : 0),
 	);
 
 	constructor() {
 		this.readUrl();
+		this.addressService.load();
 		// the class switch is also reachable from the dashboard tiles → react to later query-param changes
 		this.route.queryParamMap.subscribe((p) => {
 			const k = p.get('kind') ?? 'dataset';
 			if (k !== untracked(this.kind) && (KINDS as readonly string[]).includes(k)) this.setKind(k as Kind);
 		});
+		// back to the first page whenever the selection changes (but not when data or language arrive)
+		let lastSelection: string | undefined;
+		effect(() => {
+			const selection = JSON.stringify([
+				this.kind(),
+				this.query(),
+				this.operator(),
+				[...this.keywords()],
+				[...this.protection()],
+				[...this.orgTypes()],
+				this.topLevelOnly(),
+				this.groupBy(),
+				this.sort(),
+			]);
+			if (lastSelection !== undefined && selection !== lastSelection) untracked(() => this.pageIndex.set(0));
+			lastSelection = selection;
+		});
 		effect(() => {
 			const params = this.urlParams();
 			untracked(() => this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true }));
 		});
+	}
+
+	// ---------------------------------------------------------------------------------------------- columns
+
+	protected isNum(column: string): boolean {
+		return NUM_ID.has(column);
+	}
+
+	/** header label of a numeric column ("Teile" / "Teilsysteme" / "Untereinheiten" depend on the class) */
+	protected numLabel(c: NumColumn): string {
+		return c.count === 'parts' || c.count === 'users'
+			? `catalog.num.${c.count}.${this.kind()}`
+			: `catalog.num.${c.count}`;
+	}
+
+	protected numHint(c: NumColumn): string | null {
+		return ROLLUP[this.kind()]?.has(c.count) ? `catalog.numHint.${this.kind()}` : null;
 	}
 
 	// ---------------------------------------------------------------------------------------------- actions
@@ -242,10 +358,7 @@ export class Catalog {
 		this.operator.set('');
 		this.keywords.set(new Set());
 		this.protection.set(new Set());
-		this.masterOnly.set(false);
-		this.fmisOnly.set(false);
 		this.orgTypes.set(new Set(ORG_TYPES));
-		this.canton.set('');
 		this.topLevelOnly.set(false);
 		this.groupBy.set('none');
 	}
@@ -262,20 +375,13 @@ export class Catalog {
 	protected onSort(s: Sort): void {
 		this.sort.set(s.direction ? s : { active: 'name', direction: 'asc' });
 	}
+	protected onPage(e: PageEvent): void {
+		this.pageIndex.set(e.pageIndex);
+		this.pageSize.set(e.pageSize);
+	}
 
 	protected exportCsv(): void {
-		const t = (k: string): string => this.translate.instant(k);
-		const headers = [
-			'IRI',
-			t('catalog.col.name'),
-			this.kind() === 'organization' ? t('catalog.sector') : t('catalog.col.flags'),
-			t(`catalog.where.${this.kind()}`),
-			t(`catalog.who.${this.kind()}`),
-			t('kind.dataset.plural'),
-			t('catalog.col.website'),
-			t('catalog.col.description'),
-		];
-		const csv = toCsv(this.filtered(), this.kind(), this.lang(), headers);
+		const csv = toCsv(this.filtered(), this.kind(), this.lang(), (k) => this.translate.instant(k));
 		const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
 		const a = document.createElement('a');
 		a.href = url;
@@ -302,12 +408,11 @@ export class Catalog {
 			kw: this.keywords().size ? [...this.keywords()].map(compactIri).join(',') : null,
 			protection: this.protection().size ? [...this.protection()].join(',') : null,
 			sector: this.orgTypes().size === ORG_TYPES.length ? null : [...this.orgTypes()].join(',') || 'none',
-			canton: this.canton() || null,
 			top: this.topLevelOnly() ? '1' : null,
-			master: this.masterOnly() ? '1' : null,
-			fmis: this.fmisOnly() ? '1' : null,
 			group: this.groupBy() === 'none' ? null : this.groupBy(),
 			view: this.view() === 'table' ? null : this.view(),
+			page: this.page() ? String(this.page() + 1) : null,
+			size: this.pageSize() === DEFAULT_PAGE_SIZE ? null : String(this.pageSize()),
 		};
 	}
 
@@ -328,11 +433,13 @@ export class Catalog {
 			this.protection.set(new Set(prot.filter((p): p is Protection => (this.PROTECTIONS as string[]).includes(p))));
 		const sector = list('sector');
 		if (sector) this.orgTypes.set(new Set(sector.filter((s): s is OrgType => (ORG_TYPES as string[]).includes(s))));
-		if (q.get('canton')) this.canton.set(q.get('canton')!);
 		if (q.get('top') === '1') this.topLevelOnly.set(true);
-		if (q.get('master') === '1') this.masterOnly.set(true);
-		if (q.get('fmis') === '1') this.fmisOnly.set(true);
-		if (q.get('group') === 'system' || q.get('group') === 'operator') this.groupBy.set(q.get('group') as GroupBy);
+		const group = q.get('group');
+		if (group === 'system' || group === 'operator' || group === 'sector') this.groupBy.set(group);
 		if (q.get('view') === 'cards') this.view.set('cards');
+		const page = Number(q.get('page'));
+		if (page > 1) this.pageIndex.set(page - 1);
+		const size = Number(q.get('size'));
+		if (PAGE_SIZES.includes(size)) this.pageSize.set(size);
 	}
 }

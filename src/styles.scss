@@ -483,3 +483,9 @@ a.sm-chip:focus-visible {
 .search-option .mdc-list-item__primary-text {
 	color: var(--sm-ink);
 }
+
+// description of an inventory row, shown as tooltip of its name
+.desc-tip .mdc-tooltip__surface {
+	max-width: 380px;
+	text-align: left;
+}

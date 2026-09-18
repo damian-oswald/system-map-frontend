@@ -206,8 +206,6 @@
 		"clear": "Reimposta filtri",
 		"results": "Risultati",
 		"protection": "Protezione dei dati",
-		"masterOnly": "Solo dati di base",
-		"fmisOnly": "Solo sistemi di gestione aziendale",
 		"sector": "Settore",
 		"topLevelOnly": "Solo livello superiore",
 		"canton": "Cantone",
@@ -222,7 +220,9 @@
 		"groupBy": "Raggruppa per",
 		"group": {
 			"none": "Nessun raggruppamento",
-			"operator": "Organizzazione responsabile"
+			"operator": "Organizzazione responsabile",
+			"sector": "Settore",
+			"system": "Sistema informatico"
 		},
 		"view": "Vista",
 		"cards": "Schede",
@@ -241,19 +241,37 @@
 			"organization": "Appartiene a",
 			"service": "Gestito da"
 		},
-		"contains": "Contiene",
 		"col": {
 			"name": "Nome",
 			"flags": "Classificazione",
 			"website": "Sito web",
 			"description": "Descrizione"
 		},
-		"uses": "Utilizza",
-		"usedBy": "Utilizzato da",
 		"csv": "Scarica come CSV",
 		"count": "{{n}} di {{m}} voci",
 		"showFilters": "Mostra i filtri",
-		"hideFilters": "Nascondi i filtri"
+		"hideFilters": "Nascondi i filtri",
+		"address": "Indirizzo",
+		"num": {
+			"systems": "Sistemi",
+			"datasets": "Set di dati",
+			"services": "Servizi",
+			"legal": "Basi legali",
+			"parts": {
+				"dataset": "Parti",
+				"system": "Sottosistemi",
+				"organization": "Sottounità"
+			},
+			"users": {
+				"system": "Servizi utilizzati",
+				"service": "Utenti"
+			}
+		},
+		"numHint": {
+			"organization": "Comprese le sottounità",
+			"system": "Compresi i sottosistemi"
+		},
+		"pagination": "Pagine"
 	},
 	"entity": {
 		"breadcrumb": "Percorso di navigazione",

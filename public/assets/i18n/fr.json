@@ -206,8 +206,6 @@
 		"clear": "Réinitialiser les filtres",
 		"results": "Résultats",
 		"protection": "Protection des données",
-		"masterOnly": "Données de base uniquement",
-		"fmisOnly": "Systèmes de gestion d'exploitation uniquement",
 		"sector": "Secteur",
 		"topLevelOnly": "Niveau supérieur uniquement",
 		"canton": "Canton",
@@ -222,7 +220,9 @@
 		"groupBy": "Grouper par",
 		"group": {
 			"none": "Aucun regroupement",
-			"operator": "Organisation responsable"
+			"operator": "Organisation responsable",
+			"sector": "Secteur",
+			"system": "Système informatique"
 		},
 		"view": "Vue",
 		"cards": "Cartes",
@@ -241,19 +241,37 @@
 			"organization": "Appartient à",
 			"service": "Exploité par"
 		},
-		"contains": "Contient",
 		"col": {
 			"name": "Nom",
 			"flags": "Classification",
 			"website": "Site web",
 			"description": "Description"
 		},
-		"uses": "Utilise",
-		"usedBy": "Utilisé par",
 		"csv": "Télécharger en CSV",
 		"count": "{{n}} sur {{m}} entrées",
 		"showFilters": "Afficher les filtres",
-		"hideFilters": "Masquer les filtres"
+		"hideFilters": "Masquer les filtres",
+		"address": "Adresse",
+		"num": {
+			"systems": "Systèmes",
+			"datasets": "Jeux de données",
+			"services": "Services",
+			"legal": "Bases légales",
+			"parts": {
+				"dataset": "Parties",
+				"system": "Sous-systèmes",
+				"organization": "Sous-unités"
+			},
+			"users": {
+				"system": "Services utilisés",
+				"service": "Utilisateurs"
+			}
+		},
+		"numHint": {
+			"organization": "Sous-unités comprises",
+			"system": "Sous-systèmes compris"
+		},
+		"pagination": "Pages"
 	},
 	"entity": {
 		"breadcrumb": "Fil d'Ariane",

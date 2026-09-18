@@ -1,9 +1,9 @@
-// Same construction as the map: a filter column on the left (hidden by default) and a content area with a control bar.
+// Standard page layout (padded, max 1400px) with the map's filter panel and control bar inside.
 .inv-shell {
 	display: grid;
 	grid-template-columns: 320px minmax(0, 1fr);
-	min-height: 60dvh;
-	margin: -16px -16px 0;
+	gap: 20px;
+	align-items: start;
 
 	&.panel-closed {
 		grid-template-columns: minmax(0, 1fr);
@@ -14,10 +14,6 @@
 	}
 }
 
-:host-context(.ob-layout-expanded) .inv-shell {
-	margin-inline: -24px;
-}
-
 mat-icon {
 	width: 18px;
 	height: 18px;
@@ -25,9 +21,7 @@ mat-icon {
 
 // ---------------------------------------------------------------- filters
 .controls {
-	padding: 16px 16px 24px;
-	border-right: 1px solid var(--sm-line);
-	background: var(--sm-surface);
+	padding: 16px 16px 20px;
 
 	> mat-form-field + mat-form-field,
 	> mat-form-field + .slide,
@@ -65,7 +59,6 @@ mat-icon {
 .content {
 	container: inventory / inline-size;
 	min-width: 0;
-	padding: 12px 12px 40px;
 }
 
 .bar {
@@ -171,36 +164,6 @@ table.ob-table {
 		white-space: nowrap;
 	}
 
-	// the name and the description get the room, the lists share the rest (in the regular, non-collapsed layout)
-	@media (min-width: 906px) {
-		.mat-column-name {
-			width: 26%;
-			min-width: 200px;
-		}
-
-		.mat-column-description {
-			width: 28%;
-		}
-
-		// organizations rarely have a description; their lists need the room more
-		&.kind-organization .mat-column-description {
-			width: 20%;
-		}
-
-		.mat-column-sector,
-		.mat-column-canton {
-			width: 1%;
-			white-space: nowrap;
-		}
-
-		// with the filter panel open on a small desktop the description has no room left
-		@container inventory (max-width: 900px) {
-			.mat-column-description {
-				display: none;
-			}
-		}
-	}
-
 	td a,
 	td a:visited {
 		color: inherit;
@@ -216,20 +179,46 @@ table.ob-table {
 		font-weight: 600;
 	}
 
-	.cell-desc {
-		color: var(--sm-ink-2);
-	}
-
-	.clamp {
-		display: -webkit-box;
-		overflow: hidden;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-	}
-
 	.cell-kw {
 		color: var(--sm-ink-2);
 	}
+
+	// figures: right-aligned, as narrow as their header
+	.num {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+
+	th.num .mat-sort-header-container {
+		justify-content: flex-end;
+	}
+
+	td.zero {
+		color: var(--sm-ink-3);
+	}
+
+	// the name gets the room, the text columns share the rest (regular, non-collapsed layout only)
+	@media (min-width: 906px) {
+		.mat-column-name {
+			width: 28%;
+			min-width: 200px;
+		}
+
+		.mat-column-sector,
+		.num {
+			width: 1%;
+			white-space: nowrap;
+		}
+
+		.mat-column-address {
+			min-width: 200px;
+		}
+	}
+}
+
+mat-paginator {
+	margin-top: 12px;
+	background: transparent;
 }
 
 // ---------------------------------------------------------------- cards
@@ -279,6 +268,10 @@ table.ob-table {
 	margin: 0;
 	font-size: 0.875rem;
 
+	&:empty {
+		display: none;
+	}
+
 	div {
 		display: grid;
 		gap: 2px;
@@ -297,6 +290,34 @@ table.ob-table {
 	}
 }
 
+// "12 Systeme · 34 Datensätze · 3 Services"
+.nums {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	margin: 0;
+	color: var(--sm-ink-2);
+	font-size: 0.875rem;
+
+	&:empty {
+		display: none;
+	}
+
+	strong {
+		color: var(--sm-ink);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.zero {
+		color: var(--sm-ink-3);
+
+		strong {
+			color: inherit;
+			font-weight: 400;
+		}
+	}
+}
+
 .ext {
 	margin-top: auto;
 	color: var(--sm-ink-2);
@@ -310,7 +331,7 @@ table.ob-table {
 
 // ---------------------------------------------------------------- narrow content
 // below this width the class switch keeps icon and count only (the tooltip names the class)
-@container inventory (max-width: 1000px) {
+@container inventory (max-width: 1100px) {
 	.bar .kind-label {
 		display: none;
 	}
@@ -334,6 +355,10 @@ table.ob-table {
 		display: none;
 	}
 
+	table.ob-table td.num {
+		text-align: left;
+	}
+
 	.cards {
 		grid-template-columns: minmax(0, 1fr);
 	}
@@ -342,10 +367,5 @@ table.ob-table {
 @media (max-width: 900px) {
 	.inv-shell {
 		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.controls {
-		border-right: 0;
-		border-bottom: 1px solid var(--sm-line);
 	}
 }
