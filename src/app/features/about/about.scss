@@ -1,24 +1,31 @@
-.cols {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 360px;
-	gap: 40px;
-	align-items: start;
-}
-
-.main {
+// A prose page in Oblique's typography (.ob-prose sets the heading scale); one reading column.
+.about {
 	max-width: 820px;
+	margin-inline: 0;
+	padding-top: 24px;
 
-	section {
-		margin-bottom: 40px;
+	h1 {
+		margin-bottom: 16px;
 	}
 
 	h2 {
-		margin: 0 0 12px;
+		margin: 48px 0 16px;
+	}
+
+	h3 {
+		margin: 32px 0 12px;
 	}
 
 	p {
+		max-width: 70ch;
 		line-height: 1.65;
 	}
+}
+
+.lead {
+	color: var(--sm-ink-2);
+	font-size: 1.1875rem;
+	line-height: 1.55;
 }
 
 // Static, non-interactive process display using Oblique's stepper design (mat-stepper "lg" geometry & colours)
@@ -78,31 +85,9 @@
 .ss-content {
 	margin-left: calc(var(--ss-icon) + var(--ss-gap));
 	padding: 0 0 20px;
-	max-width: 70ch;
 
 	p {
 		margin: 0;
-		line-height: 1.6;
-	}
-}
-
-.query {
-	margin-top: 10px;
-
-	summary {
-		cursor: pointer;
-		font-weight: 600;
-	}
-
-	pre {
-		margin: 12px 0 8px;
-		padding: 16px;
-		border-radius: var(--sm-radius);
-		background: var(--sm-ink);
-		color: #e6edf3;
-		font-size: 0.8125rem;
-		line-height: 1.5;
-		overflow-x: auto;
 	}
 }
 
@@ -135,82 +120,29 @@
 	}
 }
 
-.side {
-	position: sticky;
-	top: 12px;
-	display: grid;
-	gap: 16px;
-}
-
-.facts {
-	margin: 0;
-	font-size: 0.875rem;
-
-	dt {
-		margin-top: 12px;
-		color: var(--sm-ink-3);
-		font-size: 0.75rem;
-		font-weight: 600;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-	}
-
-	dd {
-		margin: 2px 0 0;
-		overflow-wrap: anywhere;
-	}
-
-	code {
-		font-size: 0.8125rem;
-	}
-}
-
-.reload {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	margin-top: 16px;
-	padding: 7px 14px;
-	border: 1px solid var(--sm-line-strong);
-	border-radius: 6px;
-	background: var(--sm-surface);
-	font: inherit;
-	font-size: 0.875rem;
-	cursor: pointer;
-
-	mat-icon {
-		width: 16px;
-		height: 16px;
-	}
-}
-
-.links {
-	display: grid;
-	gap: 4px;
+// "Weiterführende Informationen": link title with a one-line description, separated by hairlines
+.link-list {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 
+	li {
+		padding: 14px 0;
+		border-top: 1px solid var(--sm-line);
+
+		&:last-child {
+			border-bottom: 1px solid var(--sm-line);
+		}
+	}
+
 	a {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 6px 0;
+		font-weight: 600;
 	}
 
-	mat-icon {
-		width: 18px;
-		height: 18px;
+	p {
+		margin: 4px 0 0;
 		color: var(--sm-ink-2);
-	}
-}
-
-@media (max-width: 1000px) {
-	.cols {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.side {
-		position: static;
+		font-size: 0.9375rem;
+		line-height: 1.5;
 	}
 }

@@ -326,35 +326,39 @@
 			"s3title": "Modello in memoria",
 			"s3": "Le triple vengono lette e trasformate in un modello tipizzato in pochi millisecondi.",
 			"s4": "Tutte le pagine calcolano le loro viste localmente – il filtraggio è immediato, senza server.",
-			"p": "L'interrogazione viene inviata prima ancora che l'applicazione sia avviata e l'ultimo risultato viene conservato nel browser: le visite successive appaiono subito, mentre in background viene caricata una copia aggiornata. Etichette e descrizioni sono mostrate nella lingua scelta; dove manca una traduzione si ricorre a un'altra lingua.",
-			"query": "Mostra l'interrogazione SPARQL",
-			"openEditor": "Apri nell'editor SPARQL di LINDAS"
+			"p": "L'interrogazione viene inviata prima ancora che l'applicazione sia avviata e l'ultimo risultato viene conservato nel browser: le visite successive appaiono subito, mentre in background viene caricata una copia aggiornata. Etichette e descrizioni sono mostrate nella lingua scelta; dove manca una traduzione si ricorre a un'altra lingua."
 		},
 		"glossary": {
 			"title": "Glossario",
 			"p": "I termini seguenti provengono direttamente dall'ontologia della mappa del sistema su LINDAS."
 		},
 		"links": {
-			"title": "Link",
+			"title": "Ulteriori informazioni",
 			"repo": "Dati di origine su GitHub",
 			"wiki": "Documentazione tecnica",
-			"issues": "Segnala un errore o proponi un'aggiunta"
+			"issues": "Segnala un errore o proponi un'aggiunta",
+			"repoDesc": "Il repository con il grafo, la sua ontologia e le regole di validazione.",
+			"wikiDesc": "Modello dei dati, convenzioni e guide per la manutenzione della mappa del sistema.",
+			"issuesDesc": "Manca qualcosa o c'è un errore? Aprite un issue su GitHub.",
+			"project": "Pagina del progetto della mappa del sistema",
+			"projectDesc": "Contesto e documentazione del progetto DigiAgriFoodCH.",
+			"lindas": "LINDAS – Linked Data Service",
+			"lindasDesc": "La piattaforma Linked Data della Confederazione su cui è pubblicato il grafo.",
+			"oblique": "Oblique – il design system della Confederazione",
+			"obliqueDesc": "Il design system con cui è realizzata questa applicazione."
 		}
 	},
 	"footer": {
 		"title": "Dati",
 		"lead": "Tutti i contenuti provengono in diretta dal grafo della conoscenza della mappa del sistema su LINDAS, la piattaforma Linked Data della Confederazione.",
 		"live": "Dati in diretta da LINDAS",
-		"queried": "Interrogato il {{date}}",
 		"syncing": "Aggiornamento…",
 		"reload": "Ricarica",
-		"name": "Nome",
-		"created": "Creato",
-		"modified": "Ultima modifica dei dati",
-		"source": "Fonte",
-		"graph": "Grafo denominato",
-		"endpoint": "Endpoint SPARQL",
 		"triples": "triple",
-		"editor": "Apri nell'editor SPARQL"
+		"createdOn": "Creato il {{date}}",
+		"modifiedOn": "Dati modificati il {{date}}",
+		"unavailable": "LINDAS al momento non è raggiungibile.",
+		"repo": "Dati di origine su GitHub",
+		"issues": "Segnala un errore o proponi un'aggiunta"
 	}
 }

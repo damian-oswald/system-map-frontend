@@ -1,105 +1,69 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ObButtonDirective } from '@oblique/oblique';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { GraphService } from '../core/graph.service';
-import { LangService, PickPipe } from '../core/i18n';
-import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
+import { LangService } from '../core/i18n';
+import { LiveStatsService } from '../core/live-stats.service';
+import { REPO_URL } from '../core/vocab';
 
-/** Dark, full-width section at the bottom of every page: provenance of the data and a reload control. */
+/** Dark, full-width section at the bottom of every page: where the data comes from, how fresh it is, and a reload. */
 @Component({
 	selector: 'app-data-footer',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [TranslatePipe, PickPipe, DatePipe, DecimalPipe, MatButtonModule, MatIconModule, ObButtonDirective],
+	imports: [TranslatePipe, DatePipe, DecimalPipe, MatButtonModule, MatIconModule, ObButtonDirective],
 	template: `
 		<section class="inner" [attr.aria-label]="'footer.title' | translate">
 			<div class="main">
 				<h2>{{ 'footer.title' | translate }}</h2>
 				<p class="lead">{{ 'footer.lead' | translate }}</p>
-				<dl class="facts">
-					@if (graph(); as g) {
-						<div>
-							<dt>{{ 'footer.name' | translate }}</dt>
-							<dd>{{ g.meta.name | pick: lang() }}</dd>
-						</div>
-						@if (g.meta.dateCreated) {
-							<div>
-								<dt>{{ 'footer.created' | translate }}</dt>
-								<dd>{{ g.meta.dateCreated | date: 'longDate' : undefined : locale() }}</dd>
-							</div>
-						}
-						@if (g.meta.dateModified) {
-							<div>
-								<dt>{{ 'footer.modified' | translate }}</dt>
-								<dd>{{ g.meta.dateModified | date: 'longDate' : undefined : locale() }}</dd>
-							</div>
-						}
-						<div>
-							<dt>{{ 'footer.source' | translate }}</dt>
-							<dd>LINDAS · {{ g.tripleCount | number: '1.0-0' : locale() }} {{ 'footer.triples' | translate }}</dd>
-						</div>
+				<ul class="facts">
+					@if (created(); as d) {
+						<li>
+							<mat-icon svgIcon="calendar" />{{
+								'footer.createdOn' | translate: { date: (d | date: 'longDate' : undefined : locale()) }
+							}}
+						</li>
 					}
-					<div>
-						<dt>{{ 'footer.graph' | translate }}</dt>
-						<dd>
-							<span class="mono">{{ GRAPH_IRI }}</span>
-						</dd>
-					</div>
-					<div>
-						<dt>{{ 'footer.endpoint' | translate }}</dt>
-						<dd>
-							<a [href]="ENDPOINT" target="_blank" rel="noopener"
-								><span class="mono">{{ ENDPOINT }}</span></a
-							>
-						</dd>
-					</div>
-				</dl>
-			</div>
-
-			<div class="side">
-				<div class="live">
-					<span class="dot" [class.syncing]="service.revalidating()" aria-hidden="true"></span>
-					<div class="live-text">
-						<strong>{{ 'footer.live' | translate }}</strong>
-						<span role="status">
-							@if (service.revalidating()) {
-								{{ 'footer.syncing' | translate }}
-							} @else if (service.fetchedAt(); as at) {
-								{{ 'footer.queried' | translate: { date: (at | date: 'medium' : undefined : locale()) } }}
-							}
-						</span>
-					</div>
-					<button
-						mat-button
-						obButton="secondary"
-						type="button"
-						class="reload"
-						(click)="service.reload()"
-						[disabled]="service.revalidating()"
-					>
-						<mat-icon svgIcon="refresh" />{{ 'footer.reload' | translate }}
-					</button>
-				</div>
-				<ul class="links">
-					<li>
-						<a [href]="editorLink" target="_blank" rel="noopener"
-							><mat-icon svgIcon="search" />{{ 'footer.editor' | translate }}</a
-						>
-					</li>
+					@if (modified(); as d) {
+						<li>
+							<mat-icon svgIcon="history" />{{
+								'footer.modifiedOn' | translate: { date: (d | date: 'longDate' : undefined : locale()) }
+							}}
+						</li>
+					}
 					<li>
 						<a [href]="REPO_URL" target="_blank" rel="noopener"
-							><mat-icon svgIcon="github" />{{ 'about.links.repo' | translate }}</a
+							><mat-icon svgIcon="github" />{{ 'footer.repo' | translate }}</a
 						>
 					</li>
 					<li>
 						<a [href]="REPO_URL + '/issues'" target="_blank" rel="noopener"
-							><mat-icon svgIcon="message" />{{ 'about.links.issues' | translate }}</a
+							><mat-icon svgIcon="message" />{{ 'footer.issues' | translate }}</a
 						>
 					</li>
 				</ul>
+			</div>
+
+			<div class="live">
+				<span class="dot" [class.syncing]="busy()" aria-hidden="true"></span>
+				<div class="live-text" role="status">
+					<strong>{{ 'footer.live' | translate }}</strong>
+					@if (busy()) {
+						<span>{{ 'footer.syncing' | translate }}</span>
+					} @else if (stats.stats(); as s) {
+						<span>{{ s.at | date: 'medium' : undefined : locale() }}</span>
+						<span>{{ s.triples | number: '1.0-0' : locale() }} {{ 'footer.triples' | translate }}</span>
+					} @else if (stats.error()) {
+						<span>{{ 'footer.unavailable' | translate }}</span>
+					}
+				</div>
+				<button mat-button obButton="secondary" type="button" class="reload" (click)="reload()" [disabled]="busy()">
+					<mat-icon svgIcon="refresh" />{{ 'footer.reload' | translate }}
+				</button>
 			</div>
 		</section>
 	`,
@@ -113,6 +77,7 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 			display: grid;
 			grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
 			gap: 40px 64px;
+			align-items: start;
 			max-width: 1400px;
 			margin: 0 auto;
 			padding: 56px 24px 64px;
@@ -124,38 +89,31 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 		}
 		.lead {
 			max-width: 60ch;
-			margin: 0 0 28px;
+			margin: 0 0 24px;
 			color: #b8c3cc;
 			line-height: 1.55;
 		}
 		.facts {
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-			gap: 20px 32px;
+			gap: 10px;
 			margin: 0;
-			div {
-				padding-left: 14px;
-				border-left: 2px solid #46596b;
+			padding: 0;
+			list-style: none;
+			li,
+			a {
+				display: flex;
+				align-items: center;
+				gap: 12px;
 			}
-		}
-		dt {
-			color: #acb4bd;
-			font-size: 0.75rem;
-			font-weight: 600;
-			letter-spacing: 0.06em;
-			text-transform: uppercase;
-		}
-		dd {
-			margin: 4px 0 0;
-			color: #fff;
-			overflow-wrap: anywhere;
-		}
-		.mono {
-			font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-			font-size: 0.8125rem;
-		}
-		a {
-			color: #fff;
+			a {
+				color: #fff;
+			}
+			mat-icon {
+				flex: none;
+				width: 18px;
+				height: 18px;
+				color: #acb4bd;
+			}
 		}
 		.live {
 			display: flex;
@@ -167,8 +125,10 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 		}
 		.dot {
 			flex: none;
+			align-self: flex-start;
 			width: 10px;
 			height: 10px;
+			margin-top: 7px;
 			border-radius: 50%;
 			background: #34d399;
 			box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.2);
@@ -192,6 +152,7 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 			span {
 				color: #b8c3cc;
 				font-size: 0.875rem;
+				font-variant-numeric: tabular-nums;
 			}
 		}
 		.reload.mat-mdc-button {
@@ -212,23 +173,6 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 				opacity: 0.6;
 			}
 		}
-		.links {
-			display: grid;
-			gap: 6px;
-			margin: 24px 0 0;
-			padding: 0;
-			list-style: none;
-			a {
-				display: inline-flex;
-				align-items: center;
-				gap: 10px;
-			}
-			mat-icon {
-				width: 18px;
-				height: 18px;
-				color: #acb4bd;
-			}
-		}
 		@media (max-width: 900px) {
 			.inner {
 				grid-template-columns: minmax(0, 1fr);
@@ -244,16 +188,18 @@ import { ENDPOINT, GRAPH_IRI, REPO_URL } from '../core/vocab';
 })
 export class DataFooter {
 	protected readonly service = inject(GraphService);
+	protected readonly stats = inject(LiveStatsService);
 	private readonly langService = inject(LangService);
-	protected readonly lang = this.langService.lang;
 	protected readonly locale = this.langService.locale;
-	protected readonly graph = this.service.graph;
-	protected readonly ENDPOINT = ENDPOINT;
-	protected readonly GRAPH_IRI = GRAPH_IRI;
 	protected readonly REPO_URL = REPO_URL;
-	protected readonly editorLink =
-		'https://lindas.admin.ch/sparql/#query=' +
-		encodeURIComponent(this.service.query) +
-		'&endpoint=' +
-		encodeURIComponent(ENDPOINT);
+
+	protected readonly busy = computed(() => this.service.revalidating() || this.stats.loading());
+	/** dates from the live query, with the loaded graph's metadata as fallback */
+	protected readonly created = computed(() => this.stats.stats()?.created ?? this.service.graph()?.meta.dateCreated);
+	protected readonly modified = computed(() => this.stats.stats()?.modified ?? this.service.graph()?.meta.dateModified);
+
+	protected reload(): void {
+		void this.service.reload();
+		void this.stats.refresh();
+	}
 }

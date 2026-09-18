@@ -326,35 +326,39 @@
 			"s3title": "Modèle en mémoire",
 			"s3": "Les triplets sont lus et transformés en un modèle typé en quelques millisecondes.",
 			"s4": "Toutes les pages calculent leurs vues localement – le filtrage est instantané, sans serveur.",
-			"p": "La requête est envoyée avant même le démarrage de l'application et le dernier résultat est conservé dans le navigateur : les visites suivantes s'affichent immédiatement pendant qu'une copie à jour est chargée en arrière-plan. Les libellés et descriptions apparaissent dans la langue choisie ; à défaut de traduction, une autre langue est utilisée.",
-			"query": "Afficher la requête SPARQL",
-			"openEditor": "Ouvrir dans l'éditeur SPARQL de LINDAS"
+			"p": "La requête est envoyée avant même le démarrage de l'application et le dernier résultat est conservé dans le navigateur : les visites suivantes s'affichent immédiatement pendant qu'une copie à jour est chargée en arrière-plan. Les libellés et descriptions apparaissent dans la langue choisie ; à défaut de traduction, une autre langue est utilisée."
 		},
 		"glossary": {
 			"title": "Glossaire",
 			"p": "Les termes ci-dessous proviennent directement de l'ontologie de la carte du système sur LINDAS."
 		},
 		"links": {
-			"title": "Liens",
+			"title": "Informations complémentaires",
 			"repo": "Données sources sur GitHub",
 			"wiki": "Documentation technique",
-			"issues": "Signaler une erreur ou proposer un ajout"
+			"issues": "Signaler une erreur ou proposer un ajout",
+			"repoDesc": "Le dépôt avec le graphe, son ontologie et les règles de validation.",
+			"wikiDesc": "Modèle de données, conventions et guides pour la mise à jour de la carte du système.",
+			"issuesDesc": "Quelque chose manque ou est incorrect ? Ouvrez un ticket sur GitHub.",
+			"project": "Page du projet de la carte du système",
+			"projectDesc": "Contexte et documentation du projet DigiAgriFoodCH.",
+			"lindas": "LINDAS – Linked Data Service",
+			"lindasDesc": "La plateforme Linked Data de la Confédération, sur laquelle le graphe est publié.",
+			"oblique": "Oblique – le système de design de la Confédération",
+			"obliqueDesc": "Le système de design avec lequel cette application est conçue."
 		}
 	},
 	"footer": {
 		"title": "Données",
 		"lead": "Tout le contenu provient en direct du graphe de connaissances de la carte du système sur LINDAS, la plateforme Linked Data de la Confédération.",
 		"live": "Données en direct de LINDAS",
-		"queried": "Interrogé le {{date}}",
 		"syncing": "Mise à jour…",
 		"reload": "Recharger",
-		"name": "Nom",
-		"created": "Créé",
-		"modified": "Dernière modification des données",
-		"source": "Source",
-		"graph": "Graphe nommé",
-		"endpoint": "Point d'accès SPARQL",
 		"triples": "triplets",
-		"editor": "Ouvrir dans l'éditeur SPARQL"
+		"createdOn": "Créé le {{date}}",
+		"modifiedOn": "Données modifiées le {{date}}",
+		"unavailable": "LINDAS n'est pas joignable pour le moment.",
+		"repo": "Données sources sur GitHub",
+		"issues": "Signaler une erreur ou proposer un ajout"
 	}
 }

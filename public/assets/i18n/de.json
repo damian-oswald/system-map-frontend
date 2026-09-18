@@ -326,35 +326,39 @@
 			"s3title": "Modell im Speicher",
 			"s3": "Die Tripel werden in wenigen Millisekunden gelesen und in ein typisiertes Modell überführt.",
 			"s4": "Alle Seiten berechnen ihre Sichten lokal – Filtern geht sofort, ohne Server.",
-			"p": "Die Abfrage wird schon abgeschickt, bevor die Anwendung gestartet ist, und das letzte Resultat wird im Browser gespeichert: Wiederholte Besuche erscheinen sofort, während im Hintergrund eine frische Kopie geladen wird. Bezeichnungen und Beschreibungen erscheinen in der gewählten Sprache; wo noch keine Übersetzung existiert, wird auf eine andere Sprache zurückgegriffen.",
-			"query": "SPARQL-Abfrage anzeigen",
-			"openEditor": "Im SPARQL-Editor von LINDAS öffnen"
+			"p": "Die Abfrage wird schon abgeschickt, bevor die Anwendung gestartet ist, und das letzte Resultat wird im Browser gespeichert: Wiederholte Besuche erscheinen sofort, während im Hintergrund eine frische Kopie geladen wird. Bezeichnungen und Beschreibungen erscheinen in der gewählten Sprache; wo noch keine Übersetzung existiert, wird auf eine andere Sprache zurückgegriffen."
 		},
 		"glossary": {
 			"title": "Glossar",
 			"p": "Die folgenden Begriffe stammen direkt aus der Ontologie der Systemlandkarte auf LINDAS."
 		},
 		"links": {
-			"title": "Links",
+			"title": "Weiterführende Informationen",
 			"repo": "Quelldaten auf GitHub",
 			"wiki": "Technische Dokumentation",
-			"issues": "Fehler melden oder Ergänzung vorschlagen"
+			"issues": "Fehler melden oder Ergänzung vorschlagen",
+			"repoDesc": "Das Repository mit dem Graphen, seiner Ontologie und den Validierungsregeln.",
+			"wikiDesc": "Datenmodell, Konventionen und Anleitungen zur Pflege der Systemlandkarte.",
+			"issuesDesc": "Fehlt etwas oder stimmt etwas nicht? Eröffnen Sie ein Issue auf GitHub.",
+			"project": "Projektseite der Systemlandkarte",
+			"projectDesc": "Hintergrund und Dokumentation des Projekts DigiAgriFoodCH.",
+			"lindas": "LINDAS – Linked Data Service",
+			"lindasDesc": "Die Linked-Data-Plattform des Bundes, auf der der Graph publiziert ist.",
+			"oblique": "Oblique – Design-System des Bundes",
+			"obliqueDesc": "Das Design-System, mit dem diese Anwendung gestaltet ist."
 		}
 	},
 	"footer": {
 		"title": "Daten",
 		"lead": "Alle Inhalte stammen live aus dem Wissensgraphen der Systemlandkarte auf LINDAS, der Linked-Data-Plattform des Bundes.",
 		"live": "Live-Daten aus LINDAS",
-		"queried": "Abgefragt am {{date}}",
 		"syncing": "Wird aktualisiert…",
 		"reload": "Neu laden",
-		"name": "Name",
-		"created": "Erstellt",
-		"modified": "Daten zuletzt geändert",
-		"source": "Quelle",
-		"graph": "Benannter Graph",
-		"endpoint": "SPARQL-Endpunkt",
 		"triples": "Tripel",
-		"editor": "Im SPARQL-Editor öffnen"
+		"createdOn": "Erstellt am {{date}}",
+		"modifiedOn": "Daten zuletzt geändert am {{date}}",
+		"unavailable": "LINDAS ist gerade nicht erreichbar.",
+		"repo": "Quelldaten auf GitHub",
+		"issues": "Fehler melden oder Ergänzung vorschlagen"
 	}
 }
