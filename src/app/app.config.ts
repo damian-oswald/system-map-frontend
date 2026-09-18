@@ -41,7 +41,7 @@ export const appConfig: ApplicationConfig = {
 				createdOn: new Date('2026-09-18'),
 				conformity: 'none',
 				applicationOperator: 'Federal Office for Agriculture FOAG',
-				contact: [{ url: 'https://github.com/blw-ofag-ufag/system-map/issues' }],
+				contact: [{ url: 'https://github.com/blw-ofag-ufag/system-map/issues/new' }],
 			},
 			translate: {
 				locales: {

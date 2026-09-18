@@ -41,7 +41,7 @@ import { REPO_URL } from '../core/vocab';
 						>
 					</li>
 					<li>
-						<a [href]="REPO_URL + '/issues'" target="_blank" rel="noopener"
+						<a [href]="REPO_URL + '/issues/new'" target="_blank" rel="noopener"
 							><mat-icon svgIcon="message" />{{ 'footer.issues' | translate }}</a
 						>
 					</li>
