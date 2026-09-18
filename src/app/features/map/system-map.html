@@ -109,7 +109,7 @@
 	</aside>
 
 	<!-- ============================================================ stage -->
-	<section class="stage" [attr.aria-label]="'nav.map' | translate">
+	<section class="stage" [class.has-drawer]="!!selectedEntity()" [attr.aria-label]="'nav.map' | translate">
 		<div class="stage-bar">
 			<button
 				mat-icon-button
