@@ -720,6 +720,19 @@ mat-button-toggle mat-icon {
 	color: var(--sm-ink);
 	// the parts are separate inline elements; keep their spacing exactly as generated
 	white-space: pre-wrap;
+
+	// enumerated elements read as normal text; the underline appears on hover, a click opens the details page
+	a,
+	a:visited {
+		color: inherit;
+		font: inherit;
+		text-decoration: none;
+	}
+
+	a:hover,
+	a:focus-visible {
+		text-decoration: underline;
+	}
 }
 
 .drawer-actions {
