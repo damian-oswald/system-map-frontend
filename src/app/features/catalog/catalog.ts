@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -88,6 +89,7 @@ const DEFAULT_PAGE_SIZE = 24;
 		MatBadgeModule,
 		MatButtonModule,
 		MatButtonToggleModule,
+		MatCardModule,
 		MatFormFieldModule,
 		MatIconModule,
 		MatInputModule,
