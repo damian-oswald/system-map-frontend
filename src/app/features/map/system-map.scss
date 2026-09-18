@@ -154,10 +154,6 @@ mat-button-toggle mat-icon {
 
 // the element/relation count is the first thing to go when the bar gets tight
 @container stage (max-width: 1180px) {
-	.stage-bar .stats {
-		display: none;
-	}
-
 	// more specific than the base rule below, which comes later in the file
 	.stage-bar .bar-search.mat-mdc-form-field {
 		width: 300px;
@@ -209,10 +205,6 @@ mat-button-toggle mat-icon {
 
 	.spacer {
 		flex: 1;
-	}
-
-	.stats {
-		font-size: 0.8125rem;
 	}
 }
 
@@ -715,50 +707,19 @@ mat-button-toggle mat-icon {
 	line-height: 1.5;
 }
 
-.merged {
-	margin: 0 0 12px;
-	font-size: 0.875rem;
-
-	summary {
-		cursor: pointer;
-		color: var(--sm-ink-2);
-		font-weight: 600;
-	}
-
-	.chips {
-		margin-top: 8px;
-	}
-}
-
-.rel-block {
-	padding: 10px 0;
+.sentences {
+	margin-top: 12px;
+	padding-top: 12px;
 	border-top: 1px solid var(--sm-line);
 }
 
-.rel-title {
-	display: flex;
-	align-items: center;
-	gap: 6px;
+.rel-sentence {
 	margin: 0 0 8px;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	color: var(--sm-ink-2);
-
-	.dir {
-		color: var(--sm-ink-3);
-	}
-
-	.count {
-		margin-left: auto;
-		color: var(--sm-ink-3);
-		font-weight: 400;
-	}
-}
-
-.chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
+	font-size: 0.9375rem;
+	line-height: 1.55;
+	color: var(--sm-ink);
+	// the parts are separate inline elements; keep their spacing exactly as generated
+	white-space: pre-wrap;
 }
 
 .drawer-actions {

@@ -18,7 +18,8 @@
 		"close": "Schliessen",
 		"showAll": "Alle anzeigen",
 		"showLess": "Weniger anzeigen",
-		"of": "von"
+		"of": "von",
+		"and": "und"
 	},
 	"state": {
 		"loading": "Die Daten werden aus LINDAS geladen…",
@@ -132,7 +133,8 @@
 		"allSectors": "Alle Sektoren",
 		"allRelations": "Alle Beziehungen",
 		"nOfM": "{{n}} von {{m}}",
-		"activeFilters": "{{n}} aktive Filter"
+		"activeFilters": "{{n}} aktive Filter",
+		"andMore": "und {{n}} weitere"
 	},
 	"dash": {
 		"title": "Auf einen Blick",
