@@ -22,7 +22,6 @@ export interface CatalogRow {
 	keywords: Entity[];
 	legal: Entity[];
 	counts: Record<CountKey, number>;
-	address?: string;
 	search: string;
 }
 
@@ -37,12 +36,7 @@ const uniq = (list: (Entity | undefined)[]): Entity[] => {
  * Rows for one class. Figures roll up along the hierarchy: an organization counts the systems operated by itself and
  * all its sub-units (schema:subOrganization*), a system counts the data sets and services of itself and its parts.
  */
-export function buildRows(
-	g: SystemMapGraph,
-	kind: Kind,
-	lang: Lang,
-	addresses: ReadonlyMap<string, string>,
-): CatalogRow[] {
+export function buildRows(g: SystemMapGraph, kind: Kind, lang: Lang): CatalogRow[] {
 	const get = (id: string): Entity | undefined => g.entities.get(id);
 	const incoming = (e: Entity, key: string): Entity[] => e.in.filter((r) => r.key === key).map((r) => get(r.s)!);
 	const outgoing = (e: Entity, key: string): Entity[] => e.out.filter((r) => r.key === key).map((r) => get(r.o)!);
@@ -100,13 +94,11 @@ export function buildRows(
 			const legal = outgoing(e, 'hasLegalBasis');
 			const name = entityTitle(e, lang);
 			const description = pick(e.description, lang);
-			const address = addresses.get(e.id);
 			const search = normalize(
 				[
 					...Object.values(e.name),
 					e.abbreviation ?? '',
 					description,
-					address ?? '',
 					...systems.map((s) => entityLabel(s, lang)),
 					...operators.map((s) => entityLabel(s, lang)),
 					...keywords.map((k) => entityLabel(k, lang)),
@@ -132,7 +124,6 @@ export function buildRows(
 					parts: tree.length - 1,
 					legal: legal.length,
 				},
-				address,
 				search,
 			};
 		})
@@ -166,7 +157,6 @@ export function toCsv(rows: CatalogRow[], kind: Kind, lang: Lang, t: (key: strin
 	if (kind === 'organization') {
 		columns.push(
 			[t('catalog.sector'), (r) => t(`orgType.${r.e.orgType ?? 'other'}`)],
-			[t('catalog.address'), (r) => r.address ?? ''],
 			[t('catalog.who.organization'), (r) => names(r.operators)],
 			[t('catalog.num.parts.organization'), (r) => r.counts.parts],
 			[t('catalog.num.systems'), (r) => r.counts.systems],

@@ -15,10 +15,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { AddressService } from '../../core/address.service';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
-import { LabelPipe, LangService, PickPipe, entityLabel } from '../../core/i18n';
+import { LabelPipe, LangService, PickPipe, abbrLabel, entityLabel } from '../../core/i18n';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { KIND_ICON, NameList, PageState } from '../../shared/ui';
@@ -60,16 +59,7 @@ const COLUMNS: Record<Kind, string[]> = {
 	dataset: ['name', 'systems', 'operators', 'keywords', NUM.parts.id, NUM.legal.id],
 	system: ['name', 'operators', NUM.datasets.id, NUM.services.id, NUM.users.id, NUM.parts.id],
 	service: ['name', 'systems', 'operators', NUM.users.id],
-	organization: [
-		'name',
-		'sector',
-		'operators',
-		'address',
-		NUM.parts.id,
-		NUM.systems.id,
-		NUM.datasets.id,
-		NUM.services.id,
-	],
+	organization: ['name', 'sector', 'operators', NUM.parts.id, NUM.systems.id, NUM.datasets.id, NUM.services.id],
 };
 /** figures that roll up along the hierarchy get a hint in the header */
 const ROLLUP: Partial<Record<Kind, Set<CountKey>>> = {
@@ -111,7 +101,6 @@ const DEFAULT_PAGE_SIZE = 24;
 })
 export class Catalog {
 	private readonly graphService = inject(GraphService);
-	private readonly addressService = inject(AddressService);
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly translate = inject(TranslateService);
@@ -154,9 +143,8 @@ export class Catalog {
 	protected readonly rowsByKind = computed(() => {
 		const g = this.graph();
 		const lang = this.lang();
-		const addresses = this.addressService.addresses();
 		if (!g) return null;
-		return Object.fromEntries(KINDS.map((k) => [k, buildRows(g, k, lang, addresses)])) as Record<Kind, CatalogRow[]>;
+		return Object.fromEntries(KINDS.map((k) => [k, buildRows(g, k, lang)])) as Record<Kind, CatalogRow[]>;
 	});
 	protected readonly rows = computed(() => this.rowsByKind()?.[this.kind()] ?? []);
 	protected readonly columns = computed(() => COLUMNS[this.kind()]);
@@ -198,6 +186,7 @@ export class Catalog {
 		const prot = this.protection();
 		const kind = this.kind();
 		const lang = this.lang();
+		const table = this.view() === 'table';
 		const topLevel = this.topLevelOnly() && !this.topLevelDisabled();
 		const rows = this.rows().filter((r) => {
 			if (terms.length && !terms.every((t) => r.search.includes(t))) return false;
@@ -219,14 +208,13 @@ export class Catalog {
 			switch (active) {
 				case 'sector':
 					return this.translate.instant(`orgType.${r.e.orgType ?? 'other'}`);
-				case 'address':
-					return r.address ?? '';
 				case 'operators':
 					return names(r.operators);
 				case 'systems':
 					return names(r.systems);
 				default:
-					return r.name;
+					// the table shows abbreviations, so it sorts by them
+					return table ? abbrLabel(r.e, lang) : r.name;
 			}
 		};
 		const cmp = (a: string | number, b: string | number): number =>
@@ -300,7 +288,6 @@ export class Catalog {
 
 	constructor() {
 		this.readUrl();
-		this.addressService.load();
 		// the class switch is also reachable from the dashboard tiles → react to later query-param changes
 		this.route.queryParamMap.subscribe((p) => {
 			const k = p.get('kind') ?? 'dataset';
@@ -388,6 +375,11 @@ export class Catalog {
 		a.download = `system-map-${this.kind()}-${new Date().toISOString().slice(0, 10)}.csv`;
 		a.click();
 		setTimeout(() => URL.revokeObjectURL(url), 1000);
+	}
+
+	/** tooltip of a table name: the full name when the cell shows the abbreviation, then the description */
+	protected nameTip(r: CatalogRow): string {
+		return [r.e.abbreviation ? r.name : '', r.description].filter(Boolean).join('\n\n');
 	}
 
 	protected host(url: string): string {

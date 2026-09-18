@@ -20,7 +20,8 @@
 		"showLess": "Mostra meno",
 		"of": "di",
 		"and": "e",
-		"andMore": "e altri {{n}}"
+		"andMore": "e altri {{n}}",
+		"address": "Indirizzo"
 	},
 	"state": {
 		"loading": "Caricamento dei dati da LINDAS…",
@@ -251,7 +252,6 @@
 		"count": "{{n}} di {{m}} voci",
 		"showFilters": "Mostra i filtri",
 		"hideFilters": "Nascondi i filtri",
-		"address": "Indirizzo",
 		"num": {
 			"systems": "Sistemi",
 			"datasets": "Set di dati",

@@ -20,7 +20,8 @@
 		"showLess": "Show less",
 		"of": "of",
 		"and": "and",
-		"andMore": "and {{n}} more"
+		"andMore": "and {{n}} more",
+		"address": "Address"
 	},
 	"state": {
 		"loading": "Loading the data from LINDAS…",
@@ -251,7 +252,6 @@
 		"count": "{{n}} of {{m}} entries",
 		"showFilters": "Show filters",
 		"hideFilters": "Hide filters",
-		"address": "Address",
 		"num": {
 			"systems": "Systems",
 			"datasets": "Data sets",

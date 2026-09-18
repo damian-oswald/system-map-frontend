@@ -189,7 +189,11 @@ export class EntityTree {
 	template: `@for (x of shown(); track x.id; let i = $index; let last = $last) {
 			<span>{{ separator(i, last) }}</span
 			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{
-				chars() ? (x | label: lang() : 'short' : chars()) : (x | label: lang())
+				abbr()
+					? (x | label: lang() : 'abbr' : chars())
+					: chars()
+						? (x | label: lang() : 'short' : chars())
+						: (x | label: lang())
 			}}</a>
 		}
 		@if (more()) {
@@ -216,6 +220,8 @@ export class NameList {
 	readonly max = input(3);
 	/** cut each name to this many characters (0 = full names) */
 	readonly chars = input(0);
+	/** show abbreviations where they exist (dense tables) */
+	readonly abbr = input(false);
 	protected readonly lang = inject(LangService).lang;
 	private readonly translate = inject(TranslateService);
 	protected readonly shown = computed(() => this.items().slice(0, this.max()));

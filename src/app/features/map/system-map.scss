@@ -719,6 +719,22 @@ mat-button-toggle mat-icon {
 	line-height: 1.5;
 }
 
+// postal address of an organization, from Zefix / Staatskalender
+.address {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 12px;
+	color: var(--sm-ink-2);
+	font-size: 0.875rem;
+
+	mat-icon {
+		flex: none;
+		width: 16px;
+		height: 16px;
+	}
+}
+
 .sentences {
 	margin-top: 12px;
 	padding-top: 12px;

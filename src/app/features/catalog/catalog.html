@@ -165,31 +165,33 @@
 						/>
 					</mat-form-field>
 
-					<mat-button-toggle-group
-						hideSingleSelectionIndicator
-						class="bar-seg sm-seg-h view-seg"
-						[value]="view()"
-						(change)="view.set($event.value)"
-						[attr.aria-label]="'catalog.view' | translate"
-					>
-						<mat-button-toggle value="table" [matTooltip]="'catalog.table' | translate">
-							<mat-icon svgIcon="list" />
-						</mat-button-toggle>
-						<mat-button-toggle value="cards" [matTooltip]="'catalog.cards' | translate">
-							<mat-icon svgIcon="grid" />
-						</mat-button-toggle>
-					</mat-button-toggle-group>
-					<button
-						mat-icon-button
-						obButton="secondary"
-						type="button"
-						class="bar-btn"
-						(click)="exportCsv()"
-						[matTooltip]="'catalog.csv' | translate"
-						[attr.aria-label]="'catalog.csv' | translate"
-					>
-						<mat-icon svgIcon="download" />
-					</button>
+					<div class="bar-right">
+						<mat-button-toggle-group
+							hideSingleSelectionIndicator
+							class="bar-seg sm-seg-h view-seg"
+							[value]="view()"
+							(change)="view.set($event.value)"
+							[attr.aria-label]="'catalog.view' | translate"
+						>
+							<mat-button-toggle value="table" [matTooltip]="'catalog.table' | translate">
+								<mat-icon svgIcon="list" />
+							</mat-button-toggle>
+							<mat-button-toggle value="cards" [matTooltip]="'catalog.cards' | translate">
+								<mat-icon svgIcon="grid" />
+							</mat-button-toggle>
+						</mat-button-toggle-group>
+						<button
+							mat-icon-button
+							obButton="secondary"
+							type="button"
+							class="bar-btn"
+							(click)="exportCsv()"
+							[matTooltip]="'catalog.csv' | translate"
+							[attr.aria-label]="'catalog.csv' | translate"
+						>
+							<mat-icon svgIcon="download" />
+						</button>
+					</div>
 				</div>
 
 				<p class="count-line" role="status">
@@ -234,11 +236,11 @@
 								<td mat-cell *matCellDef="let r" [attr.data-title]="'catalog.col.name' | translate" class="cell-name">
 									<a
 										[routerLink]="['/entity', r.e.key]"
-										[matTooltip]="r.description"
-										[matTooltipDisabled]="!r.description"
+										[matTooltip]="nameTip(r)"
+										[matTooltipDisabled]="!nameTip(r)"
 										matTooltipClass="desc-tip"
 										matTooltipShowDelay="300"
-										>{{ r.name }}</a
+										>{{ r.e | label: lang() : 'abbr' }}</a
 									>
 								</td>
 							</ng-container>
@@ -250,7 +252,7 @@
 									[attr.data-title]="'catalog.where.' + kind() | translate"
 									[class.is-empty]="!r.systems.length"
 								>
-									<app-name-list [items]="r.systems" [max]="3" [chars]="48" />
+									<app-name-list [items]="r.systems" [max]="3" [chars]="48" [abbr]="true" />
 								</td>
 							</ng-container>
 							<ng-container matColumnDef="operators">
@@ -261,7 +263,7 @@
 									[attr.data-title]="'catalog.who.' + kind() | translate"
 									[class.is-empty]="!r.operators.length"
 								>
-									<app-name-list [items]="r.operators" [max]="3" [chars]="48" />
+									<app-name-list [items]="r.operators" [max]="3" [chars]="48" [abbr]="true" />
 								</td>
 							</ng-container>
 							<ng-container matColumnDef="keywords">
@@ -282,18 +284,6 @@
 								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.sector' | translate }}</th>
 								<td mat-cell *matCellDef="let r" [attr.data-title]="'catalog.sector' | translate">
 									{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}
-								</td>
-							</ng-container>
-							<ng-container matColumnDef="address">
-								<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'catalog.address' | translate }}</th>
-								<td
-									mat-cell
-									*matCellDef="let r"
-									[attr.data-title]="'catalog.address' | translate"
-									class="cell-address"
-									[class.is-empty]="!r.address"
-								>
-									{{ r.address ?? '' }}
 								</td>
 							</ng-container>
 							@for (c of NUM_COLUMNS; track c.id) {
@@ -317,7 +307,7 @@
 										[class.zero]="!r.counts[c.count]"
 										[class.is-empty]="!r.counts[c.count]"
 									>
-										{{ r.counts[c.count] || '–' }}
+										{{ r.counts[c.count] || '' }}
 									</td>
 								</ng-container>
 							}
@@ -341,12 +331,6 @@
 												<dt>{{ 'catalog.sector' | translate }}</dt>
 												<dd>{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</dd>
 											</div>
-											@if (r.address) {
-												<div>
-													<dt>{{ 'catalog.address' | translate }}</dt>
-													<dd>{{ r.address }}</dd>
-												</div>
-											}
 										}
 										@if (r.systems.length && r.e.kind !== 'organization') {
 											<div>

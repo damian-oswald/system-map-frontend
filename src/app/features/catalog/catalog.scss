@@ -99,7 +99,11 @@ mat-icon {
 		max-width: 320px;
 	}
 
-	.view-seg {
+	// view toggle and export stay together and wrap as one, right-aligned
+	.bar-right {
+		display: flex;
+		align-items: center;
+		gap: 10px;
 		margin-left: auto;
 	}
 }
@@ -193,10 +197,6 @@ table.ob-table {
 		justify-content: flex-end;
 	}
 
-	td.zero {
-		color: var(--sm-ink-3);
-	}
-
 	// the name gets the room, the text columns share the rest (regular, non-collapsed layout only)
 	@media (min-width: 906px) {
 		.mat-column-name {
@@ -208,10 +208,6 @@ table.ob-table {
 		.num {
 			width: 1%;
 			white-space: nowrap;
-		}
-
-		.mat-column-address {
-			min-width: 200px;
 		}
 	}
 }
@@ -330,8 +326,8 @@ mat-paginator {
 }
 
 // ---------------------------------------------------------------- narrow content
-// below this width the class switch keeps icon and count only (the tooltip names the class)
-@container inventory (max-width: 1100px) {
+// only on narrow screens the class switch keeps icon and count only (the tooltip names the class)
+@container inventory (max-width: 760px) {
 	.bar .kind-label {
 		display: none;
 	}

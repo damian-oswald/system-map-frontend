@@ -414,6 +414,9 @@
 					@if (e.description | pick: lang(); as d) {
 						<p class="desc">{{ d }}</p>
 					}
+					@if (address(); as a) {
+						<p class="address"><mat-icon svgIcon="location" [matTooltip]="'common.address' | translate" />{{ a }}</p>
+					}
 
 					@if (sentences().length) {
 						<div class="sentences">
