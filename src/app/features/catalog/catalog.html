@@ -320,48 +320,47 @@
 					@if (view() === 'cards') {
 						<ul class="cards">
 							@for (r of grp.rows; track r.e.id) {
-								<li class="card sm-card sm-kind--{{ r.e.kind }}">
-									<a class="card-title" [routerLink]="['/entity', r.e.key]">{{ r.name }}</a>
-									@if (r.description) {
-										<p class="card-desc">{{ r.description }}</p>
-									}
-									<dl class="facts">
-										@if (r.e.kind === 'organization') {
-											<div>
-												<dt>{{ 'catalog.sector' | translate }}</dt>
-												<dd>{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</dd>
-											</div>
-										}
-										@if (r.systems.length && r.e.kind !== 'organization') {
-											<div>
-												<dt>{{ 'catalog.where.' + r.e.kind | translate }}</dt>
-												<dd><app-name-list [items]="r.systems" [max]="4" /></dd>
-											</div>
-										}
-										@if (r.operators.length) {
-											<div>
-												<dt>{{ 'catalog.who.' + r.e.kind | translate }}</dt>
-												<dd><app-name-list [items]="r.operators" [max]="4" /></dd>
-											</div>
-										}
-									</dl>
-									<!-- the same figures as the table's numeric columns -->
-									<p class="nums">
-										@for (col of columns(); track col) {
-											@if (isNum(col)) {
-												@for (c of NUM_COLUMNS; track c.id) {
-													@if (c.id === col && r.counts[c.count]) {
-														<span class="num-fact"
-															><strong>{{ r.counts[c.count] }}</strong> {{ numLabel(c) | translate }}</span
-														>
-													}
+								<li>
+									<a class="ob-link-card card" [routerLink]="['/entity', r.e.key]">
+										<mat-card>
+											<mat-card-header>
+												<mat-card-title>{{ r.name }}</mat-card-title>
+											</mat-card-header>
+											<mat-card-content>
+												@if (r.description) {
+													<p class="card-desc">{{ r.description }}</p>
 												}
-											}
-										}
-									</p>
-									@if (r.e.urls[0]; as url) {
-										<a class="ext" [href]="url" target="_blank" rel="noopener">{{ host(url) }} ↗</a>
-									}
+												<div class="chips">
+													@if (r.e.kind === 'organization') {
+														<span class="sm-tag">{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</span>
+													}
+													@if (chips(r); as c) {
+														@for (x of c.list; track x.id) {
+															<app-entity-chip [entity]="x" icon abbr [link]="false" [max]="36" />
+														}
+														@if (c.more) {
+															<span class="more">+{{ c.more }}</span>
+														}
+													}
+												</div>
+												<!-- the same figures as the table's numeric columns -->
+												<p class="nums">
+													@for (col of columns(); track col) {
+														@if (isNum(col)) {
+															@for (c of NUM_COLUMNS; track c.id) {
+																@if (c.id === col && r.counts[c.count]) {
+																	<span class="num-fact"
+																		><strong>{{ r.counts[c.count] }}</strong>
+																		{{ numLabel(c, r.counts[c.count]) | translate }}</span
+																	>
+																}
+															}
+														}
+													}
+												</p>
+											</mat-card-content>
+										</mat-card>
+									</a>
 								</li>
 							}
 						</ul>

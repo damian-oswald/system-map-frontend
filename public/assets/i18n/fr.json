@@ -271,7 +271,22 @@
 			"organization": "Sous-unités comprises",
 			"system": "Sous-systèmes compris"
 		},
-		"pagination": "Pages"
+		"pagination": "Pages",
+		"numOne": {
+			"systems": "Système",
+			"datasets": "Jeu de données",
+			"services": "Service",
+			"legal": "Base légale",
+			"parts": {
+				"dataset": "Partie",
+				"system": "Sous-système",
+				"organization": "Sous-unité"
+			},
+			"users": {
+				"system": "Service utilisé",
+				"service": "Utilisateur"
+			}
+		}
 	},
 	"entity": {
 		"breadcrumb": "Fil d'Ariane",

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -20,7 +21,7 @@ import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, abbrLabel, entityLabel } from '../../core/i18n';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { KIND_ICON, NameList, PageState } from '../../shared/ui';
+import { EntityChip, KIND_ICON, NameList, PageState } from '../../shared/ui';
 import { ORG_TYPES } from '../map/map-model';
 import { CatalogRow, CountKey, buildRows, normalize, toCsv } from './catalog-data';
 
@@ -67,6 +68,15 @@ const ROLLUP: Partial<Record<Kind, Set<CountKey>>> = {
 	system: new Set(['datasets', 'services']),
 };
 
+/** related elements a card shows as chips, in this order; the rest becomes a "+n" */
+const CHIPS: Record<Kind, (keyof Pick<CatalogRow, 'systems' | 'operators' | 'datasets' | 'services' | 'users'>)[]> = {
+	dataset: ['systems', 'operators'],
+	system: ['operators', 'datasets', 'services'],
+	service: ['systems', 'operators'],
+	organization: ['operators', 'systems'],
+};
+const CHIP_MAX = 8;
+
 const PAGE_SIZES = [12, 24, 48, 96];
 const DEFAULT_PAGE_SIZE = 24;
 
@@ -79,6 +89,7 @@ const DEFAULT_PAGE_SIZE = 24;
 		MatBadgeModule,
 		MatButtonModule,
 		MatButtonToggleModule,
+		MatCardModule,
 		MatFormFieldModule,
 		MatIconModule,
 		MatInputModule,
@@ -91,6 +102,7 @@ const DEFAULT_PAGE_SIZE = 24;
 		ObButtonDirective,
 		RouterLink,
 		NameList,
+		EntityChip,
 		PageState,
 		DataFooter,
 		PickPipe,
@@ -316,17 +328,26 @@ export class Catalog {
 		});
 	}
 
-	// ---------------------------------------------------------------------------------------------- columns
+	// ---------------------------------------------------------------------------------------------- columns & cards
+
+	/** the chips of a card: related elements of the row's class, capped at CHIP_MAX */
+	protected chips(r: CatalogRow): { list: Entity[]; more: number } {
+		const seen = new Set<string>();
+		const all: Entity[] = [];
+		for (const key of CHIPS[this.kind()]) for (const e of r[key]) if (!seen.has(e.id)) (seen.add(e.id), all.push(e));
+		return { list: all.slice(0, CHIP_MAX), more: Math.max(0, all.length - CHIP_MAX) };
+	}
 
 	protected isNum(column: string): boolean {
 		return NUM_ID.has(column);
 	}
 
-	/** header label of a numeric column ("Teile" / "Teilsysteme" / "Untereinheiten" depend on the class) */
-	protected numLabel(c: NumColumn): string {
+	/** label of a figure ("Teile" / "Teilsysteme" / "Untereinheiten" depend on the class); singular for exactly one */
+	protected numLabel(c: NumColumn, n = 0): string {
+		const group = n === 1 ? 'numOne' : 'num';
 		return c.count === 'parts' || c.count === 'users'
-			? `catalog.num.${c.count}.${this.kind()}`
-			: `catalog.num.${c.count}`;
+			? `catalog.${group}.${c.count}.${this.kind()}`
+			: `catalog.${group}.${c.count}`;
 	}
 
 	protected numHint(c: NumColumn): string | null {

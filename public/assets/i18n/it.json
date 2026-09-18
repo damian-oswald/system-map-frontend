@@ -271,7 +271,22 @@
 			"organization": "Comprese le sottounità",
 			"system": "Compresi i sottosistemi"
 		},
-		"pagination": "Pagine"
+		"pagination": "Pagine",
+		"numOne": {
+			"systems": "Sistema",
+			"datasets": "Set di dati",
+			"services": "Servizio",
+			"legal": "Base legale",
+			"parts": {
+				"dataset": "Parte",
+				"system": "Sottosistema",
+				"organization": "Sottounità"
+			},
+			"users": {
+				"system": "Servizio utilizzato",
+				"service": "Utente"
+			}
+		}
 	},
 	"entity": {
 		"breadcrumb": "Percorso di navigazione",

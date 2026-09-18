@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, inject, input } from '@angular/core';
+import { Component, booleanAttribute, computed, forwardRef, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -7,7 +7,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Entity, EntityKind } from '../core/graph.model';
 import { GraphService } from '../core/graph.service';
-import { entityTitle, LabelPipe, LangService } from '../core/i18n';
+import { abbrLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
 
 export const KIND_ICON: Record<EntityKind, string> = {
 	organization: 'building',
@@ -20,15 +20,27 @@ export const KIND_ICON: Record<EntityKind, string> = {
 	other: 'info',
 };
 
-/** Pill linking to an entity's detail page, colour-coded by class. */
+/** Pill linking to an entity's detail page, colour-coded by class; optionally with the class icon and the abbreviation. */
 @Component({
 	selector: 'app-entity-chip',
-	imports: [RouterLink, LabelPipe],
+	imports: [RouterLink, MatIconModule],
 	template: `
 		@if (entity(); as e) {
-			<a class="sm-chip sm-kind--{{ e.kind }}" [routerLink]="['/entity', e.key]" [attr.title]="title()">
-				<span>{{ e | label: lang() : 'short' : max() }}</span>
-			</a>
+			@if (link()) {
+				<a class="sm-chip sm-kind--{{ e.kind }}" [routerLink]="['/entity', e.key]" [attr.title]="title()">
+					@if (icon()) {
+						<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
+					}
+					<span>{{ label() }}</span>
+				</a>
+			} @else {
+				<span class="sm-chip static sm-kind--{{ e.kind }}">
+					@if (icon()) {
+						<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
+					}
+					<span>{{ label() }}</span>
+				</span>
+			}
 		}
 	`,
 	styles: `
@@ -36,13 +48,32 @@ export const KIND_ICON: Record<EntityKind, string> = {
 			display: inline-flex;
 			max-width: 100%;
 		}
+		mat-icon {
+			flex: none;
+			width: 14px;
+			height: 14px;
+			margin-right: 7px;
+			color: var(--k, var(--sm-ink-3));
+		}
 	`,
 })
 export class EntityChip {
 	readonly entity = input.required<Entity | undefined>();
 	readonly max = input(48);
+	/** show the class icon in front of the label */
+	readonly icon = input(false, { transform: booleanAttribute });
+	/** prefer the abbreviation over the (shortened) name */
+	readonly abbr = input(false, { transform: booleanAttribute });
+	/** false renders a plain, non-interactive chip (e.g. inside a card that is itself a link) */
+	readonly link = input(true, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
+	protected readonly KIND_ICON = KIND_ICON;
 	protected readonly title = computed(() => entityTitle(this.entity(), this.lang()));
+	protected readonly label = computed(() =>
+		this.abbr()
+			? abbrLabel(this.entity(), this.lang(), this.max())
+			: shortLabel(this.entity(), this.lang(), this.max()),
+	);
 }
 
 /** Loading skeleton / error state shown while the graph is being fetched. */
