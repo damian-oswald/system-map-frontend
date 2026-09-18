@@ -1,7 +1,6 @@
-// A prose page in Oblique's typography (.ob-prose sets the heading scale); one reading column.
+// A prose page in Oblique's typography (.ob-prose sets the heading scale) on the standard page width; paragraphs
+// keep a readable measure, lists and rules span the page like on the other pages.
 .about {
-	max-width: 820px;
-	margin-inline: 0;
 	padding-top: 24px;
 
 	h1 {
