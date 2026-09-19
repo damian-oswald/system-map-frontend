@@ -329,11 +329,31 @@
 											@if (n.members > 1) {
 												<text class="member-count" y="3.5" text-anchor="middle">{{ n.members }}</text>
 											}
-											<text class="label" [attr.x]="n.r + 6" y="0">{{ n.label }}</text>
 										}
 									</g>
 								}
 							</g>
+							<!-- … and is painted in a layer above all nodes, least important first, so important names win -->
+							@if (sc.view === 'network') {
+								<g class="labels" aria-hidden="true">
+									@for (n of sc.labelOrder; track n.id) {
+										<text
+											class="node-label sm-kind--{{ n.kind }}"
+											[attr.data-id]="n.id"
+											[attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
+											[attr.x]="n.r + 6"
+											y="0"
+											[style.--rank]="n.rank"
+											[class.hl]="isHl(n.id)"
+											[class.sel]="selected() === n.id"
+											[class.focused]="focusRep() === n.id"
+											[class.match]="matchIds()?.has(n.id)"
+										>
+											{{ n.label }}
+										</text>
+									}
+								</g>
+							}
 						</g>
 					}
 				</g>

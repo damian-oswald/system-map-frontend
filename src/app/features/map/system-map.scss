@@ -592,11 +592,6 @@ mat-button-toggle mat-icon {
 	}
 }
 
-.network .node.focused .label {
-	fill: var(--sm-ink);
-	opacity: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.node .pulse {
 		animation: none;
@@ -616,26 +611,39 @@ mat-button-toggle mat-icon {
 	stroke-opacity: 0.6;
 }
 
-.network .node .label {
+// the labels live in their own layer above all nodes (see the template); a label is hidden when the zoom level's
+// budget does not reach its rank or when the placement pass found it overlapping a more important label
+.network .node-label {
 	// counter-scaled: ~12.5px on screen at every zoom level, so zooming in never makes labels collide; vertically
 	// centred on the node whatever the current font size
+	fill: var(--sm-ink);
 	font-size: calc(12.5px / var(--zk, 1));
 	dominant-baseline: central;
 	paint-order: stroke;
 	stroke: rgba(248, 250, 251, 0.9);
 	stroke-width: calc(3px / var(--zk, 1));
 	stroke-linejoin: round;
+	pointer-events: none;
 	opacity: clamp(0, var(--label-n, 0) - var(--rank, 0), 1);
 	transition: opacity 0.15s;
+
+	&.hl,
+	&.sel,
+	&.match,
+	&.focused {
+		opacity: 1;
+	}
+
+	&.focused {
+		font-weight: 700;
+	}
+
+	&.occluded {
+		opacity: 0;
+	}
 }
 
-.network .node.hl .label,
-.network .node.sel .label,
-.network .node.match .label {
-	opacity: 1;
-}
-
-.network.has-active .node:not(.hl):not(.sel) .label {
+.network.has-active .node-label:not(.hl):not(.sel) {
 	opacity: 0;
 }
 

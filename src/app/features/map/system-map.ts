@@ -35,7 +35,7 @@ import { AddressService } from '../../core/address.service';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityTitle, pick, shortLabel } from '../../core/i18n';
-import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
+import { badgeWidth, fitLabel, fontsVersion, textWidth } from '../../core/text-fit';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { KIND_ICON, PageState } from '../../shared/ui';
@@ -69,6 +69,8 @@ interface SceneNode {
 	orgType?: OrgType;
 	/** place in the importance order of the current view (0 = most important) */
 	rank: number;
+	/** width of the label on screen (network view) */
+	lw: number;
 	w: number;
 	depth: number;
 	/** width of the merged-count badge, 0 if none */
@@ -90,6 +92,8 @@ interface SceneEdge {
 interface Scene {
 	view: MapView;
 	nodes: SceneNode[];
+	/** network view: nodes from least to most important – labels are painted in this order, so important ones lie on top */
+	labelOrder: SceneNode[];
 	edges: SceneEdge[];
 	columns: Column[];
 	bands: Band[];
@@ -116,6 +120,9 @@ const BAR_INSET = 66;
 const IDEAL_CONTEXT_NODES = 20;
 /** network view: labels shown when the scene is fitted; the budget grows with the square of the zoom factor */
 const LABELS_AT_FIT = 14;
+/** network view: label font size on screen and the height of its collision box */
+const LABEL_PX = 12.5;
+const LABEL_H = 15;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -307,7 +314,8 @@ export class SystemMap implements AfterViewInit {
 			}
 			bounds = { x: minX - 20, y: minY - 20, w: maxX - minX + 40, h: maxY - minY + 40 };
 		}
-		return { view, nodes, edges, columns, bands, tree, bounds };
+		const labelOrder = view === 'network' ? [...nodes].sort((a, b) => b.rank - a.rank) : [];
+		return { view, nodes, labelOrder, edges, columns, bands, tree, bounds };
 	});
 
 	/** node that drives highlighting: hover wins over the pinned selection */
@@ -529,7 +537,64 @@ export class SystemMap implements AfterViewInit {
 			}
 		});
 
+		// labels are placed again when the scene, the hover/selection or the search hits change
+		effect(() => {
+			this.scene();
+			this.active();
+			this.matchIds();
+			this.focusRep();
+			untracked(() => this.scheduleLabels());
+		});
+
 		this.destroyRef.onDestroy(() => this.worker?.terminate());
+	}
+
+	// ---------------------------------------------------------------------------------------------- label placement
+
+	private labelFrame = 0;
+
+	/** runs placeLabels once per animation frame, outside Angular */
+	private scheduleLabels(): void {
+		if (this.labelFrame) return;
+		this.labelFrame = requestAnimationFrame(() => {
+			this.labelFrame = 0;
+			this.placeLabels();
+		});
+	}
+
+	/**
+	 * Greedy label placement in screen space, like a map: pinned labels (hovered, selected, matching, focused) come
+	 * first, then the others in importance order as far as the zoom level's budget allows; a label whose box would
+	 * overlap an already placed one is hidden. Runs on every zoom frame, ~430 labels take well under a millisecond.
+	 */
+	private placeLabels(): void {
+		const sc = this.scene();
+		const svg = this.svgRef()?.nativeElement;
+		if (!sc || sc.view !== 'network' || !svg) return;
+		const { k, x: tx, y: ty } = this.transform;
+		const budget = LABELS_AT_FIT * Math.pow(k / this.fitScale, 2) + 1;
+		const sel = this.selected();
+		const focus = this.focusRep();
+		const matches = this.matchIds();
+		const pinned = (id: string): boolean => this.isHl(id) || sel === id || focus === id || !!matches?.has(id);
+		const byRank = [...sc.labelOrder].reverse();
+		const candidates = [
+			...byRank.filter((n) => pinned(n.id)),
+			...byRank.filter((n) => !pinned(n.id) && n.rank < budget),
+		];
+		const boxes: { x: number; y: number; w: number; h: number }[] = [];
+		const shown = new Set<string>();
+		for (const n of candidates) {
+			const x = n.x * k + tx + (n.r + 6) * k;
+			const y = n.y * k + ty - LABEL_H / 2;
+			const clash = boxes.some((b) => x < b.x + b.w && x + n.lw > b.x && y < b.y + b.h && y + LABEL_H > b.y);
+			if (clash && !pinned(n.id)) continue;
+			boxes.push({ x, y, w: n.lw, h: LABEL_H });
+			shown.add(n.id);
+		}
+		for (const el of svg.querySelectorAll<SVGTextElement>('text.node-label')) {
+			el.classList.toggle('occluded', !shown.has(el.dataset['id'] ?? ''));
+		}
 	}
 
 	ngAfterViewInit(): void {
@@ -724,6 +789,7 @@ export class SystemMap implements AfterViewInit {
 					// how many labels the view can take: more important ones first, more as the map is zoomed in
 					const labels = LABELS_AT_FIT * Math.pow(ev.transform.k / this.fitScale, 2);
 					svg.style.setProperty('--label-n', labels.toFixed(2));
+					this.scheduleLabels();
 					const far = ev.transform.k < 0.38;
 					const near = ev.transform.k >= 1.25;
 					if (far !== this.far() || near !== this.near())
@@ -790,6 +856,7 @@ export class SystemMap implements AfterViewInit {
 			members: n.members,
 			orgType: n.orgType,
 			rank: ranks.get(n.id) ?? 0,
+			lw: textWidth(label, LABEL_PX),
 			w: n.w,
 			depth: n.depth,
 			badgeW,
