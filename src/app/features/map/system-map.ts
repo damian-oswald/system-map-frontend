@@ -92,6 +92,12 @@ interface SceneEdge {
 interface SelEdge {
 	id: string;
 	d: string;
+	/** same stroke width as the plain edge underneath, so selecting never changes the line */
+	w: number;
+	/** tip of the arrowhead and the edge's direction in degrees */
+	x2: number;
+	y2: number;
+	angle: number;
 	mx: number;
 	my: number;
 	label: string;
@@ -361,6 +367,10 @@ export class SystemMap implements AfterViewInit {
 			out.push({
 				id: e.id,
 				d: `M${x1},${y1}L${x2},${y2}`,
+				w: e.hierarchy ? 1.6 : e.w,
+				x2,
+				y2,
+				angle: (Math.atan2(uy, ux) * 180) / Math.PI,
 				mx: (x1 + x2) / 2,
 				my: (y1 + y2) / 2,
 				label,

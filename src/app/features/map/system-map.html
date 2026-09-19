@@ -232,20 +232,6 @@
 				role="img"
 				[attr.aria-label]="'map.canvasLabel' | translate"
 			>
-				<defs>
-					<!-- the selected node's edges get a larger head -->
-					<marker
-						id="arrow-lg"
-						viewBox="0 0 8 8"
-						refX="7.5"
-						refY="4"
-						markerWidth="11"
-						markerHeight="11"
-						orient="auto-start-reverse"
-					>
-						<path d="M0,0.5L8,4L0,7.5z" class="arrow" />
-					</marker>
-				</defs>
 				<g #viewport>
 					@if (scene(); as sc) {
 						<g class="scene" [attr.data-view]="sc.view">
@@ -281,7 +267,20 @@
 										<path
 											class="sel-edge {{ e.hierarchy ? 'hier sm-kind--' + e.kind : '' }}"
 											[attr.d]="e.d"
-											marker-end="url(#arrow-lg)"
+											[attr.stroke-width]="e.w"
+										/>
+										<path
+											class="sel-head {{ e.hierarchy ? 'hier sm-kind--' + e.kind : '' }}"
+											d="M-16,-7L0,0L-16,7Z"
+											[style.transform]="
+												'translate(' +
+												e.x2 +
+												'px, ' +
+												e.y2 +
+												'px) rotate(' +
+												e.angle +
+												'deg) scale(calc(1 / var(--zk, 1)))'
+											"
 										/>
 									}
 								</g>
