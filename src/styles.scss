@@ -490,3 +490,19 @@ a.sm-chip:focus-visible {
 	text-align: left;
 	white-space: pre-line;
 }
+
+// square Oblique icon button of the control bars (map, inventory, detail page): 42px, icon centred
+.bar-btn.mat-mdc-icon-button.mat-mdc-button-base {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--bar-h, 42px);
+	height: var(--bar-h, 42px);
+	padding: 0;
+
+	.mat-icon {
+		width: 18px;
+		height: 18px;
+		margin: 0;
+	}
+}

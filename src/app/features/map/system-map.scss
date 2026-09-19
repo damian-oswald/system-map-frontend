@@ -193,13 +193,6 @@ mat-button-toggle mat-icon {
 		background: var(--sm-surface);
 	}
 
-	// filter/zoom buttons, view toggle and search share one height
-	.bar-btn.mat-mdc-icon-button.mat-mdc-button-base {
-		width: var(--bar-h);
-		height: var(--bar-h);
-		padding: 0;
-	}
-
 	// the badge overlaps the button's top-right corner (Oblique's button example): give it a little room
 	.bar-btn.has-badge {
 		margin-right: 4px;

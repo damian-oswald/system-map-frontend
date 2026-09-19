@@ -72,12 +72,13 @@
 						}
 					</ul>
 				</div>
-				<!-- icon-only actions on the title line: copy the IRI, give feedback on this element -->
+				<!-- the map's icon buttons: copy this element's IRI, send feedback on it, report an issue with it -->
 				<div class="actions">
 					<button
 						mat-icon-button
 						obButton="secondary"
 						type="button"
+						class="bar-btn"
 						(click)="copy(e.id)"
 						[matTooltip]="(copied() ? 'entity.copied' : 'entity.copy') | translate"
 						[attr.aria-label]="'entity.copy' | translate"
@@ -87,6 +88,7 @@
 					<a
 						mat-icon-button
 						obButton="secondary"
+						class="bar-btn"
 						[href]="mailto()"
 						[isExternalLink]="false"
 						[matTooltip]="'entity.mail' | translate"
@@ -97,14 +99,15 @@
 					<a
 						mat-icon-button
 						obButton="secondary"
-						[href]="REPO_URL"
+						class="bar-btn"
+						[href]="issueUrl()"
 						target="_blank"
 						rel="noopener"
 						[isExternalLink]="false"
 						[matTooltip]="'entity.github' | translate"
 						[attr.aria-label]="'entity.github' | translate"
 					>
-						<mat-icon svgIcon="github" />
+						<mat-icon svgIcon="bug" />
 					</a>
 				</div>
 			</div>

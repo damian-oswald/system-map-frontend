@@ -295,7 +295,7 @@
 		"fallback": "No description in this language – shown in another language.",
 		"noDescription": "No description available.",
 		"showInMap": "Show on map",
-		"copy": "Copy IRI",
+		"copy": "Copy this element's IRI",
 		"copied": "IRI copied",
 		"notFound": "Element not found",
 		"partOf": "Part of",
@@ -323,8 +323,8 @@
 			"predicate": "Predicate",
 			"object": "Object"
 		},
-		"mail": "Report by e-mail",
-		"github": "Source data on GitHub"
+		"mail": "Send feedback on this element by e-mail",
+		"github": "Report an issue with this element on GitHub"
 	},
 	"about": {
 		"title": "About the project",

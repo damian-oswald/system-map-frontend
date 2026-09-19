@@ -39,23 +39,13 @@ mat-icon {
 		min-width: 0;
 	}
 
-	// icon buttons in a row, aligned with the title; the tooltip says what they do
+	// the map's square icon buttons in a row, aligned with the title; the tooltip says what they do
 	.actions {
+		--bar-h: 42px;
 		display: flex;
 		flex: none;
-		gap: 6px;
+		gap: 10px;
 		margin-top: 2px;
-
-		.mat-mdc-icon-button.mat-mdc-button-base {
-			width: 40px;
-			height: 40px;
-			padding: 0;
-		}
-
-		mat-icon {
-			width: 18px;
-			height: 18px;
-		}
 	}
 }
 

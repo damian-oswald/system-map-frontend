@@ -110,6 +110,15 @@ export class EntityPage {
 		return `mailto:${FEEDBACK_MAIL}?subject=${subject}&body=${body}`;
 	});
 
+	/** a new GitHub issue about this element, title and IRI prefilled (dedicated forms may follow) */
+	protected readonly issueUrl = computed(() => {
+		const e = this.entity();
+		if (!e) return REPO_URL;
+		const title = encodeURIComponent(entityTitle(e, this.lang()));
+		const body = encodeURIComponent(`${e.id}\n\n`);
+		return `${REPO_URL}/issues/new?title=${title}&body=${body}`;
+	});
+
 	protected readonly isMappable = computed(() => (KINDS as readonly string[]).includes(this.entity()?.kind ?? ''));
 	protected readonly catalogParams = computed(() => {
 		const k = this.entity()?.kind;
