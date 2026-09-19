@@ -14,7 +14,7 @@ import { AddressService } from '../../core/address.service';
 import { Collection, Entity } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, entityTitle, isFallback, pick } from '../../core/i18n';
-import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, compactIri } from '../../core/vocab';
+import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, REPO_URL, compactIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
 import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
@@ -51,6 +51,7 @@ const FIGURES: Record<Kind, CountKey[]> = {
 	service: ['parts', 'systems', 'users'],
 };
 const COLUMNS = ['subject', 'predicate', 'object'];
+const FEEDBACK_MAIL = 'agridata.ch@blw.admin.ch';
 const PAGE_SIZES = [12, 24, 48, 96];
 const DEFAULT_PAGE_SIZE = 24;
 
@@ -91,6 +92,7 @@ export class EntityPage {
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
 	protected readonly compactIri = compactIri;
+	protected readonly REPO_URL = REPO_URL;
 	protected readonly copied = signal(false);
 	protected readonly COLUMNS = COLUMNS;
 	protected readonly PAGE_SIZES = PAGE_SIZES;
@@ -100,6 +102,15 @@ export class EntityPage {
 		const e = this.graphService.entity(this.key());
 		if (e) this.title.setTitle(`${entityLabel(e, this.lang())} · ${this.translate.instant('app.title')}`);
 		return e ?? null;
+	});
+
+	/** feedback on this element by e-mail: the title as subject, the IRI in the body */
+	protected readonly mailto = computed(() => {
+		const e = this.entity();
+		if (!e) return '';
+		const subject = encodeURIComponent(entityTitle(e, this.lang()));
+		const body = encodeURIComponent(`${e.id}\n\n`);
+		return `mailto:${FEEDBACK_MAIL}?subject=${subject}&body=${body}`;
 	});
 
 	protected readonly isMappable = computed(() => (KINDS as readonly string[]).includes(this.entity()?.kind ?? ''));

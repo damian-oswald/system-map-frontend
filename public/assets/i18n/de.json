@@ -305,16 +305,16 @@
 		},
 		"structureSub": "Übergeordnete Einheiten, das Element selbst und alles, was darunter liegt.",
 		"tables": "Beziehungen im Detail",
-		"tablesSub": "Alle dokumentierten Beziehungen dieses Elements – und die ausgehenden seiner Teile – als Subjekt, Prädikat und Objekt.",
+		"tablesSub": "Alle dokumentierten Beziehungen dieses Elements.",
 		"context": "Kontext",
-		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite.",
+		"contextSub": "Die Umgebung dieses Elements auf der Daten- und Systemlandkarte.",
 		"subunitOf": "Unterorganisation von",
 		"figures": "In Zahlen",
 		"figuresSub": {
-			"organization": "Zusammengezählt über alle Untereinheiten: die betriebenen Systeme, die darin gespeicherten Datensätze und die angebotenen Services.",
-			"system": "Zusammengezählt über alle Teilsysteme: gespeicherte Datensätze, angebotene und genutzte Services.",
-			"dataset": "Zusammengezählt über alle Teile: die Systeme, in denen sie gespeichert sind, und ihre Rechtsgrundlagen.",
-			"service": "Zusammengezählt über alle Teilservices: die Systeme, die sie anbieten, und die Systeme, die sie nutzen."
+			"organization": "Aggregierte Zahlen über alle Untereinheiten.",
+			"system": "Aggregierte Zahlen über alle Teilsysteme.",
+			"dataset": "Aggregierte Zahlen über alle Teile.",
+			"service": "Aggregierte Zahlen über alle Teilservices."
 		},
 		"col": {
 			"subject": "Subjekt",
@@ -322,7 +322,9 @@
 			"object": "Objekt"
 		},
 		"pKeyword": "hat Schlagwort",
-		"pArchitecture": "ist Teil der Architektur"
+		"pArchitecture": "ist Teil der Architektur",
+		"mail": "Per E-Mail melden",
+		"github": "Auf GitHub"
 	},
 	"about": {
 		"title": "Über das Projekt",

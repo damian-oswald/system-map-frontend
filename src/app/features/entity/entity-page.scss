@@ -9,8 +9,13 @@ mat-icon {
 // ---------------------------------------------------------------- hero banner (full width, Oblique secondary-50)
 .hero {
 	margin: -16px -16px 0;
-	padding: 20px 16px 36px;
+	padding: 20px 16px 24px;
 	background: var(--sm-surface-2);
+
+	// the page frame's own bottom padding would make the banner taller than its content
+	.sm-page {
+		padding: 0;
+	}
 
 	h1 {
 		max-width: 26em;
@@ -21,7 +26,7 @@ mat-icon {
 	}
 }
 
-// title left, "IRI kopieren" right on the same line
+// title left, the quiet actions right on the same line
 .title-row {
 	display: flex;
 	flex-wrap: wrap;
@@ -30,9 +35,12 @@ mat-icon {
 	gap: 12px 24px;
 	margin-bottom: 12px;
 
-	.copy {
+	.actions {
+		display: flex;
 		flex: none;
-		margin-top: 4px;
+		flex-wrap: wrap;
+		gap: 4px;
+		margin: 2px -8px 0 0;
 
 		mat-icon {
 			margin-right: 8px;

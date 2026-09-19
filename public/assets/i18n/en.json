@@ -305,16 +305,16 @@
 		},
 		"structureSub": "Parent units, the element itself and everything below it.",
 		"tables": "Relations in detail",
-		"tablesSub": "Every documented relation of this element – and the outgoing ones of its parts – as subject, predicate and object.",
+		"tablesSub": "All documented relations of this element.",
 		"context": "Context",
-		"contextSub": "The surroundings of this element on the map – 1, 2 or 3 steps out. Clicking another element opens its page.",
+		"contextSub": "The surroundings of this element on the data and system map.",
 		"subunitOf": "Sub-organization of",
 		"figures": "In numbers",
 		"figuresSub": {
-			"organization": "Summed over all sub-units: the systems operated, the data sets stored in them and the services they provide.",
-			"system": "Summed over all sub-systems: data sets stored, services provided and used.",
-			"dataset": "Summed over all parts: the systems they are stored in and their legal bases.",
-			"service": "Summed over all sub-services: the systems providing them and the systems using them."
+			"organization": "Aggregated figures over all sub-units.",
+			"system": "Aggregated figures over all sub-systems.",
+			"dataset": "Aggregated figures over all parts.",
+			"service": "Aggregated figures over all sub-services."
 		},
 		"col": {
 			"subject": "Subject",
@@ -322,7 +322,9 @@
 			"object": "Object"
 		},
 		"pKeyword": "has keyword",
-		"pArchitecture": "is part of the architecture"
+		"pArchitecture": "is part of the architecture",
+		"mail": "Report by e-mail",
+		"github": "On GitHub"
 	},
 	"about": {
 		"title": "About the project",

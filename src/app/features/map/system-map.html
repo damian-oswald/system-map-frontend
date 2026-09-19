@@ -374,6 +374,19 @@
 				>
 					<mat-icon svgIcon="fullscreen" />
 				</button>
+				@if (embedded()) {
+					<a
+						mat-icon-button
+						obButton="secondary"
+						class="bar-btn"
+						routerLink="/map"
+						[queryParams]="{ focus: focusKey() }"
+						[matTooltip]="'entity.showInMap' | translate"
+						[attr.aria-label]="'entity.showInMap' | translate"
+					>
+						<mat-icon svgIcon="map" />
+					</a>
+				}
 			</div>
 
 			<!-- interaction hint -->

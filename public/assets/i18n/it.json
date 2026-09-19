@@ -305,16 +305,16 @@
 		},
 		"structureSub": "Unità superiori, l'elemento stesso e tutto ciò che si trova al di sotto.",
 		"tables": "Relazioni in dettaglio",
-		"tablesSub": "Tutte le relazioni documentate di questo elemento – e quelle in uscita dalle sue parti – come soggetto, predicato e oggetto.",
+		"tablesSub": "Tutte le relazioni documentate di questo elemento.",
 		"context": "Contesto",
-		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina.",
+		"contextSub": "L'ambiente di questo elemento sulla mappa dei dati e dei sistemi.",
 		"subunitOf": "Sottorganizzazione di",
 		"figures": "In cifre",
 		"figuresSub": {
-			"organization": "Sommati su tutte le sottounità: i sistemi gestiti, i set di dati che contengono e i servizi che offrono.",
-			"system": "Sommati su tutti i sottosistemi: set di dati contenuti, servizi offerti e utilizzati.",
-			"dataset": "Sommati su tutte le parti: i sistemi che li contengono e le loro basi legali.",
-			"service": "Sommati su tutti i sottoservizi: i sistemi che li offrono e quelli che li utilizzano."
+			"organization": "Cifre aggregate su tutte le sottounità.",
+			"system": "Cifre aggregate su tutti i sottosistemi.",
+			"dataset": "Cifre aggregate su tutte le parti.",
+			"service": "Cifre aggregate su tutti i sottoservizi."
 		},
 		"col": {
 			"subject": "Soggetto",
@@ -322,7 +322,9 @@
 			"object": "Oggetto"
 		},
 		"pKeyword": "ha parola chiave",
-		"pArchitecture": "fa parte dell'architettura"
+		"pArchitecture": "fa parte dell'architettura",
+		"mail": "Segnalare via e-mail",
+		"github": "Su GitHub"
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

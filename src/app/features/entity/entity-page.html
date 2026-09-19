@@ -12,11 +12,20 @@
 
 			<div class="title-row">
 				<h1>{{ e | label: lang() : 'title' }}</h1>
-				<button mat-button obButton="secondary" type="button" class="copy" (click)="copy(e.id)">
-					<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
-						(copied() ? 'entity.copied' : 'entity.copy') | translate
-					}}
-				</button>
+				<!-- quiet actions: copy the IRI, give feedback on this element -->
+				<div class="actions">
+					<button mat-button obButton="tertiary" type="button" (click)="copy(e.id)">
+						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
+							(copied() ? 'entity.copied' : 'entity.copy') | translate
+						}}
+					</button>
+					<a mat-button obButton="tertiary" [href]="mailto()" [isExternalLink]="false"
+						><mat-icon svgIcon="mail" />{{ 'entity.mail' | translate }}</a
+					>
+					<a mat-button obButton="tertiary" [href]="REPO_URL" target="_blank" rel="noopener" [isExternalLink]="false"
+						><mat-icon svgIcon="github" />{{ 'entity.github' | translate }}</a
+					>
+				</div>
 			</div>
 			<div class="tags">
 				@for (t of typeLabels(); track t) {
@@ -98,9 +107,6 @@
 						<h2 id="s-context">{{ 'entity.context' | translate }}</h2>
 						<p class="sect-lead">{{ 'entity.contextSub' | translate }}</p>
 					</div>
-					<a mat-button obButton="secondary" routerLink="/map" [queryParams]="{ focus: e.key }"
-						><mat-icon svgIcon="map" />{{ 'entity.showInMap' | translate }}</a
-					>
 				</header>
 				<app-system-map embedded [focusKey]="e.key" />
 			</section>
