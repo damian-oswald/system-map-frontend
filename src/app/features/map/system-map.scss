@@ -617,8 +617,10 @@ mat-button-toggle mat-icon {
 }
 
 .network .node .label {
-	// counter-scaled: ~11px on screen at every zoom level, so zooming in never makes labels collide
-	font-size: calc(11px / var(--zk, 1));
+	// counter-scaled: ~12.5px on screen at every zoom level, so zooming in never makes labels collide; vertically
+	// centred on the node whatever the current font size
+	font-size: calc(12.5px / var(--zk, 1));
+	dominant-baseline: central;
 	paint-order: stroke;
 	stroke: rgba(248, 250, 251, 0.9);
 	stroke-width: calc(3px / var(--zk, 1));
