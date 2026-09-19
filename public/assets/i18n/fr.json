@@ -295,11 +295,7 @@
 		"showInMap": "Afficher sur la carte",
 		"copy": "Copier l'IRI",
 		"copied": "IRI copié",
-		"legal": "Base légale",
-		"subgraphs": "Fait partie des architectures",
 		"notFound": "Élément introuvable",
-		"more": "+ afficher {{n}} de plus",
-		"less": "afficher moins",
 		"partOf": "Fait partie de",
 		"structure": {
 			"organization": "Structure organisationnelle",
@@ -307,23 +303,9 @@
 			"dataset": "Structure du jeu de données",
 			"service": "Structure du service"
 		},
-		"rollup": {
-			"organization": "Systèmes informatiques au sein de cette organisation",
-			"system": "Jeux de données dans les sous-systèmes",
-			"dataset": "Stockage des parties",
-			"service": "Utilisation des sous-services"
-		},
-		"rollupSub": {
-			"organization": "{{n}} systèmes informatiques sont exploités par des unités de cette organisation.",
-			"system": "{{n}} jeux de données sont contenus dans des sous-systèmes de ce système.",
-			"dataset": "{{n}} systèmes informatiques contiennent des parties de ce jeu de données.",
-			"service": "{{n}} systèmes et organisations utilisent des sous-services de ce service."
-		},
 		"structureSub": "Unités supérieures, l'élément lui-même et tout ce qui se trouve en dessous.",
 		"tables": "Relations en détail",
-		"tablesSub": "Un tableau par type de relation – avec ce qui en dit le plus sur les éléments liés.",
-		"via": "Via",
-		"moreTitle": "Autres indications",
+		"tablesSub": "Toutes les relations documentées de cet élément – et celles qui partent de ses parties – en sujet, prédicat et objet.",
 		"context": "Contexte",
 		"contextSub": "L'environnement de cet élément sur la carte – à 1, 2 ou 3 pas. Un clic sur un autre élément ouvre sa page.",
 		"subunitOf": "Sous-organisation de",
@@ -333,7 +315,14 @@
 			"system": "Additionnés sur tous les sous-systèmes : jeux de données stockés, services offerts et utilisés.",
 			"dataset": "Additionnés sur toutes les parties : les systèmes qui les stockent et leurs bases légales.",
 			"service": "Additionnés sur tous les sous-services : les systèmes qui les offrent et ceux qui les utilisent."
-		}
+		},
+		"col": {
+			"subject": "Sujet",
+			"predicate": "Prédicat",
+			"object": "Objet"
+		},
+		"pKeyword": "a pour mot-clé",
+		"pArchitecture": "fait partie de l'architecture"
 	},
 	"about": {
 		"title": "À propos du projet",

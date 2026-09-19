@@ -295,11 +295,7 @@
 		"showInMap": "Show on map",
 		"copy": "Copy IRI",
 		"copied": "IRI copied",
-		"legal": "Legal basis",
-		"subgraphs": "Part of architectures",
 		"notFound": "Element not found",
-		"more": "+ show {{n}} more",
-		"less": "show less",
 		"partOf": "Part of",
 		"structure": {
 			"organization": "Organizational structure",
@@ -307,23 +303,9 @@
 			"dataset": "Structure of the data set",
 			"service": "Service structure"
 		},
-		"rollup": {
-			"organization": "IT systems within this organization",
-			"system": "Data sets in sub-systems",
-			"dataset": "Where the parts are stored",
-			"service": "Use of the sub-services"
-		},
-		"rollupSub": {
-			"organization": "{{n}} IT systems are operated by units of this organization.",
-			"system": "{{n}} data sets are contained in sub-systems of this system.",
-			"dataset": "{{n}} IT systems contain parts of this data set.",
-			"service": "{{n}} systems and organizations use sub-services of this service."
-		},
 		"structureSub": "Parent units, the element itself and everything below it.",
 		"tables": "Relations in detail",
-		"tablesSub": "One table per type of relation – with what says most about the related elements.",
-		"via": "Via",
-		"moreTitle": "Further details",
+		"tablesSub": "Every documented relation of this element – and the outgoing ones of its parts – as subject, predicate and object.",
 		"context": "Context",
 		"contextSub": "The surroundings of this element on the map – 1, 2 or 3 steps out. Clicking another element opens its page.",
 		"subunitOf": "Sub-organization of",
@@ -333,7 +315,14 @@
 			"system": "Summed over all sub-systems: data sets stored, services provided and used.",
 			"dataset": "Summed over all parts: the systems they are stored in and their legal bases.",
 			"service": "Summed over all sub-services: the systems providing them and the systems using them."
-		}
+		},
+		"col": {
+			"subject": "Subject",
+			"predicate": "Predicate",
+			"object": "Object"
+		},
+		"pKeyword": "has keyword",
+		"pArchitecture": "is part of the architecture"
 	},
 	"about": {
 		"title": "About the project",

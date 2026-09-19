@@ -146,12 +146,22 @@ export interface TreeNode {
 /** Hierarchy of an element (ancestors → the element → its descendants), drawn as an indented tree. */
 @Component({
 	selector: 'app-entity-tree',
-	imports: [EntityChip, LabelPipe, forwardRef(() => EntityTree)],
+	imports: [EntityChip, LabelPipe, MatIconModule, RouterLink, forwardRef(() => EntityTree)],
 	template: `
-		<ul class="etree" [class.root]="root()">
+		<ul class="etree" [class.root]="root()" [class.plain]="plain()">
 			@for (n of nodes(); track n.e.id) {
 				<li>
-					@if (n.self) {
+					@if (plain()) {
+						@if (n.self) {
+							<span class="tnode current sm-kind--{{ n.e.kind }}"
+								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</span
+							>
+						} @else {
+							<a class="tnode sm-kind--{{ n.e.kind }}" [routerLink]="['/entity', n.e.key]"
+								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</a
+							>
+						}
+					} @else if (n.self) {
 						<span class="sm-chip current sm-kind--{{ n.e.kind }}"
 							><span>{{ n.e | label: lang() : 'short' : 60 }}</span></span
 						>
@@ -159,7 +169,7 @@ export interface TreeNode {
 						<app-entity-chip [entity]="n.e" [max]="60" />
 					}
 					@if (n.children.length) {
-						<app-entity-tree [nodes]="n.children" [root]="false" />
+						<app-entity-tree [nodes]="n.children" [root]="false" [plain]="plain()" />
 					}
 				</li>
 			}
@@ -205,12 +215,39 @@ export interface TreeNode {
 			border-color: var(--k);
 			font-weight: 600;
 		}
+		// plain rows: class icon + title, the element itself in bold
+		.tnode {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 3px 0;
+			color: var(--sm-ink);
+			text-decoration: none;
+			mat-icon {
+				flex: none;
+				width: 15px;
+				height: 15px;
+				color: var(--k, var(--sm-ink-3));
+			}
+		}
+		a.tnode:hover,
+		a.tnode:focus-visible {
+			text-decoration: underline;
+		}
+		.tnode.current {
+			background: none;
+			border: 0;
+			font-weight: 700;
+		}
 	`,
 })
 export class EntityTree {
 	readonly nodes = input.required<TreeNode[]>();
 	readonly root = input(true);
+	/** text rows instead of chips */
+	readonly plain = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
+	protected readonly KIND_ICON = KIND_ICON;
 }
 
 /** Names as running text – "A, B und C" or "A, B, C und n weitere" – as plain links that underline on hover. */

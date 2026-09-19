@@ -295,11 +295,7 @@
 		"showInMap": "Mostra sulla mappa",
 		"copy": "Copia IRI",
 		"copied": "IRI copiato",
-		"legal": "Base legale",
-		"subgraphs": "Parte delle architetture",
 		"notFound": "Elemento non trovato",
-		"more": "+ mostra altri {{n}}",
-		"less": "mostra meno",
 		"partOf": "Parte di",
 		"structure": {
 			"organization": "Struttura organizzativa",
@@ -307,23 +303,9 @@
 			"dataset": "Struttura del set di dati",
 			"service": "Struttura del servizio"
 		},
-		"rollup": {
-			"organization": "Sistemi IT all'interno di questa organizzazione",
-			"system": "Set di dati nei sottosistemi",
-			"dataset": "Dove sono salvate le parti",
-			"service": "Utilizzo dei sottoservizi"
-		},
-		"rollupSub": {
-			"organization": "{{n}} sistemi IT sono gestiti da unità di questa organizzazione.",
-			"system": "{{n}} set di dati sono contenuti in sottosistemi di questo sistema.",
-			"dataset": "{{n}} sistemi IT contengono parti di questo set di dati.",
-			"service": "{{n}} sistemi e organizzazioni utilizzano sottoservizi di questo servizio."
-		},
 		"structureSub": "Unità superiori, l'elemento stesso e tutto ciò che si trova al di sotto.",
 		"tables": "Relazioni in dettaglio",
-		"tablesSub": "Una tabella per tipo di relazione – con ciò che dice di più sugli elementi collegati.",
-		"via": "Tramite",
-		"moreTitle": "Ulteriori indicazioni",
+		"tablesSub": "Tutte le relazioni documentate di questo elemento – e quelle in uscita dalle sue parti – come soggetto, predicato e oggetto.",
 		"context": "Contesto",
 		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina.",
 		"subunitOf": "Sottorganizzazione di",
@@ -333,7 +315,14 @@
 			"system": "Sommati su tutti i sottosistemi: set di dati contenuti, servizi offerti e utilizzati.",
 			"dataset": "Sommati su tutte le parti: i sistemi che li contengono e le loro basi legali.",
 			"service": "Sommati su tutti i sottoservizi: i sistemi che li offrono e quelli che li utilizzano."
-		}
+		},
+		"col": {
+			"subject": "Soggetto",
+			"predicate": "Predicato",
+			"object": "Oggetto"
+		},
+		"pKeyword": "ha parola chiave",
+		"pArchitecture": "fa parte dell'architettura"
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

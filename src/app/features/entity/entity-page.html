@@ -106,7 +106,7 @@
 			</section>
 		}
 
-		<!-- ============================================================ structure: tree + roll-up table -->
+		<!-- ============================================================ hierarchy: a plain tree -->
 		@if (structure().length) {
 			<section class="sect" [attr.aria-labelledby]="'s-structure'">
 				<header class="sect-head">
@@ -115,149 +115,96 @@
 						<p class="sect-lead">{{ 'entity.structureSub' | translate }}</p>
 					</div>
 				</header>
-				<div class="structure-grid" [class.two]="rollup().length">
-					<div class="sm-card pad">
-						<app-entity-tree [nodes]="structure()" />
-					</div>
-					@if (rollup().length) {
-						<div class="sm-card table-card">
-							<h3>
-								{{ 'entity.rollup.' + e.kind | translate }} <span class="count">{{ rollup().length }}</span>
-							</h3>
-							<p class="table-sub">{{ 'entity.rollupSub.' + e.kind | translate: { n: rollup().length } }}</p>
-							<table mat-table class="ob-table ob-table-sm" [dataSource]="rollup()">
-								<ng-container matColumnDef="name">
-									<th mat-header-cell *matHeaderCellDef>{{ 'catalog.col.name' | translate }}</th>
-									<td mat-cell *matCellDef="let r" class="cell-name">
-										<a [routerLink]="['/entity', r.target.key]">{{ r.target | label: lang() : 'title' }}</a>
-									</td>
-								</ng-container>
-								<ng-container matColumnDef="via">
-									<th mat-header-cell *matHeaderCellDef>{{ 'entity.via' | translate }}</th>
-									<td mat-cell *matCellDef="let r"><app-name-list [items]="r.via" [max]="3" [chars]="40" abbr /></td>
-								</ng-container>
-								<tr mat-header-row *matHeaderRowDef="['name', 'via']"></tr>
-								<tr mat-row *matRowDef="let row; columns: ['name', 'via']"></tr>
-							</table>
-						</div>
-					}
-				</div>
+				<app-entity-tree [nodes]="structure()" plain />
 			</section>
 		}
 
-		<!-- ============================================================ relations in detail: one small table each -->
-		@if (tables().length) {
-			<section class="sect" [attr.aria-labelledby]="'s-tables'">
+		<!-- ============================================================ every relation as subject – predicate – object -->
+		@if (triples().length) {
+			<section class="sect" [attr.aria-labelledby]="'s-triples'">
 				<header class="sect-head">
 					<div>
-						<h2 id="s-tables">{{ 'entity.tables' | translate }}</h2>
+						<h2 id="s-triples">{{ 'entity.tables' | translate }}</h2>
 						<p class="sect-lead">{{ 'entity.tablesSub' | translate }}</p>
 					</div>
 				</header>
-				<div class="tables">
-					@for (t of tables(); track t.id) {
-						<div class="sm-card table-card">
-							<h3>
-								{{ t.title }} <span class="count">{{ t.rows.length }}</span>
-							</h3>
-							<table mat-table class="ob-table ob-table-sm" [dataSource]="tableRows(t)">
-								<ng-container matColumnDef="name">
-									<th mat-header-cell *matHeaderCellDef>{{ 'catalog.col.name' | translate }}</th>
-									<td mat-cell *matCellDef="let r" class="cell-name">
-										<a [routerLink]="['/entity', r.e.key]"
-											><mat-icon [svgIcon]="icon(r.e)" class="row-icon sm-kind--{{ r.e.kind }}" />{{
-												r.e | label: lang() : 'title'
-											}}</a
-										>
-									</td>
-								</ng-container>
-								<ng-container matColumnDef="info">
-									<th mat-header-cell *matHeaderCellDef>{{ t.infoLabel }}</th>
-									<td mat-cell *matCellDef="let r" class="cell-info">
-										@if (r.list) {
-											<app-name-list [items]="r.list" [max]="3" [chars]="40" abbr />
-										} @else if (r.tags) {
-											@for (tag of r.tags; track tag.key) {
-												<span class="sm-tag {{ tag.cls }}">{{ tag.key | translate }}</span>
-											}
-										} @else {
-											{{ r.text ?? '' }}
-										}
-									</td>
-								</ng-container>
-								<tr mat-header-row *matHeaderRowDef="t.columns"></tr>
-								<tr mat-row *matRowDef="let row; columns: t.columns"></tr>
-							</table>
-							@if (t.rows.length > TABLE_LIMIT) {
-								<button mat-button obButton="tertiary" type="button" class="more-btn" (click)="toggleTable(t.id)">
-									{{
-										openTables().has(t.id)
-											? ('entity.less' | translate)
-											: ('entity.more' | translate: { n: t.rows.length - TABLE_LIMIT })
-									}}
-								</button>
+				<table
+					mat-table
+					matSort
+					class="ob-table ob-table-sm ob-table-collapse-md spo"
+					[dataSource]="paged()"
+					[matSortActive]="sort().active"
+					[matSortDirection]="sort().direction"
+					(matSortChange)="onSort($event)"
+				>
+					<ng-container matColumnDef="subject">
+						<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'entity.col.subject' | translate }}</th>
+						<td mat-cell *matCellDef="let t" [attr.data-title]="'entity.col.subject' | translate" class="cell-name">
+							@if (t.s.id === e.id) {
+								<span class="self"
+									><mat-icon [svgIcon]="icon(t.s)" class="row-icon sm-kind--{{ t.s.kind }}" />{{
+										t.s | label: lang() : 'title'
+									}}</span
+								>
+							} @else {
+								<a [routerLink]="['/entity', t.s.key]"
+									><mat-icon [svgIcon]="icon(t.s)" class="row-icon sm-kind--{{ t.s.kind }}" />{{
+										t.s | label: lang() : 'title'
+									}}</a
+								>
 							}
-						</div>
-					}
-				</div>
-			</section>
-		}
-
-		<!-- ============================================================ legal basis, keywords, architectures -->
-		@if (hasMore()) {
-			<section class="sect" [attr.aria-labelledby]="'s-more'">
-				<header class="sect-head">
-					<div>
-						<h2 id="s-more">{{ 'entity.moreTitle' | translate }}</h2>
-					</div>
-				</header>
-				<div class="tables">
-					@if (legal().length) {
-						<div class="sm-card table-card">
-							<h3>
-								{{ 'entity.legal' | translate }} <span class="count">{{ legal().length }}</span>
-							</h3>
-							<ul class="plain">
-								@for (l of legal(); track l.id) {
-									<li>
-										<a [href]="l.id" target="_blank" rel="noopener">{{ (l.name | pick: lang()) || l.id }}</a>
-									</li>
-								}
-							</ul>
-						</div>
-					}
-					@if (keywords().length) {
-						<div class="sm-card table-card">
-							<h3>
-								{{ 'catalog.keywords' | translate }} <span class="count">{{ keywords().length }}</span>
-							</h3>
-							<div class="tags">
-								@for (k of keywords(); track k.id) {
-									<a
-										class="sm-tag kw-tag"
-										routerLink="/catalog"
-										[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
-										>{{ k.name | pick: lang() }}</a
-									>
-								}
-							</div>
-						</div>
-					}
-					@if (collections().length) {
-						<div class="sm-card table-card">
-							<h3>
-								{{ 'entity.subgraphs' | translate }} <span class="count">{{ collections().length }}</span>
-							</h3>
-							<ul class="plain">
-								@for (c of collections(); track c.id) {
-									<li>
-										<a routerLink="/map" [queryParams]="{ sub: compactIri(c.id) }">{{ c.name | pick: lang() }}</a>
-									</li>
-								}
-							</ul>
-						</div>
-					}
-				</div>
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="predicate">
+						<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'entity.col.predicate' | translate }}</th>
+						<td mat-cell *matCellDef="let t" [attr.data-title]="'entity.col.predicate' | translate" class="cell-pred">
+							{{ t.p }}
+						</td>
+					</ng-container>
+					<ng-container matColumnDef="object">
+						<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'entity.col.object' | translate }}</th>
+						<td mat-cell *matCellDef="let t" [attr.data-title]="'entity.col.object' | translate" class="cell-name">
+							@if (t.c) {
+								<a routerLink="/map" [queryParams]="{ sub: compactIri(t.c.id) }"
+									><mat-icon svgIcon="stack" class="row-icon" />{{ t.c.name | pick: lang() }}</a
+								>
+							} @else if (t.o.id === e.id) {
+								<span class="self"
+									><mat-icon [svgIcon]="icon(t.o)" class="row-icon sm-kind--{{ t.o.kind }}" />{{
+										t.o | label: lang() : 'title'
+									}}</span
+								>
+							} @else if (t.o.kind === 'legislation') {
+								<a [href]="t.o.id" target="_blank" rel="noopener"
+									><mat-icon svgIcon="justice-scales" class="row-icon" />{{ (t.o.name | pick: lang()) || t.o.id }}</a
+								>
+							} @else if (t.o.kind === 'keyword') {
+								<a routerLink="/catalog" [queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: t.o.key }"
+									><mat-icon svgIcon="tag" class="row-icon" />{{ t.o.name | pick: lang() }}</a
+								>
+							} @else {
+								<a [routerLink]="['/entity', t.o.key]"
+									><mat-icon [svgIcon]="icon(t.o)" class="row-icon sm-kind--{{ t.o.kind }}" />{{
+										t.o | label: lang() : 'title'
+									}}</a
+								>
+							}
+						</td>
+					</ng-container>
+					<tr mat-header-row *matHeaderRowDef="COLUMNS"></tr>
+					<tr mat-row *matRowDef="let row; columns: COLUMNS"></tr>
+				</table>
+				@if (sorted().length > PAGE_SIZES[0]) {
+					<mat-paginator
+						[length]="sorted().length"
+						[pageIndex]="page()"
+						[pageSize]="pageSize()"
+						[pageSizeOptions]="PAGE_SIZES"
+						showFirstLastButtons
+						(page)="onPage($event)"
+						[attr.aria-label]="'catalog.pagination' | translate"
+					/>
+				}
 			</section>
 		}
 	</div>

@@ -295,11 +295,7 @@
 		"showInMap": "Auf der Karte zeigen",
 		"copy": "IRI kopieren",
 		"copied": "IRI kopiert",
-		"legal": "Rechtsgrundlage",
-		"subgraphs": "Teil der Architekturen",
 		"notFound": "Element nicht gefunden",
-		"more": "+ {{n}} weitere anzeigen",
-		"less": "weniger anzeigen",
 		"partOf": "Teil von",
 		"structure": {
 			"organization": "Organisationsstruktur",
@@ -307,23 +303,9 @@
 			"dataset": "Struktur des Datensatzes",
 			"service": "Servicestruktur"
 		},
-		"rollup": {
-			"organization": "IT-Systeme innerhalb dieser Organisation",
-			"system": "Datensätze in Teilsystemen",
-			"dataset": "Speicherorte der Teile",
-			"service": "Nutzung der Teilservices"
-		},
-		"rollupSub": {
-			"organization": "{{n}} IT-Systeme werden von Einheiten dieser Organisation betrieben.",
-			"system": "{{n}} Datensätze sind in Teilsystemen dieses Systems enthalten.",
-			"dataset": "{{n}} IT-Systeme enthalten Teile dieses Datensatzes.",
-			"service": "{{n}} Systeme und Organisationen nutzen Teilservices dieses Services."
-		},
 		"structureSub": "Übergeordnete Einheiten, das Element selbst und alles, was darunter liegt.",
 		"tables": "Beziehungen im Detail",
-		"tablesSub": "Eine Tabelle pro Beziehungsart – mit dem, was über die verbundenen Elemente am meisten sagt.",
-		"via": "Über",
-		"moreTitle": "Weitere Angaben",
+		"tablesSub": "Alle dokumentierten Beziehungen dieses Elements – und die ausgehenden seiner Teile – als Subjekt, Prädikat und Objekt.",
 		"context": "Kontext",
 		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite.",
 		"subunitOf": "Unterorganisation von",
@@ -333,7 +315,14 @@
 			"system": "Zusammengezählt über alle Teilsysteme: gespeicherte Datensätze, angebotene und genutzte Services.",
 			"dataset": "Zusammengezählt über alle Teile: die Systeme, in denen sie gespeichert sind, und ihre Rechtsgrundlagen.",
 			"service": "Zusammengezählt über alle Teilservices: die Systeme, die sie anbieten, und die Systeme, die sie nutzen."
-		}
+		},
+		"col": {
+			"subject": "Subjekt",
+			"predicate": "Prädikat",
+			"object": "Objekt"
+		},
+		"pKeyword": "hat Schlagwort",
+		"pArchitecture": "ist Teil der Architektur"
 	},
 	"about": {
 		"title": "Über das Projekt",
