@@ -647,6 +647,44 @@ mat-button-toggle mat-icon {
 	opacity: 0;
 }
 
+// the selected node's edges: direction arrows and relation names, zoomed in only
+.sel-edges {
+	display: none;
+	pointer-events: none;
+}
+
+.canvas.detail .sel-edges {
+	display: block;
+}
+
+.sel-edge {
+	fill: none;
+	stroke: var(--sm-ink);
+	stroke-opacity: 0.9;
+	stroke-width: calc(1.5px / var(--zk, 1));
+
+	&.hier {
+		stroke: var(--k);
+	}
+}
+
+.edge-label {
+	fill: var(--sm-ink-2);
+	font-size: calc(10.5px / var(--zk, 1));
+	font-style: italic;
+	dominant-baseline: central;
+	paint-order: stroke;
+	stroke: rgba(248, 250, 251, 0.95);
+	stroke-width: calc(3px / var(--zk, 1));
+	stroke-linejoin: round;
+	pointer-events: none;
+	transition: opacity 0.15s;
+
+	&.occluded {
+		opacity: 0;
+	}
+}
+
 .far:not(.network) .node .label {
 	opacity: 0.35;
 }

@@ -273,10 +273,17 @@
 										[attr.stroke-width]="e.w"
 										[class.dashed]="e.dashed"
 										[class]="edgeState(e) + ' rel-' + e.key + (e.hierarchy ? ' hier sm-kind--' + e.kind : '')"
-										[attr.marker-end]="edgeState(e) === 'hl' && !e.hierarchy ? 'url(#arrow)' : null"
 									/>
 								}
 							</g>
+							<!-- the selected node's edges with direction arrows; visible once zoomed in (class "detail" on the canvas) -->
+							@if (sc.view === 'network') {
+								<g class="sel-edges">
+									@for (e of selEdges(); track e.id) {
+										<path class="sel-edge" [class.hier]="e.hierarchy" [attr.d]="e.d" marker-end="url(#arrow)" />
+									}
+								</g>
+							}
 							@if (sc.view === 'layers') {
 								<g class="tree">
 									@for (t of sc.tree; track $index) {
@@ -300,15 +307,14 @@
 										role="button"
 										[attr.aria-label]="n.title"
 										[attr.aria-pressed]="selected() === n.id"
-										(mouseenter)="hovered.set(n.id)"
-										(mouseleave)="hovered.set(null)"
+										(mouseenter)="onNodeEnter(n.id)"
+										(mouseleave)="onNodeLeave()"
 										(focus)="hovered.set(n.id)"
 										(blur)="hovered.set(null)"
 										(click)="onNodeClick(n.id, $event)"
 										(dblclick)="focusOn(n.id)"
 										(keydown)="onNodeKey(n.id, $event)"
 									>
-										<title>{{ n.title }}</title>
 										@if (sc.view === 'layers') {
 											<rect class="pill" [attr.width]="n.w" [attr.height]="NODE_H" rx="5" />
 											<rect class="bar" width="4" [attr.height]="NODE_H" rx="2" />
@@ -350,6 +356,18 @@
 											[class.match]="matchIds()?.has(n.id)"
 										>
 											{{ n.label }}
+										</text>
+									}
+									<!-- relation names on the selected node's edges, placed only where no label is in the way -->
+									@for (e of selEdges(); track e.id) {
+										<text
+											class="edge-label occluded"
+											[attr.data-id]="e.id"
+											[attr.x]="e.mx"
+											[attr.y]="e.my"
+											text-anchor="middle"
+										>
+											{{ e.label }}
 										</text>
 									}
 								</g>

@@ -89,6 +89,19 @@ interface SceneEdge {
 	kind?: Kind;
 }
 
+/** an edge of the selected node, drawn with an arrow and its relation name once zoomed in enough */
+interface SelEdge {
+	id: string;
+	d: string;
+	mx: number;
+	my: number;
+	label: string;
+	/** label width on screen */
+	lw: number;
+	hierarchy: boolean;
+	kind?: Kind;
+}
+
 interface Scene {
 	view: MapView;
 	nodes: SceneNode[];
@@ -123,6 +136,12 @@ const LABELS_AT_FIT = 14;
 /** network view: label font size on screen and the height of its collision box */
 const LABEL_PX = 12.5;
 const LABEL_H = 15;
+/** edge labels of the selected node: font size, box height, and the zoom factor (relative to the fit) they need */
+const EDGE_LABEL_PX = 10.5;
+const EDGE_LABEL_H = 13;
+const EDGE_DETAIL_ZOOM = 1.4;
+/** hovering a node highlights its neighbourhood only after this pause, so brushing over nodes stays calm */
+const HOVER_DELAY = 200;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -316,6 +335,44 @@ export class SystemMap implements AfterViewInit {
 		}
 		const labelOrder = view === 'network' ? [...nodes].sort((a, b) => b.rank - a.rank) : [];
 		return { view, nodes, labelOrder, edges, columns, bands, tree, bounds };
+	});
+
+	/** the selected node's edges, shortened to end outside the circles so the arrowheads show, with their relation names */
+	protected readonly selEdges = computed<SelEdge[]>(() => {
+		const sc = this.scene();
+		const sel = this.selected();
+		const g = this.graph();
+		if (!sc || sc.view !== 'network' || !sel || !g) return [];
+		const lang = this.lang();
+		const byId = new Map(sc.nodes.map((n) => [n.id, n]));
+		const out: SelEdge[] = [];
+		for (const e of sc.edges) {
+			if (e.s !== sel && e.o !== sel) continue;
+			const a = byId.get(e.s);
+			const b = byId.get(e.o);
+			if (!a || !b) continue;
+			const dx = b.x - a.x;
+			const dy = b.y - a.y;
+			const len = Math.hypot(dx, dy) || 1;
+			const ux = dx / len;
+			const uy = dy / len;
+			const x1 = a.x + ux * (a.r + 2);
+			const y1 = a.y + uy * (a.r + 2);
+			const x2 = b.x - ux * (b.r + 3);
+			const y2 = b.y - uy * (b.r + 3);
+			const label = pick(g.relationInfo.get(e.key)?.name, lang) || e.key;
+			out.push({
+				id: e.id,
+				d: `M${x1},${y1}L${x2},${y2}`,
+				mx: (x1 + x2) / 2,
+				my: (y1 + y2) / 2,
+				label,
+				lw: textWidth(label, EDGE_LABEL_PX),
+				hierarchy: e.hierarchy,
+				kind: e.kind,
+			});
+		}
+		return out;
 	});
 
 	/** node that drives highlighting: hover wins over the pinned selection */
@@ -543,6 +600,7 @@ export class SystemMap implements AfterViewInit {
 			this.active();
 			this.matchIds();
 			this.focusRep();
+			this.selEdges();
 			untracked(() => this.scheduleLabels());
 		});
 
@@ -594,6 +652,23 @@ export class SystemMap implements AfterViewInit {
 		}
 		for (const el of svg.querySelectorAll<SVGTextElement>('text.node-label')) {
 			el.classList.toggle('occluded', !shown.has(el.dataset['id'] ?? ''));
+		}
+		// the selected node's edge arrows and names: only zoomed in, and only where no label is in the way
+		const detail = k / this.fitScale >= EDGE_DETAIL_ZOOM;
+		svg.classList.toggle('detail', detail);
+		const edgeShown = new Set<string>();
+		if (detail) {
+			for (const e of this.selEdges()) {
+				const x = e.mx * k + tx - e.lw / 2;
+				const y = e.my * k + ty - EDGE_LABEL_H / 2;
+				const clash = boxes.some((b) => x < b.x + b.w && x + e.lw > b.x && y < b.y + b.h && y + EDGE_LABEL_H > b.y);
+				if (clash) continue;
+				boxes.push({ x, y, w: e.lw, h: EDGE_LABEL_H });
+				edgeShown.add(e.id);
+			}
+		}
+		for (const el of svg.querySelectorAll<SVGTextElement>('text.edge-label')) {
+			el.classList.toggle('occluded', !edgeShown.has(el.dataset['id'] ?? ''));
 		}
 	}
 
@@ -656,6 +731,16 @@ export class SystemMap implements AfterViewInit {
 	}
 
 	// ---------------------------------------------------------------------------------------------- interaction
+
+	private hoverTimer = 0;
+	protected onNodeEnter(id: string): void {
+		clearTimeout(this.hoverTimer);
+		this.hoverTimer = window.setTimeout(() => this.hovered.set(id), HOVER_DELAY);
+	}
+	protected onNodeLeave(): void {
+		clearTimeout(this.hoverTimer);
+		this.hovered.set(null);
+	}
 
 	protected onNodeClick(id: string, ev: Event): void {
 		ev.stopPropagation();
