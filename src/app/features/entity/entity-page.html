@@ -1,6 +1,6 @@
 @if (entity(); as e) {
-	<!-- ============================================================ header -->
-	<header class="hero sm-kind--{{ e.kind }}">
+	<!-- ============================================================ hero: the essentials on a light grey banner -->
+	<header class="hero">
 		<div class="sm-page">
 			<nav class="crumbs" [attr.aria-label]="'entity.breadcrumb' | translate">
 				<a routerLink="/catalog" [queryParams]="catalogParams()">{{ 'nav.catalog' | translate }}</a>
@@ -10,80 +10,60 @@
 				<span aria-current="page">{{ e | label: lang() : 'short' : 60 }}</span>
 			</nav>
 
-			<div class="hero-grid">
-				<div class="hero-main">
-					<span class="kind-badge"
-						><mat-icon [svgIcon]="KIND_ICON[e.kind]" />{{ 'kind.' + e.kind + '.one' | translate }}</span
-					>
-					<h1>{{ e.name | pick: lang() }}</h1>
-					<div class="tags">
-						@if (e.abbreviation) {
-							<span class="sm-tag">{{ e.abbreviation }}</span>
-						}
-						@for (t of typeLabels(); track t) {
-							<span class="sm-tag">{{ t }}</span>
-						}
-						@if (e.orgType) {
-							<span class="sm-tag">{{ 'orgType.' + e.orgType | translate }}</span>
-						}
-						@if (e.canton) {
-							<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
-						}
-						@if (e.sensitive) {
-							<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
-						} @else if (e.personal) {
-							<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
-						}
-						@if (e.master) {
-							<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
-						}
-					</div>
-					@if (e.description | pick: lang(); as d) {
-						<p class="desc">{{ d }}</p>
-						@if (descFallback()) {
-							<p class="fallback sm-small sm-muted">{{ 'entity.fallback' | translate }}</p>
-						}
-					} @else {
-						<p class="desc sm-muted">{{ 'entity.noDescription' | translate }}</p>
-					}
-					@if (address(); as a) {
-						<p class="fact"><mat-icon svgIcon="location" [matTooltip]="'common.address' | translate" />{{ a }}</p>
-					}
-					@if (parents().length) {
-						<p class="fact belongs">
-							<span class="fact-label">{{
-								(e.kind === 'organization' ? 'entity.belongsTo' : 'entity.partOf') | translate
-							}}</span>
-							@for (p of parents(); track p.id) {
-								<app-entity-chip [entity]="p" icon abbr [max]="40" />
-							}
-						</p>
-					}
-				</div>
-
-				<div class="hero-actions">
-					@if (isMappable()) {
-						<a mat-button obButton="primary" routerLink="/map" [queryParams]="{ focus: e.key }"
-							><mat-icon svgIcon="map" />{{ 'entity.showInMap' | translate }}</a
-						>
-					}
-					@for (u of e.urls; track u) {
-						<a mat-button obButton="secondary" class="ext" [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
-					}
-					@for (r of sameAs(); track r.iri) {
-						<a mat-button obButton="secondary" class="ext" [href]="r.iri" target="_blank" rel="noopener">{{
-							r.label
-						}}</a>
-					}
-					<button mat-button obButton="secondary" type="button" (click)="copy(e.id)">
-						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
-							(copied() ? 'entity.copied' : 'entity.copy') | translate
-						}}
-					</button>
-				</div>
+			<h1>{{ e.name | pick: lang() }}</h1>
+			<div class="tags">
+				@if (e.abbreviation) {
+					<span class="sm-tag">{{ e.abbreviation }}</span>
+				}
+				@for (t of typeLabels(); track t) {
+					<span class="sm-tag">{{ t }}</span>
+				}
+				@if (e.canton) {
+					<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
+				}
+				@if (e.sensitive) {
+					<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+				} @else if (e.personal) {
+					<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+				}
+				@if (e.master) {
+					<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+				}
 			</div>
 
-			<!-- key figures, the same the inventory shows -->
+			@if (e.description | pick: lang(); as d) {
+				<p class="desc">{{ d }}</p>
+				@if (descFallback()) {
+					<p class="fallback sm-small sm-muted">{{ 'entity.fallback' | translate }}</p>
+				}
+			} @else {
+				<p class="desc sm-muted">{{ 'entity.noDescription' | translate }}</p>
+			}
+
+			<!-- address, website, parent unit, IRI -->
+			<div class="meta">
+				@if (address(); as a) {
+					<span class="meta-item"><mat-icon svgIcon="location" aria-hidden="true" />{{ a }}</span>
+				}
+				@for (u of e.urls; track u) {
+					<a class="meta-item" [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
+				}
+				@if (parents().length) {
+					<span class="meta-item">
+						{{ (e.kind === 'organization' ? 'entity.belongsTo' : 'entity.partOf') | translate }}
+						@for (p of parents(); track p.id) {
+							<app-entity-chip [entity]="p" icon abbr [max]="40" />
+						}
+					</span>
+				}
+				<button mat-button obButton="tertiary" type="button" class="copy" (click)="copy(e.id)">
+					<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
+						(copied() ? 'entity.copied' : 'entity.copy') | translate
+					}}
+				</button>
+			</div>
+
+			<!-- aggregated figures: everything below this element counts (sub-units, parts) -->
 			@if (figures().length) {
 				<dl class="figures">
 					@for (f of figures(); track f.count) {
@@ -97,141 +77,30 @@
 		</div>
 	</header>
 
-	<!-- ============================================================ 01 relations diagram -->
-	@if (chapters().includes('relations')) {
-		<section class="chapter" [class.tinted]="tinted('relations')" [attr.aria-labelledby]="'ch-relations'">
-			<div class="sm-page">
-				<header class="ch-head">
-					<span class="ch-num" aria-hidden="true">{{ chapterNo('relations') }}</span>
+	<div class="sm-page">
+		<!-- ============================================================ context: the map around this element -->
+		@if (isMappable()) {
+			<section class="sect" [attr.aria-labelledby]="'s-context'">
+				<header class="sect-head">
 					<div>
-						<h2 id="ch-relations">{{ 'entity.relations' | translate }}</h2>
-						<p class="ch-lead">{{ 'entity.relationsSub' | translate: { n: relationCount() } }}</p>
+						<h2 id="s-context">{{ 'entity.context' | translate }}</h2>
+						<p class="sect-lead">{{ 'entity.contextSub' | translate }}</p>
 					</div>
+					<a mat-button obButton="secondary" routerLink="/map" [queryParams]="{ focus: e.key }"
+						><mat-icon svgIcon="map" />{{ 'entity.showInMap' | translate }}</a
+					>
 				</header>
-				@if (ego(); as g) {
-					<div class="sm-card diagram-card">
-						<div class="ego-wrap" #egoWrap>
-							<svg
-								class="ego sm-kind--{{ e.kind }}"
-								[attr.viewBox]="'0 0 ' + g.width + ' ' + g.height"
-								[attr.height]="g.height"
-								preserveAspectRatio="xMinYMin meet"
-								role="img"
-								[attr.aria-label]="'entity.relations' | translate"
-							>
-								@for (l of g.links; track $index) {
-									<path class="link" [attr.d]="l.d" [class.dashed]="l.dashed" />
-								}
-								@for (h of g.headers; track $index) {
-									<text class="grp" [attr.x]="h.x" [attr.y]="h.y" [attr.text-anchor]="h.anchor">{{ h.text }}</text>
-								}
-								@for (n of g.nodes; track n.id + n.side + n.ay) {
-									<a
-										[attr.href]="'/entity/' + n.key"
-										(click)="go($event, n.key)"
-										class="ego-node sm-kind--{{ n.kind }}"
-										[attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
-									>
-										<title>{{ n.title }}</title>
-										<rect [attr.width]="g.nodeW" height="24" rx="5" />
-										<rect class="bar" width="4" height="24" rx="2" />
-										<text x="12" y="16">{{ n.label }}</text>
-									</a>
-								}
-								@for (t of g.toggles; track t.id) {
-									<text
-										class="toggle"
-										[attr.x]="t.x"
-										[attr.y]="t.y"
-										[attr.text-anchor]="t.anchor"
-										role="button"
-										tabindex="0"
-										(click)="toggleGroup(t.id)"
-										(keydown.enter)="toggleGroup(t.id)"
-									>
-										{{ t.open ? ('entity.less' | translate) : ('entity.more' | translate: { n: t.n }) }}
-									</text>
-								}
+				<app-system-map embedded [focusKey]="e.key" />
+			</section>
+		}
 
-								<!-- the whole this element is part of -->
-								@if (g.frame; as f) {
-									<g class="frame sm-kind--{{ f.kind }}">
-										<rect [attr.x]="f.x" [attr.y]="f.y" [attr.width]="f.w" [attr.height]="f.h" rx="10" />
-										<text class="grp" [attr.x]="f.x + 12" [attr.y]="f.y + 15">
-											{{ (e.kind === 'organization' ? 'entity.belongsTo' : 'entity.partOf') | translate }}
-										</text>
-										@for (w of f.wholes; track w.id) {
-											<a
-												[attr.href]="'/entity/' + w.key"
-												(click)="go($event, w.key)"
-												class="ego-node sm-kind--{{ w.kind }}"
-												[attr.transform]="'translate(' + w.x + ',' + w.y + ')'"
-											>
-												<title>{{ w.title }}</title>
-												<rect [attr.width]="w.w" height="24" rx="5" />
-												<rect class="bar" width="4" height="24" rx="2" />
-												<text x="12" y="16">{{ w.label }}</text>
-											</a>
-										}
-									</g>
-								}
-
-								<!-- the element with its parts -->
-								<g
-									class="ego-center sm-kind--{{ e.kind }}"
-									[attr.transform]="'translate(' + g.center.x + ',' + g.center.y + ')'"
-								>
-									<rect class="composite" [attr.width]="g.centerW" [attr.height]="g.compositeH" rx="8" />
-									<path class="head" [attr.d]="g.headPath" />
-									<text class="head-label" [attr.x]="g.centerW / 2" y="25" text-anchor="middle">
-										{{ g.centerLabel }}
-									</text>
-								</g>
-								@for (p of g.parts; track p.id) {
-									<a
-										[attr.href]="'/entity/' + p.key"
-										(click)="go($event, p.key)"
-										class="ego-node part sm-kind--{{ p.kind }}"
-										[attr.transform]="'translate(' + p.x + ',' + p.y + ')'"
-									>
-										<title>{{ p.title }}</title>
-										<rect [attr.width]="p.w" height="26" rx="5" />
-										<rect class="bar" width="4" height="26" rx="2" />
-										<text x="12" y="17">{{ p.label }}</text>
-										@for (b of p.badges; track b.cls) {
-											<g class="badge {{ b.cls }}" [attr.transform]="'translate(' + b.x + ',4)'">
-												<title>{{ b.title }}</title>
-												<rect [attr.width]="b.w" height="18" rx="9" />
-												<text [attr.x]="b.w / 2" y="13" text-anchor="middle">{{ b.text }}</text>
-											</g>
-										}
-									</a>
-								}
-								@for (a of g.internal; track $index) {
-									<path class="internal sm-kind--{{ e.kind }}" [attr.d]="a.d">
-										<title>{{ a.title }}</title>
-									</path>
-								}
-							</svg>
-						</div>
-						@if (g.parts.length) {
-							<p class="sm-small sm-muted hint">{{ 'entity.partsHint' | translate }}</p>
-						}
-					</div>
-				}
-			</div>
-		</section>
-	}
-
-	<!-- ============================================================ structure: tree + roll-up table -->
-	@if (chapters().includes('structure')) {
-		<section class="chapter" [class.tinted]="tinted('structure')" [attr.aria-labelledby]="'ch-structure'">
-			<div class="sm-page">
-				<header class="ch-head">
-					<span class="ch-num" aria-hidden="true">{{ chapterNo('structure') }}</span>
+		<!-- ============================================================ structure: tree + roll-up table -->
+		@if (structure().length) {
+			<section class="sect" [attr.aria-labelledby]="'s-structure'">
+				<header class="sect-head">
 					<div>
-						<h2 id="ch-structure">{{ 'entity.structure.' + e.kind | translate }}</h2>
-						<p class="ch-lead">{{ 'entity.structureSub' | translate }}</p>
+						<h2 id="s-structure">{{ 'entity.structure.' + e.kind | translate }}</h2>
+						<p class="sect-lead">{{ 'entity.structureSub' | translate }}</p>
 					</div>
 				</header>
 				<div class="structure-grid" [class.two]="rollup().length">
@@ -261,19 +130,16 @@
 						</div>
 					}
 				</div>
-			</div>
-		</section>
-	}
+			</section>
+		}
 
-	<!-- ============================================================ relations in detail: one small table each -->
-	@if (chapters().includes('tables')) {
-		<section class="chapter" [class.tinted]="tinted('tables')" [attr.aria-labelledby]="'ch-tables'">
-			<div class="sm-page">
-				<header class="ch-head">
-					<span class="ch-num" aria-hidden="true">{{ chapterNo('tables') }}</span>
+		<!-- ============================================================ relations in detail: one small table each -->
+		@if (tables().length) {
+			<section class="sect" [attr.aria-labelledby]="'s-tables'">
+				<header class="sect-head">
 					<div>
-						<h2 id="ch-tables">{{ 'entity.tables' | translate }}</h2>
-						<p class="ch-lead">{{ 'entity.tablesSub' | translate }}</p>
+						<h2 id="s-tables">{{ 'entity.tables' | translate }}</h2>
+						<p class="sect-lead">{{ 'entity.tablesSub' | translate }}</p>
 					</div>
 				</header>
 				<div class="tables">
@@ -322,18 +188,15 @@
 						</div>
 					}
 				</div>
-			</div>
-		</section>
-	}
+			</section>
+		}
 
-	<!-- ============================================================ legal basis, keywords, architectures -->
-	@if (chapters().includes('more')) {
-		<section class="chapter" [class.tinted]="tinted('more')" [attr.aria-labelledby]="'ch-more'">
-			<div class="sm-page">
-				<header class="ch-head">
-					<span class="ch-num" aria-hidden="true">{{ chapterNo('more') }}</span>
+		<!-- ============================================================ legal basis, keywords, architectures -->
+		@if (hasMore()) {
+			<section class="sect" [attr.aria-labelledby]="'s-more'">
+				<header class="sect-head">
 					<div>
-						<h2 id="ch-more">{{ 'entity.moreTitle' | translate }}</h2>
+						<h2 id="s-more">{{ 'entity.moreTitle' | translate }}</h2>
 					</div>
 				</header>
 				<div class="tables">
@@ -383,9 +246,9 @@
 						</div>
 					}
 				</div>
-			</div>
-		</section>
-	}
+			</section>
+		}
+	</div>
 } @else if (graph()) {
 	<div class="sm-page">
 		<div class="sm-card sm-card-pad notfound">

@@ -293,8 +293,6 @@
 		"fallback": "No description in this language – shown in another language.",
 		"noDescription": "No description available.",
 		"showInMap": "Show on map",
-		"relations": "Relations",
-		"relationsSub": "{{n}} direct relations: incoming on the left, outgoing on the right. Select an element to continue exploring.",
 		"copy": "Copy IRI",
 		"copied": "IRI copied",
 		"legal": "Legal basis",
@@ -303,8 +301,6 @@
 		"more": "+ show {{n}} more",
 		"less": "show less",
 		"partOf": "Part of",
-		"partsCount": "{{n}} parts",
-		"partsHint": "Subordinate elements (sub-units, parts) are shown inside the frame; their relations start from the respective row. Dashed arcs are relations between them. P = personal data, M = master data, number = further subordinate elements.",
 		"belongsTo": "Belongs to",
 		"structure": {
 			"organization": "Organizational structure",
@@ -328,7 +324,9 @@
 		"tables": "Relations in detail",
 		"tablesSub": "One table per type of relation – with what says most about the related elements.",
 		"via": "Via",
-		"moreTitle": "Further details"
+		"moreTitle": "Further details",
+		"context": "Context",
+		"contextSub": "The surroundings of this element on the map – 1, 2 or 3 steps out. Clicking another element opens its page."
 	},
 	"about": {
 		"title": "About the project",

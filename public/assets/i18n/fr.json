@@ -293,8 +293,6 @@
 		"fallback": "Pas de description dans cette langue – affichée dans une autre langue.",
 		"noDescription": "Aucune description disponible.",
 		"showInMap": "Afficher sur la carte",
-		"relations": "Relations",
-		"relationsSub": "{{n}} relations directes : entrantes à gauche, sortantes à droite. Sélectionnez un élément pour poursuivre l'exploration.",
 		"copy": "Copier l'IRI",
 		"copied": "IRI copié",
 		"legal": "Base légale",
@@ -303,8 +301,6 @@
 		"more": "+ afficher {{n}} de plus",
 		"less": "afficher moins",
 		"partOf": "Fait partie de",
-		"partsCount": "{{n}} parties",
-		"partsHint": "Les éléments subordonnés (sous-unités, parties) sont affichés dans le cadre ; leurs relations partent de la ligne correspondante. Les arcs en pointillé sont des relations entre eux. P = données personnelles, M = données de base, nombre = autres éléments subordonnés.",
 		"belongsTo": "Appartient à",
 		"structure": {
 			"organization": "Structure organisationnelle",
@@ -328,7 +324,9 @@
 		"tables": "Relations en détail",
 		"tablesSub": "Un tableau par type de relation – avec ce qui en dit le plus sur les éléments liés.",
 		"via": "Via",
-		"moreTitle": "Autres indications"
+		"moreTitle": "Autres indications",
+		"context": "Contexte",
+		"contextSub": "L'environnement de cet élément sur la carte – à 1, 2 ou 3 pas. Un clic sur un autre élément ouvre sa page."
 	},
 	"about": {
 		"title": "À propos du projet",

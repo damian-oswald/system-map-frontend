@@ -293,8 +293,6 @@
 		"fallback": "Nessuna descrizione in questa lingua – mostrata in un'altra lingua.",
 		"noDescription": "Nessuna descrizione disponibile.",
 		"showInMap": "Mostra sulla mappa",
-		"relations": "Relazioni",
-		"relationsSub": "{{n}} relazioni dirette: in entrata a sinistra, in uscita a destra. Selezionate un elemento per continuare l'esplorazione.",
 		"copy": "Copia IRI",
 		"copied": "IRI copiato",
 		"legal": "Base legale",
@@ -303,8 +301,6 @@
 		"more": "+ mostra altri {{n}}",
 		"less": "mostra meno",
 		"partOf": "Parte di",
-		"partsCount": "{{n}} parti",
-		"partsHint": "Gli elementi subordinati (sottounità, parti) sono mostrati all'interno del riquadro; le loro relazioni partono dalla riga corrispondente. Gli archi tratteggiati sono relazioni tra di essi. P = dati personali, M = dati di base, numero = ulteriori elementi subordinati.",
 		"belongsTo": "Appartiene a",
 		"structure": {
 			"organization": "Struttura organizzativa",
@@ -328,7 +324,9 @@
 		"tables": "Relazioni in dettaglio",
 		"tablesSub": "Una tabella per tipo di relazione – con ciò che dice di più sugli elementi collegati.",
 		"via": "Tramite",
-		"moreTitle": "Ulteriori indicazioni"
+		"moreTitle": "Ulteriori indicazioni",
+		"context": "Contesto",
+		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina."
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

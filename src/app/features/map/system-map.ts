@@ -5,9 +5,11 @@ import {
 	DestroyRef,
 	ElementRef,
 	NgZone,
+	booleanAttribute,
 	computed,
 	effect,
 	inject,
+	input,
 	signal,
 	untracked,
 	viewChild,
@@ -114,7 +116,7 @@ const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, d
 @Component({
 	selector: 'app-system-map',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	host: { class: 'sm-routed' },
+	host: { '[class.sm-routed]': '!embedded()', '[class.embedded]': 'embedded()' },
 	imports: [
 		TranslatePipe,
 		MatButtonModule,
@@ -148,6 +150,14 @@ export class SystemMap implements AfterViewInit {
 	private readonly destroyRef = inject(DestroyRef);
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
+
+	/**
+	 * Embedded as the "context" panel of a detail page: the network view only, the focus fixed on `focusKey`, no
+	 * controls, drawer or URL sync – clicking another element opens its page.
+	 */
+	readonly embedded = input(false, { transform: booleanAttribute });
+	/** compact IRI of the element to focus on (embedded mode) */
+	readonly focusKey = input<string | undefined>(undefined);
 
 	protected readonly KINDS = KINDS;
 	protected readonly ORG_TYPES = ORG_TYPES;
@@ -459,8 +469,21 @@ export class SystemMap implements AfterViewInit {
 		});
 		this.readUrl();
 
+		// embedded: the focus follows the page, nothing else is configurable
+		effect(() => {
+			if (!this.embedded()) return;
+			const key = this.focusKey();
+			const e = key ? this.graphService.entity(key) : undefined;
+			untracked(() => {
+				this.view.set('network');
+				this.selected.set(null);
+				this.focus.set(e?.id ?? null);
+			});
+		});
+
 		// keep the URL in sync (replaceUrl: no history spam)
 		effect(() => {
+			if (this.embedded()) return;
 			const params = this.urlParams();
 			untracked(() => this.router.navigate([], { relativeTo: this.route, queryParams: params, replaceUrl: true }));
 		});
@@ -482,8 +505,10 @@ export class SystemMap implements AfterViewInit {
 			const key = `${this.view()}|${this.structureKey()}`;
 			if (!scene || !this.zoomBehavior) return;
 			if (key !== this.fittedKey) {
-				this.fittedKey = key;
-				queueMicrotask(() => this.fit(false));
+				// only counts as fitted once the canvas had a size (an embedded panel may still be laid out)
+				queueMicrotask(() => {
+					if (this.fit(false)) this.fittedKey = key;
+				});
 			}
 		});
 
@@ -492,8 +517,8 @@ export class SystemMap implements AfterViewInit {
 
 	ngAfterViewInit(): void {
 		this.setupZoom();
-		// the map fills the scrollable area between Oblique's header and footer
-		const wrapper = document.querySelector('.ob-master-layout-wrapper');
+		// the map fills the scrollable area between Oblique's header and footer (embedded: fixed height from CSS)
+		const wrapper = this.embedded() ? null : document.querySelector('.ob-master-layout-wrapper');
 		if (wrapper) {
 			const ro = new ResizeObserver(([e]) => {
 				const h = Math.round(e.target.clientHeight);
@@ -534,6 +559,7 @@ export class SystemMap implements AfterViewInit {
 	}
 
 	protected focusOn(id: string): void {
+		if (this.embedded()) return;
 		const g = this.graph();
 		const e = g?.entities.get(id);
 		if (!e) return;
@@ -551,7 +577,16 @@ export class SystemMap implements AfterViewInit {
 
 	protected onNodeClick(id: string, ev: Event): void {
 		ev.stopPropagation();
+		if (this.embedded()) {
+			this.openEntity(id);
+			return;
+		}
 		this.selected.set(this.selected() === id ? null : id);
+	}
+	/** embedded: a click on another element opens its page */
+	private openEntity(id: string): void {
+		const e = this.graph()?.entities.get(id);
+		if (e && id !== this.focusRep()) void this.router.navigate(['/entity', e.key]);
 	}
 	protected onBackgroundClick(): void {
 		this.selected.set(null);
@@ -559,7 +594,8 @@ export class SystemMap implements AfterViewInit {
 	protected onNodeKey(id: string, ev: KeyboardEvent): void {
 		if (ev.key === 'Enter' || ev.key === ' ') {
 			ev.preventDefault();
-			this.selected.set(id);
+			if (this.embedded()) this.openEntity(id);
+			else this.selected.set(id);
 		}
 	}
 
@@ -587,31 +623,34 @@ export class SystemMap implements AfterViewInit {
 		if (svg && this.zoomBehavior) this.zoomBehavior.scaleBy(select(svg), f);
 	}
 
-	protected fit(animate = true): void {
+	/** fits the scene into the canvas; false when the canvas has no size yet */
+	protected fit(animate = true): boolean {
 		const svg = this.svgRef()?.nativeElement;
 		const scene = this.scene();
-		if (!svg || !scene || !this.zoomBehavior) return;
+		if (!svg || !scene || !this.zoomBehavior) return false;
 		const rect = svg.getBoundingClientRect();
 		const height = rect.height;
 		// keep the fitted scene clear of the details drawer on wide screens
 		const width = scene.view === 'network' && this.selected() && rect.width > 1000 ? rect.width - 400 : rect.width;
-		if (!width || !height) return;
+		if (!width || !height) return false;
+		const inset = this.embedded() ? 16 : BAR_INSET;
 		const b = scene.bounds;
 		let k: number;
 		let tx: number;
 		let ty: number;
 		if (scene.view === 'layers') {
 			// readable zoom (never below 0.74 unless the width forces it), start at the top: tall maps are scrolled
-			k = Math.min(1, (width - 48) / b.w, (height - BAR_INSET - 24) / b.h);
+			k = Math.min(1, (width - 48) / b.w, (height - inset - 24) / b.h);
 			k = Math.max(k, Math.min(0.74, (width - 48) / b.w));
 			tx = b.w * k < width ? (width - b.w * k) / 2 - b.x * k : 24 - b.x * k;
-			ty = b.h * k < height - BAR_INSET ? BAR_INSET + (height - BAR_INSET - b.h * k) / 2 : BAR_INSET;
+			ty = b.h * k < height - inset ? inset + (height - inset - b.h * k) / 2 : inset;
 		} else {
-			k = Math.min(1.4, (width - 40) / b.w, (height - BAR_INSET - 40) / b.h);
+			k = Math.min(1.4, (width - 40) / b.w, (height - inset - 40) / b.h);
 			tx = (width - b.w * k) / 2 - b.x * k;
-			ty = BAR_INSET + (height - BAR_INSET - b.h * k) / 2 - b.y * k;
+			ty = inset + (height - inset - b.h * k) / 2 - b.y * k;
 		}
 		this.applyTransform(zoomIdentity.translate(tx, ty).scale(k), animate);
+		return true;
 	}
 
 	private centerOn(id: string): void {

@@ -293,8 +293,6 @@
 		"fallback": "Keine Beschreibung in dieser Sprache – in einer anderen Sprache angezeigt.",
 		"noDescription": "Keine Beschreibung vorhanden.",
 		"showInMap": "Auf der Karte zeigen",
-		"relations": "Beziehungen",
-		"relationsSub": "{{n}} direkte Beziehungen: eingehende links, ausgehende rechts. Wählen Sie ein Element, um weiter zu erkunden.",
 		"copy": "IRI kopieren",
 		"copied": "IRI kopiert",
 		"legal": "Rechtsgrundlage",
@@ -303,8 +301,6 @@
 		"more": "+ {{n}} weitere anzeigen",
 		"less": "weniger anzeigen",
 		"partOf": "Teil von",
-		"partsCount": "{{n}} Teile",
-		"partsHint": "Untergeordnete Elemente (Untereinheiten, Teile) werden innerhalb des Rahmens gezeigt; ihre Beziehungen gehen von der jeweiligen Zeile aus. Gestrichelte Bögen sind Beziehungen zwischen ihnen. P = Personendaten, M = Stammdaten, Zahl = Anzahl weiterer untergeordneter Elemente.",
 		"belongsTo": "Gehört zu",
 		"structure": {
 			"organization": "Organisationsstruktur",
@@ -328,7 +324,9 @@
 		"tables": "Beziehungen im Detail",
 		"tablesSub": "Eine Tabelle pro Beziehungsart – mit dem, was über die verbundenen Elemente am meisten sagt.",
 		"via": "Über",
-		"moreTitle": "Weitere Angaben"
+		"moreTitle": "Weitere Angaben",
+		"context": "Kontext",
+		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite."
 	},
 	"about": {
 		"title": "Über das Projekt",

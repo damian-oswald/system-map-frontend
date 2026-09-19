@@ -33,8 +33,9 @@ const uniq = (list: (Entity | undefined)[]): Entity[] => {
 };
 
 /**
- * Rows for one class. Figures roll up along the hierarchy: an organization counts the systems operated by itself and
- * all its sub-units (schema:subOrganization*), a system counts the data sets and services of itself and its parts.
+ * Rows for one class. Every figure aggregates down the hierarchy: an organization counts the systems operated by
+ * itself and all its sub-units (schema:subOrganization*) and the data sets and services in those systems; a system,
+ * data set or service counts what itself and all its parts hold, store or use.
  */
 export function buildRows(g: SystemMapGraph, kind: Kind, lang: Lang): CatalogRow[] {
 	return g.byKind[kind].map((e) => buildRow(g, e, lang)).sort((a, b) => a.name.localeCompare(b.name, lang));
@@ -79,7 +80,7 @@ export function buildRow(g: SystemMapGraph, e: Entity, lang: Lang): CatalogRow {
 		let users: Entity[] = [];
 		const tree = withDescendants([e]);
 		if (kind === 'dataset') {
-			systems = incoming(e, 'contains');
+			systems = uniq(tree.flatMap((d) => incoming(d, 'contains')));
 			// parts of a larger data set inherit where the whole is stored
 			if (!systems.length) systems = uniq(outgoing(e, 'isPartOf').flatMap((p) => incoming(p, 'contains')));
 			operators = operatorsOf(systems);
@@ -87,7 +88,7 @@ export function buildRow(g: SystemMapGraph, e: Entity, lang: Lang): CatalogRow {
 			operators = incoming(e, 'operates');
 			datasets = uniq(tree.flatMap((s) => outgoing(s, 'contains')));
 			services = uniq(tree.flatMap((s) => outgoing(s, 'provides')));
-			users = outgoing(e, 'consumes');
+			users = uniq(tree.flatMap((s) => outgoing(s, 'consumes')));
 		} else if (kind === 'organization') {
 			systems = uniq(tree.flatMap((u) => outgoing(u, 'operates')));
 			const allSystems = withDescendants(systems);
@@ -95,14 +96,14 @@ export function buildRow(g: SystemMapGraph, e: Entity, lang: Lang): CatalogRow {
 			services = uniq(allSystems.flatMap((s) => outgoing(s, 'provides')));
 			operators = e.parents.map(get).filter((x): x is Entity => !!x);
 		} else if (kind === 'service') {
-			systems = incoming(e, 'provides');
+			systems = uniq(tree.flatMap((x) => incoming(x, 'provides')));
 			operators = operatorsOf(systems);
-			users = incoming(e, 'consumes');
+			users = uniq(tree.flatMap((x) => incoming(x, 'consumes')));
 		}
 		const roots = new Set(operators.map((o) => o.root ?? o.id));
 		if (kind === 'organization') roots.add(e.root ?? e.id);
 		const keywords = e.keywords.map(get).filter((x): x is Entity => !!x);
-		const legal = outgoing(e, 'hasLegalBasis');
+		const legal = uniq(tree.flatMap((x) => outgoing(x, 'hasLegalBasis')));
 		const name = entityTitle(e, lang);
 		const description = pick(e.description, lang);
 		const search = normalize(

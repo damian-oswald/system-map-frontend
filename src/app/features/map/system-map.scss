@@ -820,3 +820,35 @@ mat-button-toggle mat-icon {
 		}
 	}
 }
+
+// ---------------------------------------------------------------- embedded: the context panel of a detail page
+:host.embedded {
+	display: block;
+
+	.map-shell,
+	.map-shell.panel-closed {
+		grid-template-columns: minmax(0, 1fr); // no controls column – the stage takes the whole panel
+		height: 540px;
+		min-height: 0;
+		margin: 0;
+		border: 1px solid var(--sm-line);
+		border-radius: var(--sm-radius);
+	}
+
+	// zoom to the left, so the hop switch can sit bottom right
+	.zoom-btns {
+		right: auto;
+		left: 12px;
+		flex-direction: row;
+	}
+}
+
+.embed-hops {
+	--seg-h: 40px;
+	--seg-px: 14px;
+	position: absolute;
+	right: 12px;
+	bottom: 12px;
+	z-index: 4;
+	background: var(--sm-surface);
+}
