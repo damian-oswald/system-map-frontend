@@ -110,6 +110,8 @@ interface Sentence {
 
 /** height of the floating control bar (incl. its offset) the fitted scene keeps clear of */
 const BAR_INSET = 66;
+/** embedded: the number of steps whose neighbourhood comes closest to this many elements is preselected */
+const IDEAL_CONTEXT_NODES = 20;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -469,15 +471,23 @@ export class SystemMap implements AfterViewInit {
 		});
 		this.readUrl();
 
-		// embedded: the focus follows the page, nothing else is configurable
+		// embedded: the focus follows the page; the steps start at whatever shows about IDEAL_CONTEXT_NODES elements
 		effect(() => {
 			if (!this.embedded()) return;
 			const key = this.focusKey();
 			const e = key ? this.graphService.entity(key) : undefined;
+			const g = this.graph();
 			untracked(() => {
 				this.view.set('network');
 				this.selected.set(null);
 				this.focus.set(e?.id ?? null);
+				if (!e || !g) return;
+				const counts = [1, 2, 3].map((hops) => buildMapGraph(g, { ...this.options(), focus: e.id, hops }).nodes.length);
+				const best = counts.reduce(
+					(bi, n, i) => (Math.abs(n - IDEAL_CONTEXT_NODES) < Math.abs(counts[bi] - IDEAL_CONTEXT_NODES) ? i : bi),
+					0,
+				);
+				this.hops.set(best + 1);
 			});
 		});
 
