@@ -82,6 +82,12 @@ mat-icon {
 	color: var(--sm-ink);
 	font-size: 0.8125rem;
 	font-weight: 500;
+	text-decoration: none;
+
+	&:is(a):hover,
+	&:is(a):focus-visible {
+		text-decoration: underline;
+	}
 }
 
 .desc {

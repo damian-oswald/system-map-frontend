@@ -42,6 +42,14 @@
 				@if (e.master) {
 					<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
 				}
+				@for (k of keywords(); track k.id) {
+					<a
+						class="sm-tag"
+						routerLink="/catalog"
+						[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
+						>{{ k.name | pick: lang() }}</a
+					>
+				}
 			</div>
 
 			@if (e.description | pick: lang(); as d) {

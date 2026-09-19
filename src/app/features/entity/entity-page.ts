@@ -158,6 +158,12 @@ export class EntityPage {
 			.filter(Boolean);
 	});
 
+	/** keywords (data sets), shown as tags next to the subclasses and linking to the inventory filtered by them */
+	protected readonly keywords = computed(() => {
+		const g = this.graph();
+		return (this.entity()?.keywords ?? []).map((k) => g?.entities.get(k)).filter((x): x is Entity => !!x);
+	});
+
 	// ---------------------------------------------------------------------------------------------- hierarchy
 
 	protected readonly ancestors = computed(() => {
