@@ -35,7 +35,7 @@ import { AddressService } from '../../core/address.service';
 import { Entity, OrgType } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityTitle, pick, shortLabel } from '../../core/i18n';
-import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
+import { badgeWidth, fitLabel, fontsVersion, textWidth } from '../../core/text-fit';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { KIND_ICON, PageState } from '../../shared/ui';
@@ -53,6 +53,7 @@ import {
 	ORG_TYPES,
 	SELECTABLE_RELATIONS,
 	buildMapGraph,
+	importanceRank,
 	representativeOf,
 } from './map-model';
 
@@ -66,7 +67,10 @@ interface SceneNode {
 	title: string;
 	members: number;
 	orgType?: OrgType;
-	major: boolean;
+	/** place in the importance order of the current view (0 = most important) */
+	rank: number;
+	/** width of the label on screen (network view) */
+	lw: number;
 	w: number;
 	depth: number;
 	/** width of the merged-count badge, 0 if none */
@@ -79,8 +83,26 @@ interface SceneEdge {
 	o: string;
 	d: string;
 	w: number;
-	dashed: boolean;
 	key: string;
+	hierarchy: boolean;
+	kind?: Kind;
+}
+
+/** an edge of the selected node, drawn with an arrow and its relation name once zoomed in enough */
+interface SelEdge {
+	id: string;
+	d: string;
+	/** same stroke width as the plain edge underneath, so selecting never changes the line */
+	w: number;
+	/** tip of the arrowhead and the edge's direction in degrees */
+	x2: number;
+	y2: number;
+	angle: number;
+	mx: number;
+	my: number;
+	label: string;
+	/** label width on screen */
+	lw: number;
 	hierarchy: boolean;
 	kind?: Kind;
 }
@@ -88,6 +110,8 @@ interface SceneEdge {
 interface Scene {
 	view: MapView;
 	nodes: SceneNode[];
+	/** network view: nodes from least to most important – labels are painted in this order, so important ones lie on top */
+	labelOrder: SceneNode[];
 	edges: SceneEdge[];
 	columns: Column[];
 	bands: Band[];
@@ -112,6 +136,17 @@ interface Sentence {
 const BAR_INSET = 66;
 /** embedded: the number of steps whose neighbourhood comes closest to this many elements is preselected */
 const IDEAL_CONTEXT_NODES = 20;
+/** network view: labels shown when the scene is fitted; the budget grows with the square of the zoom factor */
+const LABELS_AT_FIT = 14;
+/** network view: label font size on screen and the height of its collision box */
+const LABEL_PX = 12.5;
+const LABEL_H = 15;
+/** edge labels of the selected node: font size, box height, and the zoom factor (relative to the fit) they need */
+const EDGE_LABEL_PX = 10.5;
+const EDGE_LABEL_H = 13;
+const EDGE_DETAIL_ZOOM = 1.4;
+/** hovering a node highlights its neighbourhood only after this pause, so brushing over nodes stays calm */
+const HOVER_DELAY = 200;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -193,6 +228,8 @@ export class SystemMap implements AfterViewInit {
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private zoomBehavior?: ZoomBehavior<SVGSVGElement, unknown>;
 	private transform: ZoomTransform = zoomIdentity;
+	/** zoom factor at which the scene was last fitted – the label budget is relative to it */
+	private fitScale = 1;
 	private worker?: Worker;
 	private requestId = 0;
 	private readonly forcePositions = signal<{ key: string; positions: ForceResponse['positions'] } | null>(null);
@@ -231,6 +268,7 @@ export class SystemMap implements AfterViewInit {
 		const view = this.view();
 		fontsVersion(); // re-fit labels once web fonts are loaded
 		const focused = this.focusRep();
+		const ranks = importanceRank(mg);
 		const label = (n: MapNode): string => shortLabel(n.entity, lang, view === 'layers' ? 31 : 26);
 		const nodes: SceneNode[] = [];
 		const edges: SceneEdge[] = [];
@@ -250,7 +288,7 @@ export class SystemMap implements AfterViewInit {
 			for (const n of mg.nodes) {
 				const bw = n.members > 1 ? badgeWidth(n.members) : 0;
 				const avail = n.w - 20 - (bw ? bw + 8 : 0);
-				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 400), 0, bw));
+				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 400), 0, ranks, bw));
 			}
 			for (const e of mg.edges) {
 				if (e.hierarchy) continue; // drawn as tree connectors
@@ -261,7 +299,6 @@ export class SystemMap implements AfterViewInit {
 					key: e.key,
 					d: layeredEdgePath(mg.nodeById.get(e.s)!, mg.nodeById.get(e.o)!),
 					w: edgeWidth(e.weight),
-					dashed: e.dashed,
 					hierarchy: false,
 				});
 			}
@@ -281,7 +318,7 @@ export class SystemMap implements AfterViewInit {
 				minY = Math.min(minY, n.y - r);
 				maxX = Math.max(maxX, n.x + r + 120);
 				maxY = Math.max(maxY, n.y + r);
-				nodes.push(this.sceneNode(n, label(n), r));
+				nodes.push(this.sceneNode(n, label(n), r, ranks));
 			}
 			for (const e of mg.edges) {
 				const a = mg.nodeById.get(e.s)!;
@@ -293,15 +330,59 @@ export class SystemMap implements AfterViewInit {
 					key: e.key,
 					d: `M${a.x},${a.y}L${b.x},${b.y}`,
 					w: edgeWidth(e.weight),
-					dashed: e.dashed,
 					hierarchy: e.hierarchy,
 					kind: e.hierarchy ? a.kind : undefined,
 				});
 			}
 			bounds = { x: minX - 20, y: minY - 20, w: maxX - minX + 40, h: maxY - minY + 40 };
 		}
-		return { view, nodes, edges, columns, bands, tree, bounds };
+		const labelOrder = view === 'network' ? [...nodes].sort((a, b) => b.rank - a.rank) : [];
+		return { view, nodes, labelOrder, edges, columns, bands, tree, bounds };
 	});
+
+	/** the selected node's edges, shortened to end outside the circles so the arrowheads show, with their relation names */
+	protected readonly selEdges = computed<SelEdge[]>(() => {
+		const sc = this.scene();
+		const sel = this.selected();
+		const g = this.graph();
+		if (!sc || sc.view !== 'network' || !sel || !g) return [];
+		const lang = this.lang();
+		const byId = new Map(sc.nodes.map((n) => [n.id, n]));
+		const out: SelEdge[] = [];
+		for (const e of sc.edges) {
+			if (e.s !== sel && e.o !== sel) continue;
+			const a = byId.get(e.s);
+			const b = byId.get(e.o);
+			if (!a || !b) continue;
+			const dx = b.x - a.x;
+			const dy = b.y - a.y;
+			const len = Math.hypot(dx, dy) || 1;
+			const ux = dx / len;
+			const uy = dy / len;
+			const x1 = a.x + ux * (a.r + 2);
+			const y1 = a.y + uy * (a.r + 2);
+			const x2 = b.x - ux * (b.r + 4);
+			const y2 = b.y - uy * (b.r + 4);
+			const label = pick(g.relationInfo.get(e.key)?.name, lang) || e.key;
+			out.push({
+				id: e.id,
+				d: `M${x1},${y1}L${x2},${y2}`,
+				w: e.hierarchy ? 1.6 : e.w,
+				x2,
+				y2,
+				angle: (Math.atan2(uy, ux) * 180) / Math.PI,
+				mx: (x1 + x2) / 2,
+				my: (y1 + y2) / 2,
+				label,
+				lw: textWidth(label, EDGE_LABEL_PX),
+				hierarchy: e.hierarchy,
+				kind: e.kind,
+			});
+		}
+		return out;
+	});
+
+	protected readonly selEdgeIds = computed(() => new Set(this.selEdges().map((e) => e.id)));
 
 	/** node that drives highlighting: hover wins over the pinned selection */
 	protected readonly active = computed(() => {
@@ -522,7 +603,82 @@ export class SystemMap implements AfterViewInit {
 			}
 		});
 
+		// labels are placed again when the scene, the hover/selection or the search hits change
+		effect(() => {
+			this.scene();
+			this.active();
+			this.matchIds();
+			this.focusRep();
+			this.selEdges();
+			untracked(() => this.scheduleLabels());
+		});
+
 		this.destroyRef.onDestroy(() => this.worker?.terminate());
+	}
+
+	// ---------------------------------------------------------------------------------------------- label placement
+
+	private labelFrame = 0;
+
+	/** runs placeLabels once per animation frame, outside Angular */
+	private scheduleLabels(): void {
+		if (this.labelFrame) return;
+		this.labelFrame = requestAnimationFrame(() => {
+			this.labelFrame = 0;
+			this.placeLabels();
+		});
+	}
+
+	/**
+	 * Greedy label placement in screen space, like a map: pinned labels (hovered, selected, matching, focused) come
+	 * first, then the others in importance order as far as the zoom level's budget allows; a label whose box would
+	 * overlap an already placed one is hidden. Runs on every zoom frame, ~430 labels take well under a millisecond.
+	 */
+	private placeLabels(): void {
+		const sc = this.scene();
+		const svg = this.svgRef()?.nativeElement;
+		if (!sc || sc.view !== 'network' || !svg) return;
+		const { k, x: tx, y: ty } = this.transform;
+		const budget = LABELS_AT_FIT * Math.pow(k / this.fitScale, 2) + 1;
+		const sel = this.selected();
+		const focus = this.focusRep();
+		const matches = this.matchIds();
+		const pinned = (id: string): boolean => this.isHl(id) || sel === id || focus === id || !!matches?.has(id);
+		const byRank = [...sc.labelOrder].reverse();
+		const candidates = [
+			...byRank.filter((n) => pinned(n.id)),
+			...byRank.filter((n) => !pinned(n.id) && n.rank < budget),
+		];
+		const boxes: { x: number; y: number; w: number; h: number }[] = [];
+		const shown = new Set<string>();
+		for (const n of candidates) {
+			const x = n.x * k + tx + (n.r + 6) * k;
+			const y = n.y * k + ty - LABEL_H / 2;
+			const clash = boxes.some((b) => x < b.x + b.w && x + n.lw > b.x && y < b.y + b.h && y + LABEL_H > b.y);
+			if (clash && !pinned(n.id)) continue;
+			boxes.push({ x, y, w: n.lw, h: LABEL_H });
+			shown.add(n.id);
+		}
+		for (const el of svg.querySelectorAll<SVGTextElement>('text.node-label')) {
+			el.classList.toggle('occluded', !shown.has(el.dataset['id'] ?? ''));
+		}
+		// the selected node's edge arrows and names: only zoomed in, and only where no label is in the way
+		const detail = k / this.fitScale >= EDGE_DETAIL_ZOOM;
+		svg.classList.toggle('detail', detail);
+		const edgeShown = new Set<string>();
+		if (detail) {
+			for (const e of this.selEdges()) {
+				const x = e.mx * k + tx - e.lw / 2;
+				const y = e.my * k + ty - EDGE_LABEL_H / 2;
+				const clash = boxes.some((b) => x < b.x + b.w && x + e.lw > b.x && y < b.y + b.h && y + EDGE_LABEL_H > b.y);
+				if (clash) continue;
+				boxes.push({ x, y, w: e.lw, h: EDGE_LABEL_H });
+				edgeShown.add(e.id);
+			}
+		}
+		for (const el of svg.querySelectorAll<SVGTextElement>('text.edge-label')) {
+			el.classList.toggle('occluded', !edgeShown.has(el.dataset['id'] ?? ''));
+		}
 	}
 
 	ngAfterViewInit(): void {
@@ -584,6 +740,16 @@ export class SystemMap implements AfterViewInit {
 	}
 
 	// ---------------------------------------------------------------------------------------------- interaction
+
+	private hoverTimer = 0;
+	protected onNodeEnter(id: string): void {
+		clearTimeout(this.hoverTimer);
+		this.hoverTimer = window.setTimeout(() => this.hovered.set(id), HOVER_DELAY);
+	}
+	protected onNodeLeave(): void {
+		clearTimeout(this.hoverTimer);
+		this.hovered.set(null);
+	}
 
 	protected onNodeClick(id: string, ev: Event): void {
 		ev.stopPropagation();
@@ -659,6 +825,7 @@ export class SystemMap implements AfterViewInit {
 			tx = (width - b.w * k) / 2 - b.x * k;
 			ty = inset + (height - inset - b.h * k) / 2 - b.y * k;
 		}
+		this.fitScale = k;
 		this.applyTransform(zoomIdentity.translate(tx, ty).scale(k), animate);
 		return true;
 	}
@@ -712,7 +879,11 @@ export class SystemMap implements AfterViewInit {
 				.on('zoom', (ev: { transform: ZoomTransform }) => {
 					this.transform = ev.transform;
 					vp.setAttribute('transform', ev.transform.toString());
-					svg.style.setProperty('--zk', String(Math.min(1, ev.transform.k)));
+					svg.style.setProperty('--zk', String(ev.transform.k));
+					// how many labels the view can take: more important ones first, more as the map is zoomed in
+					const labels = LABELS_AT_FIT * Math.pow(ev.transform.k / this.fitScale, 2);
+					svg.style.setProperty('--label-n', labels.toFixed(2));
+					this.scheduleLabels();
 					const far = ev.transform.k < 0.38;
 					const near = ev.transform.k >= 1.25;
 					if (far !== this.far() || near !== this.near())
@@ -767,7 +938,7 @@ export class SystemMap implements AfterViewInit {
 	}
 	private pendingKey = '';
 
-	private sceneNode(n: MapNode, label: string, r: number, badgeW = 0): SceneNode {
+	private sceneNode(n: MapNode, label: string, r: number, ranks: Map<string, number>, badgeW = 0): SceneNode {
 		return {
 			id: n.id,
 			kind: n.kind,
@@ -778,7 +949,8 @@ export class SystemMap implements AfterViewInit {
 			title: entityTitle(n.entity, this.lang()),
 			members: n.members,
 			orgType: n.orgType,
-			major: n.degree >= 6 || n.members > 3,
+			rank: ranks.get(n.id) ?? 0,
+			lw: textWidth(label, LABEL_PX),
 			w: n.w,
 			depth: n.depth,
 			badgeW,

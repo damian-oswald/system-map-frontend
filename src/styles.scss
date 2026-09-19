@@ -414,17 +414,6 @@ a.sm-chip:focus-visible {
 	gap: 8px;
 	width: 100%;
 
-	.line-key {
-		width: 22px;
-		height: 8px;
-		flex: none;
-
-		path {
-			stroke: var(--sm-ink-3);
-			stroke-width: 2;
-		}
-	}
-
 	.count {
 		margin-left: auto;
 		color: var(--sm-ink-3);

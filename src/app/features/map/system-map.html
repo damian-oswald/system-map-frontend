@@ -90,9 +90,6 @@
 						</mat-select-trigger>
 						@for (r of relationOptions(); track r.key) {
 							<mat-option [value]="r.key" class="option-row">
-								<svg class="line-key" viewBox="0 0 22 8" aria-hidden="true">
-									<path d="M1 4H21" [attr.stroke-dasharray]="r.dashed ? '3 3' : null" />
-								</svg>
 								{{ graph()?.relationInfo?.get(r.key)?.name | pick: lang() }}
 								<span class="count">{{ counts().relations[r.key] }}</span>
 							</mat-option>
@@ -235,19 +232,6 @@
 				role="img"
 				[attr.aria-label]="'map.canvasLabel' | translate"
 			>
-				<defs>
-					<marker
-						id="arrow"
-						viewBox="0 0 8 8"
-						refX="7"
-						refY="4"
-						markerWidth="7"
-						markerHeight="7"
-						orient="auto-start-reverse"
-					>
-						<path d="M0,0L8,4L0,8z" class="arrow" />
-					</marker>
-				</defs>
 				<g #viewport>
 					@if (scene(); as sc) {
 						<g class="scene" [attr.data-view]="sc.view">
@@ -271,12 +255,36 @@
 									<path
 										[attr.d]="e.d"
 										[attr.stroke-width]="e.w"
-										[class.dashed]="e.dashed"
 										[class]="edgeState(e) + ' rel-' + e.key + (e.hierarchy ? ' hier sm-kind--' + e.kind : '')"
-										[attr.marker-end]="edgeState(e) === 'hl' && !e.hierarchy ? 'url(#arrow)' : null"
+										[class.covered]="selEdgeIds().has(e.id)"
 									/>
 								}
 							</g>
+							<!-- the selected node's edges with direction arrows; visible once zoomed in (class "detail" on the canvas) -->
+							@if (sc.view === 'network') {
+								<g class="sel-edges">
+									@for (e of selEdges(); track e.id) {
+										<path
+											class="sel-edge {{ e.hierarchy ? 'hier sm-kind--' + e.kind : '' }}"
+											[attr.d]="e.d"
+											[attr.stroke-width]="e.w"
+										/>
+										<path
+											class="sel-head {{ e.hierarchy ? 'hier sm-kind--' + e.kind : '' }}"
+											d="M-16,-7L0,0L-16,7Z"
+											[style.transform]="
+												'translate(' +
+												e.x2 +
+												'px, ' +
+												e.y2 +
+												'px) rotate(' +
+												e.angle +
+												'deg) scale(calc(1 / var(--zk, 1)))'
+											"
+										/>
+									}
+								</g>
+							}
 							@if (sc.view === 'layers') {
 								<g class="tree">
 									@for (t of sc.tree; track $index) {
@@ -294,21 +302,20 @@
 										[class.sel]="selected() === n.id"
 										[class.focused]="focusRep() === n.id"
 										[class.match]="matchIds()?.has(n.id)"
-										[class.major]="n.major"
+										[style.--rank]="n.rank"
 										[attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
 										tabindex="0"
 										role="button"
 										[attr.aria-label]="n.title"
 										[attr.aria-pressed]="selected() === n.id"
-										(mouseenter)="hovered.set(n.id)"
-										(mouseleave)="hovered.set(null)"
+										(mouseenter)="onNodeEnter(n.id)"
+										(mouseleave)="onNodeLeave()"
 										(focus)="hovered.set(n.id)"
 										(blur)="hovered.set(null)"
 										(click)="onNodeClick(n.id, $event)"
 										(dblclick)="focusOn(n.id)"
 										(keydown)="onNodeKey(n.id, $event)"
 									>
-										<title>{{ n.title }}</title>
 										@if (sc.view === 'layers') {
 											<rect class="pill" [attr.width]="n.w" [attr.height]="NODE_H" rx="5" />
 											<rect class="bar" width="4" [attr.height]="NODE_H" rx="2" />
@@ -329,11 +336,43 @@
 											@if (n.members > 1) {
 												<text class="member-count" y="3.5" text-anchor="middle">{{ n.members }}</text>
 											}
-											<text class="label" [attr.x]="n.r + 5" y="4">{{ n.label }}</text>
 										}
 									</g>
 								}
 							</g>
+							<!-- … and is painted in a layer above all nodes, least important first, so important names win -->
+							@if (sc.view === 'network') {
+								<g class="labels" aria-hidden="true">
+									@for (n of sc.labelOrder; track n.id) {
+										<text
+											class="node-label sm-kind--{{ n.kind }}"
+											[attr.data-id]="n.id"
+											[attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
+											[attr.x]="n.r + 6"
+											y="0"
+											[style.--rank]="n.rank"
+											[class.hl]="isHl(n.id)"
+											[class.sel]="selected() === n.id"
+											[class.focused]="focusRep() === n.id"
+											[class.match]="matchIds()?.has(n.id)"
+										>
+											{{ n.label }}
+										</text>
+									}
+									<!-- relation names on the selected node's edges, placed only where no label is in the way -->
+									@for (e of selEdges(); track e.id) {
+										<text
+											class="edge-label occluded"
+											[attr.data-id]="e.id"
+											[attr.x]="e.mx"
+											[attr.y]="e.my"
+											text-anchor="middle"
+										>
+											{{ e.label }}
+										</text>
+									}
+								</g>
+							}
 						</g>
 					}
 				</g>

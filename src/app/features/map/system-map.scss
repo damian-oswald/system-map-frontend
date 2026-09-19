@@ -405,10 +405,6 @@ mat-button-toggle mat-icon {
 		stroke-opacity 0.15s,
 		stroke 0.15s;
 
-	&.dashed {
-		stroke-dasharray: 4 3;
-	}
-
 	&.hl {
 		stroke: var(--sm-ink);
 		stroke-opacity: 0.9;
@@ -439,10 +435,6 @@ mat-button-toggle mat-icon {
 
 .legend .tree-key path {
 	fill: none;
-}
-
-.arrow {
-	fill: var(--sm-ink);
 }
 
 .node {
@@ -592,11 +584,6 @@ mat-button-toggle mat-icon {
 	}
 }
 
-.network .node.focused .label {
-	fill: var(--sm-ink);
-	opacity: 1;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.node .pulse {
 		animation: none;
@@ -609,32 +596,99 @@ mat-button-toggle mat-icon {
 	}
 }
 
-// network view: labels are secondary; show them for major nodes, on hover or when zoomed in
+// network view: labels appear by importance as the map is zoomed in, like place names on a map. The canvas carries
+// --label-n (how many labels the current zoom level can take), every node its --rank in the importance order; the
+// difference fades a label in over one rank step.
 .network .edges path:not(.hl):not(.dim) {
 	stroke-opacity: 0.6;
 }
 
-.network .node .label {
-	// counter-scaled: ~11px on screen at any zoom-out level
-	font-size: calc(11px / var(--zk, 1));
+// the labels live in their own layer above all nodes (see the template); a label is hidden when the zoom level's
+// budget does not reach its rank or when the placement pass found it overlapping a more important label
+.network .node-label {
+	// counter-scaled: ~12.5px on screen at every zoom level, so zooming in never makes labels collide; vertically
+	// centred on the node whatever the current font size
+	fill: var(--sm-ink);
+	font-size: calc(12.5px / var(--zk, 1));
+	dominant-baseline: central;
 	paint-order: stroke;
 	stroke: rgba(248, 250, 251, 0.9);
 	stroke-width: calc(3px / var(--zk, 1));
 	stroke-linejoin: round;
+	pointer-events: none;
+	opacity: clamp(0, var(--label-n, 0) - var(--rank, 0), 1);
+	transition: opacity 0.15s;
+
+	&.hl,
+	&.sel,
+	&.match,
+	&.focused {
+		opacity: 1;
+	}
+
+	&.focused {
+		font-weight: 700;
+	}
+
+	&.occluded {
+		opacity: 0;
+	}
+}
+
+.network.has-active .node-label:not(.hl):not(.sel) {
 	opacity: 0;
 }
 
-.network .node.major .label,
-.network.near .node .label,
-.network .node.hl .label,
-.network .node.sel .label,
-.network .node.match .label {
-	opacity: 1;
+// the selected node's edges: direction arrows and relation names, zoomed in only
+.sel-edges {
+	display: none;
+	pointer-events: none;
 }
 
-.network.has-active .node:not(.hl):not(.sel) .label,
-.network.far .node.major:not(.hl):not(.sel):not(.match) .label {
-	opacity: 0;
+.canvas.detail .sel-edges {
+	display: block;
+}
+
+// the line keeps the width of the edge underneath (attribute); the head is a constant ~16px on screen and takes
+// the same colour as its line
+.sel-edge {
+	fill: none;
+	stroke: var(--sm-ink);
+
+	&.hier {
+		stroke: var(--k);
+	}
+}
+
+.sel-head {
+	fill: var(--sm-ink);
+	transform-box: view-box;
+
+	&.hier {
+		fill: var(--k);
+	}
+}
+
+// while the overlay draws an edge with arrow and name, the plain edge underneath stays out of the way
+.canvas.detail .edges path.covered {
+	stroke-opacity: 0;
+}
+
+.edge-label {
+	fill: var(--sm-ink-2);
+	font-size: calc(10.5px / var(--zk, 1));
+	font-style: italic;
+	dominant-baseline: central;
+	paint-order: stroke;
+	stroke: rgba(248, 250, 251, 0.95);
+	stroke-width: calc(3px / var(--zk, 1));
+	stroke-linejoin: round;
+	pointer-events: none;
+	transition: opacity 0.15s;
+
+	&.occluded {
+		opacity: 0;
+	}
 }
 
 .far:not(.network) .node .label {
