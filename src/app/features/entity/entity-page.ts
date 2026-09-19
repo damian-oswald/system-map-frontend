@@ -11,10 +11,10 @@ import { ObButtonDirective, ObExternalLinkDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AddressService } from '../../core/address.service';
-import { Collection, Entity } from '../../core/graph.model';
+import { Entity } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, entityTitle, isFallback, pick } from '../../core/i18n';
-import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, REPO_URL, compactIri } from '../../core/vocab';
+import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, REPO_URL } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
 import { EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
 import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
@@ -23,13 +23,11 @@ import { SystemMap } from '../map/system-map';
 /** one row of the subject–predicate–object table */
 interface Triple {
 	s: Entity;
-	/** relation key, or 'keyword' / 'collection' for the two non-relation properties */
 	key: string;
 	/** translated predicate */
 	p: string;
-	o?: Entity;
-	c?: Collection;
-	/** sort rank of the predicate: relation order, then keywords, then architectures */
+	o: Entity;
+	/** sort rank of the predicate (the ontology's relation order) */
 	order: number;
 }
 
@@ -91,7 +89,6 @@ export class EntityPage {
 	private readonly translate = inject(TranslateService);
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
-	protected readonly compactIri = compactIri;
 	protected readonly REPO_URL = REPO_URL;
 	protected readonly copied = signal(false);
 	protected readonly COLUMNS = COLUMNS;
@@ -226,8 +223,8 @@ export class EntityPage {
 
 	/**
 	 * Every documented relation as a triple: the element's incoming and outgoing ones plus the outgoing ones of all
-	 * its parts (sub-units, sub-systems, …). Hierarchy relations are left out – the tree above shows them – and the
-	 * element's keywords and architectures are added as two more predicates.
+	 * its parts (sub-units, sub-systems, …). Hierarchy relations are left out – the tree above shows them – as are
+	 * keywords and architectures, which the banner and the map cover.
 	 */
 	protected readonly triples = computed<Triple[]>(() => {
 		const e = this.entity();
@@ -252,13 +249,6 @@ export class EntityPage {
 			const s = g.entities.get(r.s);
 			if (s && !treeIds.has(s.id)) rows.push({ s, key: r.key, p: pName(r.key), o: e, order: order.indexOf(r.key) });
 		}
-		for (const k of e.keywords) {
-			const o = g.entities.get(k);
-			if (o) rows.push({ s: e, key: 'keyword', p: this.translate.instant('entity.pKeyword'), o, order: 900 });
-		}
-		for (const c of g.collections.filter((c) => c.members.has(e.id))) {
-			rows.push({ s: e, key: 'collection', p: this.translate.instant('entity.pArchitecture'), c, order: 950 });
-		}
 		return rows;
 	});
 
@@ -271,7 +261,7 @@ export class EntityPage {
 		const { active, direction } = this.sort();
 		const dir = direction === 'desc' ? -1 : 1;
 		const subject = (t: Triple): string => entityTitle(t.s, lang);
-		const object = (t: Triple): string => (t.c ? pick(t.c.name, lang) : entityTitle(t.o, lang));
+		const object = (t: Triple): string => entityTitle(t.o, lang);
 		const predicate = (a: Triple, b: Triple): number => a.order - b.order || a.p.localeCompare(b.p, lang);
 		const by = (a: Triple, b: Triple): number => {
 			switch (active) {

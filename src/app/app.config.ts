@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { ObPaginatorService, provideObliqueConfiguration } from '@oblique/oblique';
+import { EXTERNAL_LINK, ObPaginatorService, provideObliqueConfiguration } from '@oblique/oblique';
 
 import { routes } from './app.routes';
 import { TranslatedTitleStrategy } from './core/title.strategy';
@@ -35,6 +35,8 @@ export const appConfig: ApplicationConfig = {
 		{ provide: TitleStrategy, useClass: TranslatedTitleStrategy },
 		{ provide: LOCALE_ID, useValue: 'de-CH' },
 		{ provide: MatPaginatorIntl, useClass: ObPaginatorService },
+		// external links carry the "opens in a new tab" icon after their text
+		{ provide: EXTERNAL_LINK, useValue: { icon: 'right' } },
 		provideObliqueConfiguration({
 			accessibilityStatement: {
 				applicationName: 'DigiAgriFoodCH System Map',

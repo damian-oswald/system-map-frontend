@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Teile",
 				"system": "Teilsysteme",
-				"organization": "Untereinheiten"
+				"organization": "Untereinheiten",
+				"service": "Teilservices"
 			},
 			"users": {
 				"system": "Genutzte Services",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Teil",
 				"system": "Teilsystem",
-				"organization": "Untereinheit"
+				"organization": "Untereinheit",
+				"service": "Teilservice"
 			},
 			"users": {
 				"system": "Genutzter Service",
@@ -321,8 +323,6 @@
 			"predicate": "Prädikat",
 			"object": "Objekt"
 		},
-		"pKeyword": "hat Schlagwort",
-		"pArchitecture": "ist Teil der Architektur",
 		"mail": "Per E-Mail melden",
 		"github": "Auf GitHub"
 	},

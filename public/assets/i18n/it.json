@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Parti",
 				"system": "Sottosistemi",
-				"organization": "Sottounità"
+				"organization": "Sottounità",
+				"service": "Sottoservizi"
 			},
 			"users": {
 				"system": "Servizi utilizzati",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Parte",
 				"system": "Sottosistema",
-				"organization": "Sottounità"
+				"organization": "Sottounità",
+				"service": "Sottoservizio"
 			},
 			"users": {
 				"system": "Servizio utilizzato",
@@ -321,8 +323,6 @@
 			"predicate": "Predicato",
 			"object": "Oggetto"
 		},
-		"pKeyword": "ha parola chiave",
-		"pArchitecture": "fa parte dell'architettura",
 		"mail": "Segnalare via e-mail",
 		"github": "Su GitHub"
 	},

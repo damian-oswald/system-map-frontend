@@ -26,21 +26,28 @@ mat-icon {
 	}
 }
 
-// title left, the quiet actions right on the same line
+// title and tags left, the actions right; description and properties run the full width below
 .title-row {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 12px 24px;
-	margin-bottom: 12px;
+	gap: 12px 32px;
+	margin-bottom: 16px;
 
+	.title-main {
+		flex: 1 1 560px;
+		min-width: 0;
+	}
+
+	// stacked, bordered, with Oblique's hover – so it is clear they do something
 	.actions {
 		display: flex;
 		flex: none;
-		flex-wrap: wrap;
-		gap: 4px;
-		margin: 2px -8px 0 0;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 6px;
+		min-width: 220px;
 
 		mat-icon {
 			margin-right: 8px;
@@ -70,7 +77,11 @@ mat-icon {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
-	margin-bottom: 16px;
+	margin-top: 12px;
+
+	&:empty {
+		display: none;
+	}
 }
 
 // subclasses as tags in the button idiom: thin black outline, white fill, black text
@@ -91,7 +102,6 @@ mat-icon {
 }
 
 .desc {
-	max-width: 75ch;
 	margin: 0;
 	color: var(--sm-ink);
 	font-size: 1.0625rem;

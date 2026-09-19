@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Parts",
 				"system": "Sub-systems",
-				"organization": "Sub-units"
+				"organization": "Sub-units",
+				"service": "Sub-services"
 			},
 			"users": {
 				"system": "Services used",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Part",
 				"system": "Sub-system",
-				"organization": "Sub-unit"
+				"organization": "Sub-unit",
+				"service": "Sub-service"
 			},
 			"users": {
 				"system": "Service used",
@@ -321,8 +323,6 @@
 			"predicate": "Predicate",
 			"object": "Object"
 		},
-		"pKeyword": "has keyword",
-		"pArchitecture": "is part of the architecture",
 		"mail": "Report by e-mail",
 		"github": "On GitHub"
 	},

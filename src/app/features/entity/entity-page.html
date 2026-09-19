@@ -11,45 +11,47 @@
 			</nav>
 
 			<div class="title-row">
-				<h1>{{ e | label: lang() : 'title' }}</h1>
+				<div class="title-main">
+					<h1>{{ e | label: lang() : 'title' }}</h1>
+					<div class="tags">
+						@for (t of typeLabels(); track t) {
+							<span class="sm-tag">{{ t }}</span>
+						}
+						@if (e.canton) {
+							<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
+						}
+						@if (e.sensitive) {
+							<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+						} @else if (e.personal) {
+							<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+						}
+						@if (e.master) {
+							<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+						}
+						@for (k of keywords(); track k.id) {
+							<a
+								class="sm-tag"
+								routerLink="/catalog"
+								[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
+								>{{ k.name | pick: lang() }}</a
+							>
+						}
+					</div>
+				</div>
 				<!-- quiet actions: copy the IRI, give feedback on this element -->
 				<div class="actions">
-					<button mat-button obButton="tertiary" type="button" (click)="copy(e.id)">
+					<button mat-button obButton="secondary" type="button" (click)="copy(e.id)">
 						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
 							(copied() ? 'entity.copied' : 'entity.copy') | translate
 						}}
 					</button>
-					<a mat-button obButton="tertiary" [href]="mailto()" [isExternalLink]="false"
+					<a mat-button obButton="secondary" [href]="mailto()" [isExternalLink]="false"
 						><mat-icon svgIcon="mail" />{{ 'entity.mail' | translate }}</a
 					>
-					<a mat-button obButton="tertiary" [href]="REPO_URL" target="_blank" rel="noopener" [isExternalLink]="false"
+					<a mat-button obButton="secondary" [href]="REPO_URL" target="_blank" rel="noopener" [isExternalLink]="false"
 						><mat-icon svgIcon="github" />{{ 'entity.github' | translate }}</a
 					>
 				</div>
-			</div>
-			<div class="tags">
-				@for (t of typeLabels(); track t) {
-					<span class="sm-tag">{{ t }}</span>
-				}
-				@if (e.canton) {
-					<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
-				}
-				@if (e.sensitive) {
-					<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
-				} @else if (e.personal) {
-					<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
-				}
-				@if (e.master) {
-					<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
-				}
-				@for (k of keywords(); track k.id) {
-					<a
-						class="sm-tag"
-						routerLink="/catalog"
-						[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
-						>{{ k.name | pick: lang() }}</a
-					>
-				}
 			</div>
 
 			@if (e.description | pick: lang(); as d) {
@@ -178,11 +180,7 @@
 					<ng-container matColumnDef="object">
 						<th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'entity.col.object' | translate }}</th>
 						<td mat-cell *matCellDef="let t" [attr.data-title]="'entity.col.object' | translate" class="cell-name">
-							@if (t.c) {
-								<a routerLink="/map" [queryParams]="{ sub: compactIri(t.c.id) }"
-									><mat-icon svgIcon="stack" class="row-icon" />{{ t.c.name | pick: lang() }}</a
-								>
-							} @else if (t.o.id === e.id) {
+							@if (t.o.id === e.id) {
 								<span class="self"
 									><mat-icon [svgIcon]="icon(t.o)" class="row-icon sm-kind--{{ t.o.kind }}" />{{
 										t.o | label: lang() : 'title'
@@ -191,10 +189,6 @@
 							} @else if (t.o.kind === 'legislation') {
 								<a [href]="t.o.id" target="_blank" rel="noopener"
 									><mat-icon svgIcon="justice-scales" class="row-icon" />{{ (t.o.name | pick: lang()) || t.o.id }}</a
-								>
-							} @else if (t.o.kind === 'keyword') {
-								<a routerLink="/catalog" [queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: t.o.key }"
-									><mat-icon svgIcon="tag" class="row-icon" />{{ t.o.name | pick: lang() }}</a
 								>
 							} @else {
 								<a [routerLink]="['/entity', t.o.key]"
