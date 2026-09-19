@@ -7,7 +7,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Entity, EntityKind } from '../core/graph.model';
 import { GraphService } from '../core/graph.service';
-import { abbrLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
+import { abbrLabel, entityLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
 
 export const KIND_ICON: Record<EntityKind, string> = {
 	organization: 'building',
@@ -219,13 +219,7 @@ export class EntityTree {
 	imports: [RouterLink, LabelPipe],
 	template: `@for (x of shown(); track x.id; let i = $index; let last = $last) {
 			<span>{{ separator(i, last) }}</span
-			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{
-				abbr()
-					? (x | label: lang() : 'abbr' : chars())
-					: chars()
-						? (x | label: lang() : 'short' : chars())
-						: (x | label: lang())
-			}}</a>
+			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{ label(x) }}</a>
 		}
 		@if (more()) {
 			<span>{{ moreText() }}</span>
@@ -253,6 +247,8 @@ export class NameList {
 	readonly chars = input(0);
 	/** show abbreviations where they exist (dense tables) */
 	readonly abbr = input(false, { transform: booleanAttribute });
+	/** full titles – the name with the abbreviation in parentheses */
+	readonly title = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
 	private readonly translate = inject(TranslateService);
 	protected readonly shown = computed(() => this.items().slice(0, this.max()));
@@ -261,6 +257,13 @@ export class NameList {
 		this.lang();
 		return ` ${this.translate.instant('common.andMore', { n: this.more() })}`;
 	});
+
+	protected label(x: Entity): string {
+		const lang = this.lang();
+		if (this.title()) return entityTitle(x, lang);
+		if (this.abbr()) return abbrLabel(x, lang, this.chars());
+		return this.chars() ? shortLabel(x, lang, this.chars()) : entityLabel(x, lang);
+	}
 
 	protected separator(i: number, last: boolean): string {
 		if (i === 0) return '';

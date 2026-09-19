@@ -326,7 +326,14 @@
 		"moreTitle": "Autres indications",
 		"context": "Contexte",
 		"contextSub": "L'environnement de cet élément sur la carte – à 1, 2 ou 3 pas. Un clic sur un autre élément ouvre sa page.",
-		"subunitOf": "Sous-organisation de"
+		"subunitOf": "Sous-organisation de",
+		"figures": "En chiffres",
+		"figuresSub": {
+			"organization": "Additionnés sur toutes les sous-unités : les systèmes exploités, les jeux de données qu'ils stockent et les services qu'ils offrent.",
+			"system": "Additionnés sur tous les sous-systèmes : jeux de données stockés, services offerts et utilisés.",
+			"dataset": "Additionnés sur toutes les parties : les systèmes qui les stockent et leurs bases légales.",
+			"service": "Additionnés sur tous les sous-services : les systèmes qui les offrent et ceux qui les utilisent."
+		}
 	},
 	"about": {
 		"title": "À propos du projet",

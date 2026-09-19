@@ -326,7 +326,14 @@
 		"moreTitle": "Weitere Angaben",
 		"context": "Kontext",
 		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite.",
-		"subunitOf": "Unterorganisation von"
+		"subunitOf": "Unterorganisation von",
+		"figures": "In Zahlen",
+		"figuresSub": {
+			"organization": "Zusammengezählt über alle Untereinheiten: die betriebenen Systeme, die darin gespeicherten Datensätze und die angebotenen Services.",
+			"system": "Zusammengezählt über alle Teilsysteme: gespeicherte Datensätze, angebotene und genutzte Services.",
+			"dataset": "Zusammengezählt über alle Teile: die Systeme, in denen sie gespeichert sind, und ihre Rechtsgrundlagen.",
+			"service": "Zusammengezählt über alle Teilservices: die Systeme, die sie anbieten, und die Systeme, die sie nutzen."
+		}
 	},
 	"about": {
 		"title": "Über das Projekt",

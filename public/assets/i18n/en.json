@@ -326,7 +326,14 @@
 		"moreTitle": "Further details",
 		"context": "Context",
 		"contextSub": "The surroundings of this element on the map – 1, 2 or 3 steps out. Clicking another element opens its page.",
-		"subunitOf": "Sub-organization of"
+		"subunitOf": "Sub-organization of",
+		"figures": "In numbers",
+		"figuresSub": {
+			"organization": "Summed over all sub-units: the systems operated, the data sets stored in them and the services they provide.",
+			"system": "Summed over all sub-systems: data sets stored, services provided and used.",
+			"dataset": "Summed over all parts: the systems they are stored in and their legal bases.",
+			"service": "Summed over all sub-services: the systems providing them and the systems using them."
+		}
 	},
 	"about": {
 		"title": "About the project",

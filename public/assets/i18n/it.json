@@ -326,7 +326,14 @@
 		"moreTitle": "Ulteriori indicazioni",
 		"context": "Contesto",
 		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina.",
-		"subunitOf": "Sottorganizzazione di"
+		"subunitOf": "Sottorganizzazione di",
+		"figures": "In cifre",
+		"figuresSub": {
+			"organization": "Sommati su tutte le sottounità: i sistemi gestiti, i set di dati che contengono e i servizi che offrono.",
+			"system": "Sommati su tutti i sottosistemi: set di dati contenuti, servizi offerti e utilizzati.",
+			"dataset": "Sommati su tutte le parti: i sistemi che li contengono e le loro basi legali.",
+			"service": "Sommati su tutti i sottoservizi: i sistemi che li offrono e quelli che li utilizzano."
+		}
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

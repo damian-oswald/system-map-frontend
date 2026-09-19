@@ -44,26 +44,41 @@
 				<p class="desc sm-muted">{{ 'entity.noDescription' | translate }}</p>
 			}
 
-			<!-- address, website, parent unit, IRI -->
-			<div class="meta">
+			<!-- one line each, by relevance: parent unit(s), address, websites -->
+			<ul class="meta">
+				@if (parents().length) {
+					<li>
+						<mat-icon [svgIcon]="icon(parents()[0])" aria-hidden="true" />
+						<span
+							>{{ (e.kind === 'organization' ? 'entity.subunitOf' : 'entity.partOf') | translate }}
+							<app-name-list [items]="parents()" [max]="10" title
+						/></span>
+					</li>
+				}
 				@if (address(); as a) {
-					<span class="meta-item"><mat-icon svgIcon="location" aria-hidden="true" />{{ a }}</span>
+					<li>
+						<mat-icon svgIcon="location" aria-hidden="true" /><span>{{ a }}</span>
+					</li>
 				}
 				@for (u of e.urls; track u) {
-					<a class="meta-item" [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
+					<li>
+						<mat-icon svgIcon="link" aria-hidden="true" /><a [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
+					</li>
 				}
-				@for (p of parents(); track p.id) {
-					<span class="meta-item">
-						<mat-icon [svgIcon]="icon(p)" aria-hidden="true" />{{
-							(e.kind === 'organization' ? 'entity.subunitOf' : 'entity.partOf') | translate
-						}}
-						<a [routerLink]="['/entity', p.key]">{{ p | label: lang() : 'title' }}</a>
-					</span>
-				}
-			</div>
+			</ul>
+		</div>
+	</header>
 
-			<!-- aggregated figures: everything below this element counts (sub-units, parts) -->
-			@if (figures().length) {
+	<div class="sm-page">
+		<!-- ============================================================ in numbers: aggregated down the hierarchy -->
+		@if (figures().length) {
+			<section class="sect" [attr.aria-labelledby]="'s-figures'">
+				<header class="sect-head">
+					<div>
+						<h2 id="s-figures">{{ 'entity.figures' | translate }}</h2>
+						<p class="sect-lead">{{ 'entity.figuresSub.' + e.kind | translate }}</p>
+					</div>
+				</header>
 				<dl class="figures">
 					@for (f of figures(); track f.count) {
 						<div [class.zero]="!f.n">
@@ -72,11 +87,9 @@
 						</div>
 					}
 				</dl>
-			}
-		</div>
-	</header>
+			</section>
+		}
 
-	<div class="sm-page">
 		<!-- ============================================================ context: the map around this element -->
 		@if (isMappable()) {
 			<section class="sect" [attr.aria-labelledby]="'s-context'">

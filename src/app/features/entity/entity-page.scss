@@ -90,25 +90,24 @@ mat-icon {
 	font-style: italic;
 }
 
-// address · website · parent unit · IRI, one line that wraps
+// parent unit(s), address, websites – one line each
 .meta {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 8px 24px;
-	margin-top: 16px;
+	display: grid;
+	gap: 8px;
+	margin: 16px 0 0;
+	padding: 0;
 	color: var(--sm-ink-2);
 	font-size: 0.9375rem;
+	list-style: none;
 
-	.meta-item {
-		display: inline-flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 8px;
+	li {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		line-height: 1.5;
 	}
 
-	a,
-	a.meta-item {
+	a {
 		color: var(--sm-ink-2);
 	}
 
@@ -116,6 +115,7 @@ mat-icon {
 		flex: none;
 		width: 16px;
 		height: 16px;
+		margin-top: 3px;
 	}
 }
 
@@ -123,8 +123,8 @@ mat-icon {
 .figures {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16px 48px;
-	margin: 32px 0 0;
+	gap: 16px 56px;
+	margin: 0;
 
 	div {
 		min-width: 120px;
