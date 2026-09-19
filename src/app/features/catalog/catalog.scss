@@ -68,6 +68,12 @@ mat-icon {
 	align-items: center;
 	gap: 10px;
 
+	.bar-btn.mat-mdc-icon-button.mat-mdc-button-base {
+		width: var(--bar-h);
+		height: var(--bar-h);
+		padding: 0;
+	}
+
 	.bar-btn.has-badge {
 		margin-right: 4px;
 	}

@@ -39,13 +39,19 @@ mat-icon {
 		min-width: 0;
 	}
 
-	// the map's square icon buttons in a row, aligned with the title; the tooltip says what they do
+	// the map's zoom buttons, in a row aligned with the title; the tooltip says what they do
 	.actions {
-		--bar-h: 42px;
 		display: flex;
 		flex: none;
-		gap: 10px;
+		gap: 4px;
 		margin-top: 2px;
+
+		.bar-btn.mat-mdc-icon-button.mat-mdc-button-base {
+			width: 40px;
+			height: 40px;
+			padding: 0;
+			background: var(--sm-surface);
+		}
 	}
 }
 
