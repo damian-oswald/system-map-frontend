@@ -14,7 +14,7 @@ import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, isFallback, pick } from '../../core/i18n';
 import { CLS, KINDS, Kind, RELATIONS, compactIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { EntityChip, EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
+import { EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
 import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
 import { SystemMap } from '../map/system-map';
 
@@ -76,7 +76,6 @@ const FIGURES: Record<Kind, CountKey[]> = {
 		ObButtonDirective,
 		ObExternalLinkDirective,
 		RouterLink,
-		EntityChip,
 		EntityTree,
 		NameList,
 		PageState,

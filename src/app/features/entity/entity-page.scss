@@ -14,10 +14,29 @@ mat-icon {
 
 	h1 {
 		max-width: 26em;
-		margin: 0 0 12px;
+		margin: 0;
 		font-size: 2.25rem;
 		line-height: 1.15;
 		letter-spacing: -0.02em;
+	}
+}
+
+// title left, "IRI kopieren" right on the same line
+.title-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px 24px;
+	margin-bottom: 12px;
+
+	.copy {
+		flex: none;
+		margin-top: 4px;
+
+		mat-icon {
+			margin-right: 8px;
+		}
 	}
 }
 
@@ -46,10 +65,15 @@ mat-icon {
 	margin-bottom: 16px;
 }
 
-// tags sit on the grey banner, so they get the white surface
+// subclasses as tags in the button idiom: thin black outline, white fill, black text
 .hero .sm-tag {
+	padding: 3px 10px;
+	border: 1px solid var(--sm-ink);
+	border-radius: 4px;
 	background: var(--sm-surface);
-	border: 1px solid var(--sm-line);
+	color: var(--sm-ink);
+	font-size: 0.8125rem;
+	font-weight: 500;
 }
 
 .desc {
@@ -83,6 +107,7 @@ mat-icon {
 		gap: 8px;
 	}
 
+	a,
 	a.meta-item {
 		color: var(--sm-ink-2);
 	}
@@ -91,10 +116,6 @@ mat-icon {
 		flex: none;
 		width: 16px;
 		height: 16px;
-	}
-
-	.copy {
-		margin-left: -8px;
 	}
 }
 

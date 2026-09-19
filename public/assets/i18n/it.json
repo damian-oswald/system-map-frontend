@@ -301,7 +301,6 @@
 		"more": "+ mostra altri {{n}}",
 		"less": "mostra meno",
 		"partOf": "Parte di",
-		"belongsTo": "Appartiene a",
 		"structure": {
 			"organization": "Struttura organizzativa",
 			"system": "Struttura del sistema",
@@ -326,7 +325,8 @@
 		"via": "Tramite",
 		"moreTitle": "Ulteriori indicazioni",
 		"context": "Contesto",
-		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina."
+		"contextSub": "L'ambiente di questo elemento sulla mappa – a 1, 2 o 3 passi. Un clic su un altro elemento apre la sua pagina.",
+		"subunitOf": "Sottorganizzazione di"
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

@@ -10,11 +10,15 @@
 				<span aria-current="page">{{ e | label: lang() : 'short' : 60 }}</span>
 			</nav>
 
-			<h1>{{ e.name | pick: lang() }}</h1>
+			<div class="title-row">
+				<h1>{{ e | label: lang() : 'title' }}</h1>
+				<button mat-button obButton="secondary" type="button" class="copy" (click)="copy(e.id)">
+					<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
+						(copied() ? 'entity.copied' : 'entity.copy') | translate
+					}}
+				</button>
+			</div>
 			<div class="tags">
-				@if (e.abbreviation) {
-					<span class="sm-tag">{{ e.abbreviation }}</span>
-				}
 				@for (t of typeLabels(); track t) {
 					<span class="sm-tag">{{ t }}</span>
 				}
@@ -48,19 +52,14 @@
 				@for (u of e.urls; track u) {
 					<a class="meta-item" [href]="u" target="_blank" rel="noopener">{{ host(u) }}</a>
 				}
-				@if (parents().length) {
+				@for (p of parents(); track p.id) {
 					<span class="meta-item">
-						{{ (e.kind === 'organization' ? 'entity.belongsTo' : 'entity.partOf') | translate }}
-						@for (p of parents(); track p.id) {
-							<app-entity-chip [entity]="p" icon abbr [max]="40" />
-						}
+						<mat-icon [svgIcon]="icon(p)" aria-hidden="true" />{{
+							(e.kind === 'organization' ? 'entity.subunitOf' : 'entity.partOf') | translate
+						}}
+						<a [routerLink]="['/entity', p.key]">{{ p | label: lang() : 'title' }}</a>
 					</span>
 				}
-				<button mat-button obButton="tertiary" type="button" class="copy" (click)="copy(e.id)">
-					<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
-						(copied() ? 'entity.copied' : 'entity.copy') | translate
-					}}
-				</button>
 			</div>
 
 			<!-- aggregated figures: everything below this element counts (sub-units, parts) -->

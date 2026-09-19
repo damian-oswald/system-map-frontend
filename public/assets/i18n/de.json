@@ -301,7 +301,6 @@
 		"more": "+ {{n}} weitere anzeigen",
 		"less": "weniger anzeigen",
 		"partOf": "Teil von",
-		"belongsTo": "Gehört zu",
 		"structure": {
 			"organization": "Organisationsstruktur",
 			"system": "Systemstruktur",
@@ -326,7 +325,8 @@
 		"via": "Über",
 		"moreTitle": "Weitere Angaben",
 		"context": "Kontext",
-		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite."
+		"contextSub": "Die Umgebung dieses Elements auf der Karte – 1, 2 oder 3 Schritte weit. Ein Klick auf ein anderes Element öffnet dessen Seite.",
+		"subunitOf": "Unterorganisation von"
 	},
 	"about": {
 		"title": "Über das Projekt",
