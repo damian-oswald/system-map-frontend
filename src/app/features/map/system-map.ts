@@ -83,7 +83,6 @@ interface SceneEdge {
 	o: string;
 	d: string;
 	w: number;
-	dashed: boolean;
 	key: string;
 	hierarchy: boolean;
 	kind?: Kind;
@@ -294,7 +293,6 @@ export class SystemMap implements AfterViewInit {
 					key: e.key,
 					d: layeredEdgePath(mg.nodeById.get(e.s)!, mg.nodeById.get(e.o)!),
 					w: edgeWidth(e.weight),
-					dashed: e.dashed,
 					hierarchy: false,
 				});
 			}
@@ -326,7 +324,6 @@ export class SystemMap implements AfterViewInit {
 					key: e.key,
 					d: `M${a.x},${a.y}L${b.x},${b.y}`,
 					w: edgeWidth(e.weight),
-					dashed: e.dashed,
 					hierarchy: e.hierarchy,
 					kind: e.hierarchy ? a.kind : undefined,
 				});
@@ -374,6 +371,8 @@ export class SystemMap implements AfterViewInit {
 		}
 		return out;
 	});
+
+	protected readonly selEdgeIds = computed(() => new Set(this.selEdges().map((e) => e.id)));
 
 	/** node that drives highlighting: hover wins over the pinned selection */
 	protected readonly active = computed(() => {

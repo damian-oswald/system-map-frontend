@@ -405,10 +405,6 @@ mat-button-toggle mat-icon {
 		stroke-opacity 0.15s,
 		stroke 0.15s;
 
-	&.dashed {
-		stroke-dasharray: 4 3;
-	}
-
 	&.hl {
 		stroke: var(--sm-ink);
 		stroke-opacity: 0.9;
@@ -441,8 +437,9 @@ mat-button-toggle mat-icon {
 	fill: none;
 }
 
+// the arrowhead takes the colour of the edge it sits on (black, or the class colour of a hierarchy edge)
 .arrow {
-	fill: var(--sm-ink);
+	fill: context-stroke;
 }
 
 .node {
@@ -660,12 +657,16 @@ mat-button-toggle mat-icon {
 .sel-edge {
 	fill: none;
 	stroke: var(--sm-ink);
-	stroke-opacity: 0.9;
 	stroke-width: calc(1.5px / var(--zk, 1));
 
 	&.hier {
 		stroke: var(--k);
 	}
+}
+
+// while the overlay draws an edge with arrow and name, the plain edge underneath stays out of the way
+.canvas.detail .edges path.covered {
+	stroke-opacity: 0;
 }
 
 .edge-label {

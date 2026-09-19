@@ -90,9 +90,6 @@
 						</mat-select-trigger>
 						@for (r of relationOptions(); track r.key) {
 							<mat-option [value]="r.key" class="option-row">
-								<svg class="line-key" viewBox="0 0 22 8" aria-hidden="true">
-									<path d="M1 4H21" [attr.stroke-dasharray]="r.dashed ? '3 3' : null" />
-								</svg>
 								{{ graph()?.relationInfo?.get(r.key)?.name | pick: lang() }}
 								<span class="count">{{ counts().relations[r.key] }}</span>
 							</mat-option>
@@ -236,17 +233,6 @@
 				[attr.aria-label]="'map.canvasLabel' | translate"
 			>
 				<defs>
-					<marker
-						id="arrow"
-						viewBox="0 0 8 8"
-						refX="7"
-						refY="4"
-						markerWidth="7"
-						markerHeight="7"
-						orient="auto-start-reverse"
-					>
-						<path d="M0,0L8,4L0,8z" class="arrow" />
-					</marker>
 					<!-- the selected node's edges get a larger head -->
 					<marker
 						id="arrow-lg"
@@ -283,8 +269,8 @@
 									<path
 										[attr.d]="e.d"
 										[attr.stroke-width]="e.w"
-										[class.dashed]="e.dashed"
 										[class]="edgeState(e) + ' rel-' + e.key + (e.hierarchy ? ' hier sm-kind--' + e.kind : '')"
+										[class.covered]="selEdgeIds().has(e.id)"
 									/>
 								}
 							</g>
@@ -292,7 +278,11 @@
 							@if (sc.view === 'network') {
 								<g class="sel-edges">
 									@for (e of selEdges(); track e.id) {
-										<path class="sel-edge" [class.hier]="e.hierarchy" [attr.d]="e.d" marker-end="url(#arrow-lg)" />
+										<path
+											class="sel-edge {{ e.hierarchy ? 'hier sm-kind--' + e.kind : '' }}"
+											[attr.d]="e.d"
+											marker-end="url(#arrow-lg)"
+										/>
 									}
 								</g>
 							}
