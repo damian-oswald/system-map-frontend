@@ -193,3 +193,41 @@ export function buildMapGraph(graph: SystemMapGraph, opt: MapOptions): MapGraph 
 
 	return { nodes, edges, nodeById, adjacency: adjacencyOf(edges) };
 }
+
+/**
+ * Importance of every visible node as its position in a PageRank order (0 = most important). Computed on the
+ * undirected visible graph, so it follows what is on the map, not the whole data set; merged nodes get a bonus for
+ * the elements they stand for. Labels appear in this order as the map is zoomed in.
+ */
+export function importanceRank(mg: MapGraph): Map<string, number> {
+	const ids = mg.nodes.map((n) => n.id);
+	const n = ids.length;
+	const index = new Map(ids.map((id, i) => [id, i]));
+	const neighbours = ids.map((id) => [...(mg.adjacency.get(id) ?? [])].map((m) => index.get(m)!).filter((i) => i >= 0));
+	let score = new Array<number>(n).fill(1 / Math.max(1, n));
+	const damping = 0.85;
+	for (let iter = 0; iter < 40; iter++) {
+		const next = new Array<number>(n).fill((1 - damping) / Math.max(1, n));
+		let sink = 0;
+		for (let i = 0; i < n; i++) {
+			const deg = neighbours[i].length;
+			if (!deg) {
+				sink += score[i];
+				continue;
+			}
+			const share = (damping * score[i]) / deg;
+			for (const j of neighbours[i]) next[j] += share;
+		}
+		// dangling nodes spread their weight evenly
+		const spread = (damping * sink) / Math.max(1, n);
+		for (let i = 0; i < n; i++) next[i] += spread;
+		score = next;
+	}
+	const weighted = mg.nodes.map((node, i) => ({
+		id: node.id,
+		s: score[i] * (1 + 0.15 * Math.log2(node.members)),
+		degree: node.degree,
+	}));
+	weighted.sort((a, b) => b.s - a.s || b.degree - a.degree || a.id.localeCompare(b.id));
+	return new Map(weighted.map((w, i) => [w.id, i]));
+}

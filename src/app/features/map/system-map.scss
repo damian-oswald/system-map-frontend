@@ -609,7 +609,9 @@ mat-button-toggle mat-icon {
 	}
 }
 
-// network view: labels are secondary; show them for major nodes, on hover or when zoomed in
+// network view: labels appear by importance as the map is zoomed in, like place names on a map. The canvas carries
+// --label-n (how many labels the current zoom level can take), every node its --rank in the importance order; the
+// difference fades a label in over one rank step.
 .network .edges path:not(.hl):not(.dim) {
 	stroke-opacity: 0.6;
 }
@@ -621,19 +623,17 @@ mat-button-toggle mat-icon {
 	stroke: rgba(248, 250, 251, 0.9);
 	stroke-width: calc(3px / var(--zk, 1));
 	stroke-linejoin: round;
-	opacity: 0;
+	opacity: clamp(0, var(--label-n, 0) - var(--rank, 0), 1);
+	transition: opacity 0.15s;
 }
 
-.network .node.major .label,
-.network.near .node .label,
 .network .node.hl .label,
 .network .node.sel .label,
 .network .node.match .label {
 	opacity: 1;
 }
 
-.network.has-active .node:not(.hl):not(.sel) .label,
-.network.far .node.major:not(.hl):not(.sel):not(.match) .label {
+.network.has-active .node:not(.hl):not(.sel) .label {
 	opacity: 0;
 }
 

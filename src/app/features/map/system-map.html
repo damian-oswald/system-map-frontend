@@ -294,7 +294,7 @@
 										[class.sel]="selected() === n.id"
 										[class.focused]="focusRep() === n.id"
 										[class.match]="matchIds()?.has(n.id)"
-										[class.major]="n.major"
+										[style.--rank]="n.rank"
 										[attr.transform]="'translate(' + n.x + ',' + n.y + ')'"
 										tabindex="0"
 										role="button"

@@ -20,7 +20,6 @@ addEventListener('message', ({ data }: MessageEvent<ForceRequest>) => {
 		y: n.y ?? Math.sqrt(i + 0.5) * 18 * Math.sin(i * 2.39996),
 	}));
 	const seeded = data.nodes.some((n) => n.x !== undefined);
-	const spread = Math.max(400, Math.sqrt(nodes.length) * 60);
 	const sim = forceSimulation(nodes)
 		.force(
 			'link',
@@ -32,9 +31,9 @@ addEventListener('message', ({ data }: MessageEvent<ForceRequest>) => {
 		)
 		.force('charge', forceManyBody<N>().strength(-150).theta(0.9).distanceMax(600))
 		.force('collide', forceCollide<N>((d) => d.r + 8).iterations(2))
-		// labels run left to right, so the class ordering (org → system → service → data) is a gentle top-down bias
+		// a gentle pull to the centre keeps loose components from drifting off
 		.force('x', forceX<N>(0).strength(0.05))
-		.force('y', forceY<N>((d) => (d.col - 1.5) * spread * 0.28).strength(0.07))
+		.force('y', forceY<N>(0).strength(0.05))
 		.stop();
 	if (seeded) sim.alpha(0.5);
 	const ticks = Math.ceil(Math.log(sim.alphaMin()) / Math.log(1 - sim.alphaDecay()));

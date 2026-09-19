@@ -53,6 +53,7 @@ import {
 	ORG_TYPES,
 	SELECTABLE_RELATIONS,
 	buildMapGraph,
+	importanceRank,
 	representativeOf,
 } from './map-model';
 
@@ -66,7 +67,8 @@ interface SceneNode {
 	title: string;
 	members: number;
 	orgType?: OrgType;
-	major: boolean;
+	/** place in the importance order of the current view (0 = most important) */
+	rank: number;
 	w: number;
 	depth: number;
 	/** width of the merged-count badge, 0 if none */
@@ -112,6 +114,8 @@ interface Sentence {
 const BAR_INSET = 66;
 /** embedded: the number of steps whose neighbourhood comes closest to this many elements is preselected */
 const IDEAL_CONTEXT_NODES = 20;
+/** network view: labels shown when the scene is fitted; the budget grows with the square of the zoom factor */
+const LABELS_AT_FIT = 14;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -193,6 +197,8 @@ export class SystemMap implements AfterViewInit {
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private zoomBehavior?: ZoomBehavior<SVGSVGElement, unknown>;
 	private transform: ZoomTransform = zoomIdentity;
+	/** zoom factor at which the scene was last fitted – the label budget is relative to it */
+	private fitScale = 1;
 	private worker?: Worker;
 	private requestId = 0;
 	private readonly forcePositions = signal<{ key: string; positions: ForceResponse['positions'] } | null>(null);
@@ -231,6 +237,7 @@ export class SystemMap implements AfterViewInit {
 		const view = this.view();
 		fontsVersion(); // re-fit labels once web fonts are loaded
 		const focused = this.focusRep();
+		const ranks = importanceRank(mg);
 		const label = (n: MapNode): string => shortLabel(n.entity, lang, view === 'layers' ? 31 : 26);
 		const nodes: SceneNode[] = [];
 		const edges: SceneEdge[] = [];
@@ -250,7 +257,7 @@ export class SystemMap implements AfterViewInit {
 			for (const n of mg.nodes) {
 				const bw = n.members > 1 ? badgeWidth(n.members) : 0;
 				const avail = n.w - 20 - (bw ? bw + 8 : 0);
-				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 400), 0, bw));
+				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 400), 0, ranks, bw));
 			}
 			for (const e of mg.edges) {
 				if (e.hierarchy) continue; // drawn as tree connectors
@@ -281,7 +288,7 @@ export class SystemMap implements AfterViewInit {
 				minY = Math.min(minY, n.y - r);
 				maxX = Math.max(maxX, n.x + r + 120);
 				maxY = Math.max(maxY, n.y + r);
-				nodes.push(this.sceneNode(n, label(n), r));
+				nodes.push(this.sceneNode(n, label(n), r, ranks));
 			}
 			for (const e of mg.edges) {
 				const a = mg.nodeById.get(e.s)!;
@@ -659,6 +666,7 @@ export class SystemMap implements AfterViewInit {
 			tx = (width - b.w * k) / 2 - b.x * k;
 			ty = inset + (height - inset - b.h * k) / 2 - b.y * k;
 		}
+		this.fitScale = k;
 		this.applyTransform(zoomIdentity.translate(tx, ty).scale(k), animate);
 		return true;
 	}
@@ -713,6 +721,9 @@ export class SystemMap implements AfterViewInit {
 					this.transform = ev.transform;
 					vp.setAttribute('transform', ev.transform.toString());
 					svg.style.setProperty('--zk', String(Math.min(1, ev.transform.k)));
+					// how many labels the view can take: more important ones first, more as the map is zoomed in
+					const labels = LABELS_AT_FIT * Math.pow(ev.transform.k / this.fitScale, 2);
+					svg.style.setProperty('--label-n', labels.toFixed(2));
 					const far = ev.transform.k < 0.38;
 					const near = ev.transform.k >= 1.25;
 					if (far !== this.far() || near !== this.near())
@@ -767,7 +778,7 @@ export class SystemMap implements AfterViewInit {
 	}
 	private pendingKey = '';
 
-	private sceneNode(n: MapNode, label: string, r: number, badgeW = 0): SceneNode {
+	private sceneNode(n: MapNode, label: string, r: number, ranks: Map<string, number>, badgeW = 0): SceneNode {
 		return {
 			id: n.id,
 			kind: n.kind,
@@ -778,7 +789,7 @@ export class SystemMap implements AfterViewInit {
 			title: entityTitle(n.entity, this.lang()),
 			members: n.members,
 			orgType: n.orgType,
-			major: n.degree >= 6 || n.members > 3,
+			rank: ranks.get(n.id) ?? 0,
 			w: n.w,
 			depth: n.depth,
 			badgeW,
