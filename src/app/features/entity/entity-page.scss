@@ -102,6 +102,7 @@ mat-icon {
 }
 
 .desc {
+	max-width: 75ch;
 	margin: 0;
 	color: var(--sm-ink);
 	font-size: 1.0625rem;
