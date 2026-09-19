@@ -39,17 +39,22 @@ mat-icon {
 		min-width: 0;
 	}
 
-	// stacked, bordered, with Oblique's hover – so it is clear they do something
+	// icon buttons in a row, aligned with the title; the tooltip says what they do
 	.actions {
 		display: flex;
 		flex: none;
-		flex-direction: column;
-		align-items: stretch;
 		gap: 6px;
-		min-width: 220px;
+		margin-top: 2px;
+
+		.mat-mdc-icon-button.mat-mdc-button-base {
+			width: 40px;
+			height: 40px;
+			padding: 0;
+		}
 
 		mat-icon {
-			margin-right: 8px;
+			width: 18px;
+			height: 18px;
 		}
 	}
 }

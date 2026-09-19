@@ -324,7 +324,7 @@
 			"object": "Object"
 		},
 		"mail": "Report by e-mail",
-		"github": "On GitHub"
+		"github": "Source data on GitHub"
 	},
 	"about": {
 		"title": "About the project",

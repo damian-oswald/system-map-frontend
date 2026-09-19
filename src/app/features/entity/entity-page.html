@@ -72,19 +72,40 @@
 						}
 					</ul>
 				</div>
-				<!-- quiet actions: copy the IRI, give feedback on this element -->
+				<!-- icon-only actions on the title line: copy the IRI, give feedback on this element -->
 				<div class="actions">
-					<button mat-button obButton="secondary" type="button" (click)="copy(e.id)">
-						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'copy'" />{{
-							(copied() ? 'entity.copied' : 'entity.copy') | translate
-						}}
+					<button
+						mat-icon-button
+						obButton="secondary"
+						type="button"
+						(click)="copy(e.id)"
+						[matTooltip]="(copied() ? 'entity.copied' : 'entity.copy') | translate"
+						[attr.aria-label]="'entity.copy' | translate"
+					>
+						<mat-icon [svgIcon]="copied() ? 'checkmark' : 'link'" />
 					</button>
-					<a mat-button obButton="secondary" [href]="mailto()" [isExternalLink]="false"
-						><mat-icon svgIcon="mail" />{{ 'entity.mail' | translate }}</a
+					<a
+						mat-icon-button
+						obButton="secondary"
+						[href]="mailto()"
+						[isExternalLink]="false"
+						[matTooltip]="'entity.mail' | translate"
+						[attr.aria-label]="'entity.mail' | translate"
 					>
-					<a mat-button obButton="secondary" [href]="REPO_URL" target="_blank" rel="noopener" [isExternalLink]="false"
-						><mat-icon svgIcon="github" />{{ 'entity.github' | translate }}</a
+						<mat-icon svgIcon="mail" />
+					</a>
+					<a
+						mat-icon-button
+						obButton="secondary"
+						[href]="REPO_URL"
+						target="_blank"
+						rel="noopener"
+						[isExternalLink]="false"
+						[matTooltip]="'entity.github' | translate"
+						[attr.aria-label]="'entity.github' | translate"
 					>
+						<mat-icon svgIcon="github" />
+					</a>
 				</div>
 			</div>
 		</div>

@@ -324,7 +324,7 @@
 			"object": "Objet"
 		},
 		"mail": "Signaler par e-mail",
-		"github": "Sur GitHub"
+		"github": "Données sources sur GitHub"
 	},
 	"about": {
 		"title": "À propos du projet",
