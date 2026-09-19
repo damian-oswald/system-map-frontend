@@ -7,7 +7,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Entity, EntityKind } from '../core/graph.model';
 import { GraphService } from '../core/graph.service';
-import { abbrLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
+import { abbrLabel, entityLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
 
 export const KIND_ICON: Record<EntityKind, string> = {
 	organization: 'building',
@@ -146,12 +146,22 @@ export interface TreeNode {
 /** Hierarchy of an element (ancestors → the element → its descendants), drawn as an indented tree. */
 @Component({
 	selector: 'app-entity-tree',
-	imports: [EntityChip, LabelPipe, forwardRef(() => EntityTree)],
+	imports: [EntityChip, LabelPipe, MatIconModule, RouterLink, forwardRef(() => EntityTree)],
 	template: `
-		<ul class="etree" [class.root]="root()">
+		<ul class="etree" [class.root]="root()" [class.plain]="plain()">
 			@for (n of nodes(); track n.e.id) {
 				<li>
-					@if (n.self) {
+					@if (plain()) {
+						@if (n.self) {
+							<span class="tnode current sm-kind--{{ n.e.kind }}"
+								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</span
+							>
+						} @else {
+							<a class="tnode sm-kind--{{ n.e.kind }}" [routerLink]="['/entity', n.e.key]"
+								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</a
+							>
+						}
+					} @else if (n.self) {
 						<span class="sm-chip current sm-kind--{{ n.e.kind }}"
 							><span>{{ n.e | label: lang() : 'short' : 60 }}</span></span
 						>
@@ -159,7 +169,7 @@ export interface TreeNode {
 						<app-entity-chip [entity]="n.e" [max]="60" />
 					}
 					@if (n.children.length) {
-						<app-entity-tree [nodes]="n.children" [root]="false" />
+						<app-entity-tree [nodes]="n.children" [root]="false" [plain]="plain()" />
 					}
 				</li>
 			}
@@ -205,12 +215,39 @@ export interface TreeNode {
 			border-color: var(--k);
 			font-weight: 600;
 		}
+		// plain rows: class icon + title, the element itself in bold
+		.tnode {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 3px 0;
+			color: var(--sm-ink);
+			text-decoration: none;
+			mat-icon {
+				flex: none;
+				width: 15px;
+				height: 15px;
+				color: var(--k, var(--sm-ink-3));
+			}
+		}
+		a.tnode:hover,
+		a.tnode:focus-visible {
+			text-decoration: underline;
+		}
+		.tnode.current {
+			background: none;
+			border: 0;
+			font-weight: 700;
+		}
 	`,
 })
 export class EntityTree {
 	readonly nodes = input.required<TreeNode[]>();
 	readonly root = input(true);
+	/** text rows instead of chips */
+	readonly plain = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
+	protected readonly KIND_ICON = KIND_ICON;
 }
 
 /** Names as running text – "A, B und C" or "A, B, C und n weitere" – as plain links that underline on hover. */
@@ -219,13 +256,7 @@ export class EntityTree {
 	imports: [RouterLink, LabelPipe],
 	template: `@for (x of shown(); track x.id; let i = $index; let last = $last) {
 			<span>{{ separator(i, last) }}</span
-			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{
-				abbr()
-					? (x | label: lang() : 'abbr' : chars())
-					: chars()
-						? (x | label: lang() : 'short' : chars())
-						: (x | label: lang())
-			}}</a>
+			><a [routerLink]="['/entity', x.key]" [title]="x | label: lang() : 'title'">{{ label(x) }}</a>
 		}
 		@if (more()) {
 			<span>{{ moreText() }}</span>
@@ -252,7 +283,9 @@ export class NameList {
 	/** cut each name to this many characters (0 = full names) */
 	readonly chars = input(0);
 	/** show abbreviations where they exist (dense tables) */
-	readonly abbr = input(false);
+	readonly abbr = input(false, { transform: booleanAttribute });
+	/** full titles – the name with the abbreviation in parentheses */
+	readonly title = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
 	private readonly translate = inject(TranslateService);
 	protected readonly shown = computed(() => this.items().slice(0, this.max()));
@@ -261,6 +294,13 @@ export class NameList {
 		this.lang();
 		return ` ${this.translate.instant('common.andMore', { n: this.more() })}`;
 	});
+
+	protected label(x: Entity): string {
+		const lang = this.lang();
+		if (this.title()) return entityTitle(x, lang);
+		if (this.abbr()) return abbrLabel(x, lang, this.chars());
+		return this.chars() ? shortLabel(x, lang, this.chars()) : entityLabel(x, lang);
+	}
 
 	protected separator(i: number, last: boolean): string {
 		if (i === 0) return '';

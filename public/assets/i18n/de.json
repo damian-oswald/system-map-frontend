@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Teile",
 				"system": "Teilsysteme",
-				"organization": "Untereinheiten"
+				"organization": "Untereinheiten",
+				"service": "Teilservices"
 			},
 			"users": {
 				"system": "Genutzte Services",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Teil",
 				"system": "Teilsystem",
-				"organization": "Untereinheit"
+				"organization": "Untereinheit",
+				"service": "Teilservice"
 			},
 			"users": {
 				"system": "Genutzter Service",
@@ -293,38 +295,36 @@
 		"fallback": "Keine Beschreibung in dieser Sprache – in einer anderen Sprache angezeigt.",
 		"noDescription": "Keine Beschreibung vorhanden.",
 		"showInMap": "Auf der Karte zeigen",
-		"relations": "Beziehungen",
-		"relationsSub": "{{n}} direkte Beziehungen: eingehende links, ausgehende rechts. Wählen Sie ein Element, um weiter zu erkunden.",
-		"noRelations": "Es sind noch keine Beziehungen dokumentiert.",
-		"copy": "IRI kopieren",
+		"copy": "IRI dieses Elements kopieren",
 		"copied": "IRI kopiert",
-		"legal": "Rechtsgrundlage",
-		"subgraphs": "Teil der Architekturen",
 		"notFound": "Element nicht gefunden",
-		"more": "+ {{n}} weitere anzeigen",
-		"less": "weniger anzeigen",
 		"partOf": "Teil von",
-		"partsCount": "{{n}} Teile",
-		"partsHint": "Untergeordnete Elemente (Untereinheiten, Teile) werden innerhalb des Rahmens gezeigt; ihre Beziehungen gehen von der jeweiligen Zeile aus. Gestrichelte Bögen sind Beziehungen zwischen ihnen. P = Personendaten, M = Stammdaten, Zahl = Anzahl weiterer untergeordneter Elemente.",
-		"belongsTo": "Gehört zu",
 		"structure": {
 			"organization": "Organisationsstruktur",
 			"system": "Systemstruktur",
 			"dataset": "Struktur des Datensatzes",
 			"service": "Servicestruktur"
 		},
-		"rollup": {
-			"organization": "IT-Systeme innerhalb dieser Organisation",
-			"system": "Datensätze in Teilsystemen",
-			"dataset": "Speicherorte der Teile",
-			"service": "Nutzung der Teilservices"
+		"structureSub": "Übergeordnete Einheiten, das Element selbst und alles, was darunter liegt.",
+		"tables": "Beziehungen im Detail",
+		"tablesSub": "Alle dokumentierten Beziehungen dieses Elements.",
+		"context": "Kontext",
+		"contextSub": "Die Umgebung dieses Elements auf der Daten- und Systemlandkarte.",
+		"subunitOf": "Unterorganisation von",
+		"figures": "In Zahlen",
+		"figuresSub": {
+			"organization": "Aggregierte Zahlen über alle Untereinheiten.",
+			"system": "Aggregierte Zahlen über alle Teilsysteme.",
+			"dataset": "Aggregierte Zahlen über alle Teile.",
+			"service": "Aggregierte Zahlen über alle Teilservices."
 		},
-		"rollupSub": {
-			"organization": "{{n}} IT-Systeme werden von Einheiten dieser Organisation betrieben.",
-			"system": "{{n}} Datensätze sind in Teilsystemen dieses Systems enthalten.",
-			"dataset": "{{n}} IT-Systeme enthalten Teile dieses Datensatzes.",
-			"service": "{{n}} Systeme und Organisationen nutzen Teilservices dieses Services."
-		}
+		"col": {
+			"subject": "Subjekt",
+			"predicate": "Prädikat",
+			"object": "Objekt"
+		},
+		"mail": "Rückmeldung zu diesem Element per E-Mail senden",
+		"github": "Fehler zu diesem Element auf GitHub melden"
 	},
 	"about": {
 		"title": "Über das Projekt",

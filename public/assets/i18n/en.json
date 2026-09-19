@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Parts",
 				"system": "Sub-systems",
-				"organization": "Sub-units"
+				"organization": "Sub-units",
+				"service": "Sub-services"
 			},
 			"users": {
 				"system": "Services used",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Part",
 				"system": "Sub-system",
-				"organization": "Sub-unit"
+				"organization": "Sub-unit",
+				"service": "Sub-service"
 			},
 			"users": {
 				"system": "Service used",
@@ -293,38 +295,36 @@
 		"fallback": "No description in this language – shown in another language.",
 		"noDescription": "No description available.",
 		"showInMap": "Show on map",
-		"relations": "Relations",
-		"relationsSub": "{{n}} direct relations: incoming on the left, outgoing on the right. Select an element to continue exploring.",
-		"noRelations": "No relations are documented yet.",
-		"copy": "Copy IRI",
+		"copy": "Copy this element's IRI",
 		"copied": "IRI copied",
-		"legal": "Legal basis",
-		"subgraphs": "Part of architectures",
 		"notFound": "Element not found",
-		"more": "+ show {{n}} more",
-		"less": "show less",
 		"partOf": "Part of",
-		"partsCount": "{{n}} parts",
-		"partsHint": "Subordinate elements (sub-units, parts) are shown inside the frame; their relations start from the respective row. Dashed arcs are relations between them. P = personal data, M = master data, number = further subordinate elements.",
-		"belongsTo": "Belongs to",
 		"structure": {
 			"organization": "Organizational structure",
 			"system": "System structure",
 			"dataset": "Structure of the data set",
 			"service": "Service structure"
 		},
-		"rollup": {
-			"organization": "IT systems within this organization",
-			"system": "Data sets in sub-systems",
-			"dataset": "Where the parts are stored",
-			"service": "Use of the sub-services"
+		"structureSub": "Parent units, the element itself and everything below it.",
+		"tables": "Relations in detail",
+		"tablesSub": "All documented relations of this element.",
+		"context": "Context",
+		"contextSub": "The surroundings of this element on the data and system map.",
+		"subunitOf": "Sub-organization of",
+		"figures": "In numbers",
+		"figuresSub": {
+			"organization": "Aggregated figures over all sub-units.",
+			"system": "Aggregated figures over all sub-systems.",
+			"dataset": "Aggregated figures over all parts.",
+			"service": "Aggregated figures over all sub-services."
 		},
-		"rollupSub": {
-			"organization": "{{n}} IT systems are operated by units of this organization.",
-			"system": "{{n}} data sets are contained in sub-systems of this system.",
-			"dataset": "{{n}} IT systems contain parts of this data set.",
-			"service": "{{n}} systems and organizations use sub-services of this service."
-		}
+		"col": {
+			"subject": "Subject",
+			"predicate": "Predicate",
+			"object": "Object"
+		},
+		"mail": "Send feedback on this element by e-mail",
+		"github": "Report an issue with this element on GitHub"
 	},
 	"about": {
 		"title": "About the project",

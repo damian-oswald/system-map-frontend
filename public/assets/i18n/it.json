@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Parti",
 				"system": "Sottosistemi",
-				"organization": "Sottounità"
+				"organization": "Sottounità",
+				"service": "Sottoservizi"
 			},
 			"users": {
 				"system": "Servizi utilizzati",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Parte",
 				"system": "Sottosistema",
-				"organization": "Sottounità"
+				"organization": "Sottounità",
+				"service": "Sottoservizio"
 			},
 			"users": {
 				"system": "Servizio utilizzato",
@@ -293,38 +295,36 @@
 		"fallback": "Nessuna descrizione in questa lingua – mostrata in un'altra lingua.",
 		"noDescription": "Nessuna descrizione disponibile.",
 		"showInMap": "Mostra sulla mappa",
-		"relations": "Relazioni",
-		"relationsSub": "{{n}} relazioni dirette: in entrata a sinistra, in uscita a destra. Selezionate un elemento per continuare l'esplorazione.",
-		"noRelations": "Non sono ancora documentate relazioni.",
-		"copy": "Copia IRI",
+		"copy": "Copiare l'IRI di questo elemento",
 		"copied": "IRI copiato",
-		"legal": "Base legale",
-		"subgraphs": "Parte delle architetture",
 		"notFound": "Elemento non trovato",
-		"more": "+ mostra altri {{n}}",
-		"less": "mostra meno",
 		"partOf": "Parte di",
-		"partsCount": "{{n}} parti",
-		"partsHint": "Gli elementi subordinati (sottounità, parti) sono mostrati all'interno del riquadro; le loro relazioni partono dalla riga corrispondente. Gli archi tratteggiati sono relazioni tra di essi. P = dati personali, M = dati di base, numero = ulteriori elementi subordinati.",
-		"belongsTo": "Appartiene a",
 		"structure": {
 			"organization": "Struttura organizzativa",
 			"system": "Struttura del sistema",
 			"dataset": "Struttura del set di dati",
 			"service": "Struttura del servizio"
 		},
-		"rollup": {
-			"organization": "Sistemi IT all'interno di questa organizzazione",
-			"system": "Set di dati nei sottosistemi",
-			"dataset": "Dove sono salvate le parti",
-			"service": "Utilizzo dei sottoservizi"
+		"structureSub": "Unità superiori, l'elemento stesso e tutto ciò che si trova al di sotto.",
+		"tables": "Relazioni in dettaglio",
+		"tablesSub": "Tutte le relazioni documentate di questo elemento.",
+		"context": "Contesto",
+		"contextSub": "L'ambiente di questo elemento sulla mappa dei dati e dei sistemi.",
+		"subunitOf": "Sottorganizzazione di",
+		"figures": "In cifre",
+		"figuresSub": {
+			"organization": "Cifre aggregate su tutte le sottounità.",
+			"system": "Cifre aggregate su tutti i sottosistemi.",
+			"dataset": "Cifre aggregate su tutte le parti.",
+			"service": "Cifre aggregate su tutti i sottoservizi."
 		},
-		"rollupSub": {
-			"organization": "{{n}} sistemi IT sono gestiti da unità di questa organizzazione.",
-			"system": "{{n}} set di dati sono contenuti in sottosistemi di questo sistema.",
-			"dataset": "{{n}} sistemi IT contengono parti di questo set di dati.",
-			"service": "{{n}} sistemi e organizzazioni utilizzano sottoservizi di questo servizio."
-		}
+		"col": {
+			"subject": "Soggetto",
+			"predicate": "Predicato",
+			"object": "Oggetto"
+		},
+		"mail": "Inviare un feedback su questo elemento via e-mail",
+		"github": "Segnalare un problema relativo a questo elemento su GitHub"
 	},
 	"about": {
 		"title": "Informazioni sul progetto",

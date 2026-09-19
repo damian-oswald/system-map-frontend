@@ -260,7 +260,8 @@
 			"parts": {
 				"dataset": "Parties",
 				"system": "Sous-systèmes",
-				"organization": "Sous-unités"
+				"organization": "Sous-unités",
+				"service": "Sous-services"
 			},
 			"users": {
 				"system": "Services utilisés",
@@ -280,7 +281,8 @@
 			"parts": {
 				"dataset": "Partie",
 				"system": "Sous-système",
-				"organization": "Sous-unité"
+				"organization": "Sous-unité",
+				"service": "Sous-service"
 			},
 			"users": {
 				"system": "Service utilisé",
@@ -293,38 +295,36 @@
 		"fallback": "Pas de description dans cette langue – affichée dans une autre langue.",
 		"noDescription": "Aucune description disponible.",
 		"showInMap": "Afficher sur la carte",
-		"relations": "Relations",
-		"relationsSub": "{{n}} relations directes : entrantes à gauche, sortantes à droite. Sélectionnez un élément pour poursuivre l'exploration.",
-		"noRelations": "Aucune relation n'est encore documentée.",
-		"copy": "Copier l'IRI",
+		"copy": "Copier l'IRI de cet élément",
 		"copied": "IRI copié",
-		"legal": "Base légale",
-		"subgraphs": "Fait partie des architectures",
 		"notFound": "Élément introuvable",
-		"more": "+ afficher {{n}} de plus",
-		"less": "afficher moins",
 		"partOf": "Fait partie de",
-		"partsCount": "{{n}} parties",
-		"partsHint": "Les éléments subordonnés (sous-unités, parties) sont affichés dans le cadre ; leurs relations partent de la ligne correspondante. Les arcs en pointillé sont des relations entre eux. P = données personnelles, M = données de base, nombre = autres éléments subordonnés.",
-		"belongsTo": "Appartient à",
 		"structure": {
 			"organization": "Structure organisationnelle",
 			"system": "Structure du système",
 			"dataset": "Structure du jeu de données",
 			"service": "Structure du service"
 		},
-		"rollup": {
-			"organization": "Systèmes informatiques au sein de cette organisation",
-			"system": "Jeux de données dans les sous-systèmes",
-			"dataset": "Stockage des parties",
-			"service": "Utilisation des sous-services"
+		"structureSub": "Unités supérieures, l'élément lui-même et tout ce qui se trouve en dessous.",
+		"tables": "Relations en détail",
+		"tablesSub": "Toutes les relations documentées de cet élément.",
+		"context": "Contexte",
+		"contextSub": "L'environnement de cet élément sur la carte des données et des systèmes.",
+		"subunitOf": "Sous-organisation de",
+		"figures": "En chiffres",
+		"figuresSub": {
+			"organization": "Chiffres agrégés sur toutes les sous-unités.",
+			"system": "Chiffres agrégés sur tous les sous-systèmes.",
+			"dataset": "Chiffres agrégés sur toutes les parties.",
+			"service": "Chiffres agrégés sur tous les sous-services."
 		},
-		"rollupSub": {
-			"organization": "{{n}} systèmes informatiques sont exploités par des unités de cette organisation.",
-			"system": "{{n}} jeux de données sont contenus dans des sous-systèmes de ce système.",
-			"dataset": "{{n}} systèmes informatiques contiennent des parties de ce jeu de données.",
-			"service": "{{n}} systèmes et organisations utilisent des sous-services de ce service."
-		}
+		"col": {
+			"subject": "Sujet",
+			"predicate": "Prédicat",
+			"object": "Objet"
+		},
+		"mail": "Envoyer un retour sur cet élément par e-mail",
+		"github": "Signaler un problème concernant cet élément sur GitHub"
 	},
 	"about": {
 		"title": "À propos du projet",

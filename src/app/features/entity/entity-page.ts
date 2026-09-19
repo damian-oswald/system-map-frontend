@@ -1,75 +1,37 @@
-import {
-	ChangeDetectionStrategy,
-	Component,
-	ElementRef,
-	computed,
-	effect,
-	inject,
-	input,
-	signal,
-	viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterLink } from '@angular/router';
-import { ObButtonDirective } from '@oblique/oblique';
+import { RouterLink } from '@angular/router';
+import { ObButtonDirective, ObExternalLinkDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AddressService } from '../../core/address.service';
 import { Entity } from '../../core/graph.model';
 import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, entityTitle, isFallback, pick } from '../../core/i18n';
-import { CLS, HIERARCHY_KEYS, KINDS, Kind, NS, RELATIONS, compactIri } from '../../core/vocab';
+import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, REPO_URL } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { badgeWidth, fitLabel, fontsVersion } from '../../core/text-fit';
-import { EntityChip, EntityTree, KIND_ICON, PageState, TreeNode } from '../../shared/ui';
+import { EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
+import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
+import { SystemMap } from '../map/system-map';
 
-interface EgoNode {
-	id: string;
+/** one row of the subject–predicate–object table */
+interface Triple {
+	s: Entity;
 	key: string;
-	kind: string;
-	side: 'l' | 'r';
-	x: number;
-	y: number;
-	label: string;
-	title: string;
-	dashed: boolean;
-	/** anchor of the source (the element itself or one of its parts) the link starts from */
-	ax: number;
-	ay: number;
+	/** translated predicate */
+	p: string;
+	o: Entity;
+	/** sort rank of the predicate (the ontology's relation order) */
+	order: number;
 }
 
-interface Badge {
-	x: number;
-	w: number;
-	text: string;
-	cls: string;
-	title: string;
-}
-
-interface PartNode {
-	id: string;
-	key: string;
-	kind: string;
-	x: number;
-	y: number;
-	w: number;
-	label: string;
-	title: string;
-	badges: Badge[];
-}
-
-interface WholeNode {
-	id: string;
-	key: string;
-	kind: string;
-	x: number;
-	y: number;
-	w: number;
-	label: string;
-	title: string;
-}
-
+/** the top-level classes are said by the breadcrumb; protection and master data are shown as flags */
 const HIDDEN_TYPES = new Set<string>([
 	CLS.organization,
 	CLS.system,
@@ -79,15 +41,17 @@ const HIDDEN_TYPES = new Set<string>([
 	CLS.sensitiveData,
 	CLS.masterData,
 ]);
-const DASHED = new Set(RELATIONS.filter((r) => r.dashed).map((r) => r.key));
-const GROUP_LIMIT = 12;
-/** relation collected from all descendants for the roll-up section, per class */
-const ROLLUP: Record<Kind, { key: string; out: boolean }> = {
-	organization: { key: 'operates', out: true },
-	system: { key: 'contains', out: true },
-	dataset: { key: 'contains', out: false },
-	service: { key: 'consumes', out: false },
+/** key figures in the banner, per class – aggregated down the hierarchy, the same figures the inventory shows */
+const FIGURES: Record<Kind, CountKey[]> = {
+	organization: ['parts', 'systems', 'datasets', 'services'],
+	system: ['parts', 'datasets', 'services', 'users'],
+	dataset: ['parts', 'systems', 'legal'],
+	service: ['parts', 'systems', 'users'],
 };
+const COLUMNS = ['subject', 'predicate', 'object'];
+const FEEDBACK_MAIL = 'agridata.ch@blw.admin.ch';
+const PAGE_SIZES = [12, 24, 48, 96];
+const DEFAULT_PAGE_SIZE = 24;
 
 @Component({
 	selector: 'app-entity-page',
@@ -97,12 +61,18 @@ const ROLLUP: Record<Kind, { key: string; out: boolean }> = {
 		TranslatePipe,
 		MatButtonModule,
 		MatIconModule,
+		MatPaginatorModule,
+		MatSortModule,
+		MatTableModule,
+		MatTooltipModule,
 		ObButtonDirective,
+		ObExternalLinkDirective,
 		RouterLink,
-		EntityChip,
 		EntityTree,
+		NameList,
 		PageState,
 		DataFooter,
+		SystemMap,
 		PickPipe,
 		LabelPipe,
 	],
@@ -114,20 +84,39 @@ export class EntityPage {
 	readonly key = input.required<string>();
 
 	private readonly graphService = inject(GraphService);
-	private readonly router = inject(Router);
+	private readonly addressService = inject(AddressService);
 	private readonly title = inject(Title);
 	private readonly translate = inject(TranslateService);
 	protected readonly lang = inject(LangService).lang;
 	protected readonly graph = this.graphService.graph;
-	protected readonly KIND_ICON = KIND_ICON;
-	protected readonly compactIri = compactIri;
+	protected readonly REPO_URL = REPO_URL;
 	protected readonly copied = signal(false);
+	protected readonly COLUMNS = COLUMNS;
+	protected readonly PAGE_SIZES = PAGE_SIZES;
 
 	protected readonly entity = computed(() => {
 		this.graph();
 		const e = this.graphService.entity(this.key());
 		if (e) this.title.setTitle(`${entityLabel(e, this.lang())} · ${this.translate.instant('app.title')}`);
 		return e ?? null;
+	});
+
+	/** feedback on this element by e-mail: the title as subject, the IRI in the body */
+	protected readonly mailto = computed(() => {
+		const e = this.entity();
+		if (!e) return '';
+		const subject = encodeURIComponent(entityTitle(e, this.lang()));
+		const body = encodeURIComponent(`${e.id}\n\n`);
+		return `mailto:${FEEDBACK_MAIL}?subject=${subject}&body=${body}`;
+	});
+
+	/** a new GitHub issue about this element, title and IRI prefilled (dedicated forms may follow) */
+	protected readonly issueUrl = computed(() => {
+		const e = this.entity();
+		if (!e) return REPO_URL;
+		const title = encodeURIComponent(entityTitle(e, this.lang()));
+		const body = encodeURIComponent(`${e.id}\n\n`);
+		return `${REPO_URL}/issues/new?title=${title}&body=${body}`;
 	});
 
 	protected readonly isMappable = computed(() => (KINDS as readonly string[]).includes(this.entity()?.kind ?? ''));
@@ -137,6 +126,33 @@ export class EntityPage {
 	});
 	protected readonly descFallback = computed(() => isFallback(this.entity()?.description, this.lang()));
 
+	/** the inventory row of this element: related elements and the aggregated figures */
+	protected readonly row = computed<CatalogRow | null>(() => {
+		const e = this.entity();
+		const g = this.graph();
+		return e && g && this.isMappable() ? buildRow(g, e, this.lang()) : null;
+	});
+	protected readonly figures = computed(() => {
+		const r = this.row();
+		const e = this.entity();
+		if (!r || !e) return [];
+		return FIGURES[e.kind as Kind].map((count) => ({
+			count,
+			n: r.counts[count],
+			label: figureLabel(count, e.kind as Kind, r.counts[count]),
+		}));
+	});
+	/** postal address from the registers (Zefix, Staatskalender) the organization is linked to */
+	protected readonly address = computed(() => {
+		const e = this.entity();
+		return e?.kind === 'organization' ? this.addressService.addresses().get(e.id) : undefined;
+	});
+	protected readonly parents = computed(() => {
+		const g = this.graph();
+		return (this.entity()?.parents ?? []).map((p) => g?.entities.get(p)).filter((x): x is Entity => !!x);
+	});
+
+	/** subclasses as tags ("Organisation des Bundes", "Farm-Management-Informationssystem", …) */
 	protected readonly typeLabels = computed(() => {
 		const e = this.entity();
 		const g = this.graph();
@@ -148,27 +164,13 @@ export class EntityPage {
 			.filter(Boolean);
 	});
 
-	protected readonly relationGroups = computed(() => {
-		const e = this.entity();
+	/** keywords (data sets), shown as tags next to the subclasses and linking to the inventory filtered by them */
+	protected readonly keywords = computed(() => {
 		const g = this.graph();
-		if (!e || !g) return [];
-		const lang = this.lang();
-		const groups = new Map<string, { key: string; out: boolean; items: Entity[] }>();
-		const add = (key: string, out: boolean, other: Entity): void => {
-			const k = `${key}|${out}`;
-			if (!groups.has(k)) groups.set(k, { key, out, items: [] });
-			groups.get(k)!.items.push(other);
-		};
-		for (const r of e.out) add(r.key, true, g.entities.get(r.o)!);
-		for (const r of e.in) add(r.key, false, g.entities.get(r.s)!);
-		const order = RELATIONS.map((r) => r.key);
-		for (const grp of groups.values())
-			grp.items.sort((a, b) => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang));
-		return [...groups.values()].sort(
-			(a, b) => order.indexOf(a.key) - order.indexOf(b.key) || Number(b.out) - Number(a.out),
-		);
+		return (this.entity()?.keywords ?? []).map((k) => g?.entities.get(k)).filter((x): x is Entity => !!x);
 	});
-	protected readonly relationCount = computed(() => this.relationGroups().reduce((a, g) => a + g.items.length, 0));
+
+	// ---------------------------------------------------------------------------------------------- hierarchy
 
 	protected readonly ancestors = computed(() => {
 		const e = this.entity();
@@ -182,15 +184,6 @@ export class EntityPage {
 			cur = cur.parents.length ? g?.entities.get(cur.parents[0]) : undefined;
 		}
 		return out;
-	});
-	protected readonly children = computed(() => {
-		const e = this.entity();
-		const g = this.graph();
-		if (!e || !g) return [];
-		const lang = this.lang();
-		return e.children
-			.map((c) => g.entities.get(c)!)
-			.sort((a, b) => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang));
 	});
 
 	/** Ancestors → the element → all descendants, as a tree (organizations, systems, data sets, services). */
@@ -214,323 +207,120 @@ export class EntityPage {
 		return [node];
 	});
 
-	/**
-	 * What the descendants bring along, per class: systems operated by sub-units, data sets in sub-systems,
-	 * systems storing the parts of a data set, users of sub-services.
-	 */
-	protected readonly rollup = computed(() => {
+	/** the element and everything below it in its hierarchy */
+	private readonly tree = computed<Entity[]>(() => {
 		const e = this.entity();
 		const g = this.graph();
-		if (!e || !g || !e.children.length) return [];
-		const cfg = ROLLUP[e.kind as Kind];
-		if (!cfg) return [];
-		const lang = this.lang();
-		const out = new Map<string, { target: Entity; via: Entity[] }>();
-		const stack = [...e.children];
-		const seen = new Set<string>([e.id]);
+		if (!e || !g) return [];
+		const out: Entity[] = [];
+		const seen = new Set<string>();
+		const stack = [e];
 		while (stack.length) {
-			const id = stack.pop()!;
-			if (seen.has(id)) continue;
-			seen.add(id);
-			const unit = g.entities.get(id)!;
-			stack.push(...unit.children);
-			for (const r of cfg.out ? unit.out : unit.in) {
-				if (r.key !== cfg.key) continue;
-				const target = g.entities.get(cfg.out ? r.o : r.s)!;
-				if (!out.has(target.id)) out.set(target.id, { target, via: [] });
-				out.get(target.id)!.via.push(unit);
+			const x = stack.pop()!;
+			if (seen.has(x.id)) continue;
+			seen.add(x.id);
+			out.push(x);
+			for (const c of x.children) {
+				const ce = g.entities.get(c);
+				if (ce) stack.push(ce);
 			}
 		}
-		return [...out.values()].sort((a, b) =>
-			entityLabel(a.target, lang).localeCompare(entityLabel(b.target, lang), lang),
-		);
+		return out;
 	});
 
-	protected readonly sameAs = computed(() =>
-		(this.entity()?.sameAs ?? []).map((iri) => {
-			if (iri.startsWith(NS.zefix)) return { iri, label: 'Zefix', short: 'zefix:' + iri.slice(NS.zefix.length) };
-			if (iri.startsWith(NS.sk))
-				return { iri, label: 'Staatskalender', short: 'staatskalender:' + iri.slice(NS.sk.length) };
-			return { iri, label: this.host(iri), short: iri };
-		}),
-	);
-	protected readonly legal = computed(() => {
-		const e = this.entity();
-		const g = this.graph();
-		return e && g ? e.out.filter((r) => r.key === 'hasLegalBasis').map((r) => g.entities.get(r.o)!) : [];
-	});
-	protected readonly keywords = computed(() => {
-		const g = this.graph();
-		return (this.entity()?.keywords ?? []).map((k) => g?.entities.get(k)).filter((x): x is Entity => !!x);
-	});
-	protected readonly collections = computed(() => {
-		const g = this.graph();
-		const e = this.entity();
-		return g && e ? g.collections.filter((c) => c.members.has(e.id)) : [];
-	});
-
-	/** Ego network: predecessors left, successors right, grouped by relation. */
-	/** relation groups (key|direction) the user expanded beyond GROUP_LIMIT */
-	protected readonly expanded = signal(new Set<string>());
-	/** available width for the diagram, kept in sync with the container */
-	protected readonly diagramWidth = signal(1040);
-	private readonly egoWrap = viewChild<ElementRef<HTMLElement>>('egoWrap');
+	// ---------------------------------------------------------------------------------------------- relations (S P O)
 
 	/**
-	 * Relations diagram. The element is drawn as a composite in the middle: its parts (dcterms:hasPart) are nested
-	 * inside its frame and keep their own relations, which start from the part's row. If the element is itself a part,
-	 * the whole is drawn as an outer frame. Everything else: incoming relations left, outgoing right, grouped by type.
+	 * Every documented relation as a triple: the element's incoming and outgoing ones plus the outgoing ones of all
+	 * its parts (sub-units, sub-systems, …). Hierarchy relations are left out – the tree above shows them – as are
+	 * keywords and architectures, which the banner and the map cover.
 	 */
-	protected readonly ego = computed(() => {
+	protected readonly triples = computed<Triple[]>(() => {
 		const e = this.entity();
 		const g = this.graph();
-		if (!e || !g) return null;
+		if (!e || !g) return [];
 		const lang = this.lang();
-		const expanded = this.expanded();
-		fontsVersion(); // re-fit labels once web fonts are loaded
-		const W = Math.max(720, Math.min(1400, this.diagramWidth()));
-		const nodeW = 236;
-		const centerW = 300;
-		const rowH = 30;
-		const headH = 24;
-		const partH = 26;
-		const partRowH = 32;
-		const byLabel = (a: Entity, b: Entity): number => entityLabel(a, lang).localeCompare(entityLabel(b, lang), lang);
-
-		const parts = e.children.map((c) => g.entities.get(c)!).sort(byLabel);
-		const wholes = e.parents.map((p) => g.entities.get(p)!).sort(byLabel);
-		const sources = [e, ...parts];
-		const inner = new Map(sources.map((x, i) => [x.id, i]));
-
-		// ---- composite geometry
-		const partsBlockH = parts.length ? 12 + parts.length * partRowH - (partRowH - partH) + 12 : 0;
-		const compositeH = 40 + partsBlockH;
-		const frameHeadH = wholes.length ? 22 + wholes.length * 28 + 4 : 0;
-		const compositeTotalH = compositeH + (wholes.length ? frameHeadH + 20 : 0);
-
-		// ---- external relations (per source) and internal ones (between element and parts)
-		interface Entry {
-			src: number;
-			key: string;
-			out: boolean;
-			target: Entity;
-		}
-		const entries: Entry[] = [];
-		const internalRels: { a: number; b: number; key: string }[] = [];
-		sources.forEach((src, si) => {
-			for (const r of src.out) {
-				if (r.key === 'hasLegalBasis') continue;
-				// the element's wholes are drawn as the outer frame
-				if (si === 0 && HIERARCHY_KEYS.has(r.key)) continue;
-				const t = g.entities.get(r.o)!;
-				const ti = inner.get(t.id);
-				if (ti !== undefined) {
-					if (!HIERARCHY_KEYS.has(r.key)) internalRels.push({ a: si, b: ti, key: r.key });
-					continue;
-				}
-				entries.push({ src: si, key: r.key, out: true, target: t });
-			}
-			for (const r of src.in) {
-				const t = g.entities.get(r.s)!;
-				if (inner.has(t.id)) continue;
-				// a part's own parts are summarised by a badge, not drawn
-				if (HIERARCHY_KEYS.has(r.key) && si > 0) continue;
-				entries.push({ src: si, key: r.key, out: false, target: t });
-			}
-		});
 		const order = RELATIONS.map((r) => r.key);
-		const groups = new Map<string, { key: string; out: boolean; items: Entry[] }>();
-		for (const en of entries) {
-			const id = `${en.key}|${en.out}`;
-			if (!groups.has(id)) groups.set(id, { key: en.key, out: en.out, items: [] });
-			groups.get(id)!.items.push(en);
+		const pName = (key: string): string => pick(g.relationInfo.get(key)?.name, lang) || key;
+		const tree = this.tree();
+		const treeIds = new Set(tree.map((x) => x.id));
+		const rows: Triple[] = [];
+		for (const x of tree) {
+			for (const r of x.out) {
+				if (HIERARCHY_KEYS.has(r.key)) continue;
+				const o = g.entities.get(r.o);
+				if (o) rows.push({ s: x, key: r.key, p: pName(r.key), o, order: order.indexOf(r.key) });
+			}
 		}
-		const sortedGroups = [...groups.values()].sort(
-			(a, b) => order.indexOf(a.key) - order.indexOf(b.key) || Number(b.out) - Number(a.out),
+		// incoming relations of the element itself (those from its own parts are already listed as their outgoing)
+		for (const r of e.in) {
+			if (HIERARCHY_KEYS.has(r.key)) continue;
+			const s = g.entities.get(r.s);
+			if (s && !treeIds.has(s.id)) rows.push({ s, key: r.key, p: pName(r.key), o: e, order: order.indexOf(r.key) });
+		}
+		return rows;
+	});
+
+	protected readonly sort = signal<Sort>({ active: 'predicate', direction: 'asc' });
+	protected readonly pageIndex = signal(0);
+	protected readonly pageSize = signal(DEFAULT_PAGE_SIZE);
+
+	protected readonly sorted = computed(() => {
+		const lang = this.lang();
+		const { active, direction } = this.sort();
+		const dir = direction === 'desc' ? -1 : 1;
+		const subject = (t: Triple): string => entityTitle(t.s, lang);
+		const object = (t: Triple): string => entityTitle(t.o, lang);
+		const predicate = (a: Triple, b: Triple): number => a.order - b.order || a.p.localeCompare(b.p, lang);
+		const by = (a: Triple, b: Triple): number => {
+			switch (active) {
+				case 'subject':
+					return subject(a).localeCompare(subject(b), lang);
+				case 'object':
+					return object(a).localeCompare(object(b), lang);
+				default:
+					return predicate(a, b);
+			}
+		};
+		return [...this.triples()].sort(
+			(a, b) =>
+				dir * by(a, b) ||
+				predicate(a, b) ||
+				subject(a).localeCompare(subject(b), lang) ||
+				object(a).localeCompare(object(b), lang),
 		);
-		for (const grp of sortedGroups) grp.items.sort((a, b) => a.src - b.src || byLabel(a.target, b.target));
-
-		// ---- columns
-		const pending: { n: Omit<EgoNode, 'ax' | 'ay'>; src: number }[] = [];
-		const headers: { x: number; y: number; text: string; anchor: string }[] = [];
-		const toggles: { x: number; y: number; anchor: string; id: string; n: number; open: boolean }[] = [];
-		const layoutSide = (side: 'l' | 'r'): number => {
-			let y = 0;
-			for (const grp of sortedGroups.filter((x) => (side === 'l' ? !x.out : x.out))) {
-				const id = `${grp.key}|${grp.out}`;
-				const open = expanded.has(id);
-				const name =
-					side === 'r'
-						? pick(g.relationInfo.get(grp.key)?.name, lang)
-						: this.translate.instant(`relInverse.${grp.key}`);
-				const anchor = side === 'l' ? 'start' : 'end';
-				const x = side === 'l' ? 0 : W;
-				headers.push({ x, y: y + 14, text: `${name} · ${grp.items.length}`, anchor });
-				y += headH;
-				const shown = open ? grp.items : grp.items.slice(0, GROUP_LIMIT);
-				for (const it of shown) {
-					pending.push({
-						src: it.src,
-						n: {
-							id: it.target.id,
-							key: it.target.key,
-							kind: it.target.kind,
-							side,
-							x: side === 'l' ? 0 : W - nodeW,
-							y,
-							label: fitLabel(it.target, lang, nodeW - 20),
-							title: entityTitle(it.target, lang),
-							dashed: DASHED.has(grp.key),
-						},
-					});
-					y += rowH;
-				}
-				if (grp.items.length > GROUP_LIMIT) {
-					toggles.push({ x, y: y + 12, anchor, id, n: grp.items.length - GROUP_LIMIT, open });
-					y += 22;
-				}
-				y += 10;
-			}
-			return y;
-		};
-		const height = Math.max(layoutSide('l'), layoutSide('r'), compositeTotalH, 80);
-
-		// ---- centre: whole frame, element header, nested parts
-		const cx = (W - centerW) / 2;
-		const cy = Math.max(0, (height - compositeTotalH) / 2) + (wholes.length ? frameHeadH + 10 : 0);
-		const anchorY = (si: number): number => (si === 0 ? cy + 20 : cy + 40 + 12 + (si - 1) * partRowH + partH / 2);
-		const nodes: EgoNode[] = pending.map(({ n, src }) => ({
-			...n,
-			ax: n.side === 'l' ? cx : cx + centerW,
-			ay: anchorY(src),
-		}));
-		const links = nodes.map((n) => {
-			const ny = n.y + 12;
-			const [x1, y1, x2, y2] = n.side === 'l' ? [n.x + nodeW, ny, n.ax, n.ay] : [n.ax, n.ay, n.x, ny];
-			const dx = (x2 - x1) / 2;
-			return { d: `M${x1},${y1}C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`, dashed: n.dashed };
-		});
-
-		const partW = centerW - 24;
-		const partNodes: PartNode[] = parts.map((p, i) => {
-			const badges: Badge[] = [];
-			const subParts = p.children.length;
-			if (subParts)
-				badges.push({
-					x: 0,
-					w: badgeWidth(subParts),
-					text: String(subParts),
-					cls: 'neutral',
-					title: this.translate.instant('entity.partsCount', { n: subParts }),
-				});
-			if (p.personal)
-				badges.push({
-					x: 0,
-					w: 22,
-					text: 'P',
-					cls: 'warn',
-					title: this.translate.instant(p.sensitive ? 'flags.sensitive' : 'flags.personal'),
-				});
-			if (p.master) badges.push({ x: 0, w: 22, text: 'M', cls: 'info', title: this.translate.instant('flags.master') });
-			// badges are laid out from the right edge; the label gets what is left
-			let bx = partW - 8;
-			for (const b of badges) {
-				bx -= b.w;
-				b.x = bx;
-				bx -= 4;
-			}
-			const labelMax = (badges.length ? bx + 4 - 8 : partW - 8) - 12;
-			return {
-				id: p.id,
-				key: p.key,
-				kind: p.kind,
-				x: cx + 12,
-				y: cy + 40 + 12 + i * partRowH,
-				w: partW,
-				label: fitLabel(p, lang, labelMax),
-				title: entityTitle(p, lang),
-				badges,
-			};
-		});
-		const internal = internalRels.map(({ a, b, key }) => {
-			const x = cx + centerW - 12;
-			const ya = anchorY(a);
-			const yb = anchorY(b);
-			return {
-				d: `M${x},${ya}C${x + 34},${ya} ${x + 34},${yb} ${x},${yb}`,
-				title: `${entityLabel(sources[a], lang)} → ${pick(g.relationInfo.get(key)?.name, lang)} → ${entityLabel(sources[b], lang)}`,
-			};
-		});
-		const frame = wholes.length
-			? {
-					x: cx - 10,
-					y: cy - 10 - frameHeadH,
-					w: centerW + 20,
-					h: compositeH + 20 + frameHeadH,
-					kind: wholes[0].kind,
-					wholes: wholes.map<WholeNode>((w, i) => ({
-						id: w.id,
-						key: w.key,
-						kind: w.kind,
-						x: cx - 10 + 12,
-						y: cy - 10 - frameHeadH + 22 + i * 28,
-						w: centerW + 20 - 24,
-						label: fitLabel(w, lang, centerW + 20 - 24 - 20),
-						title: entityTitle(w, lang),
-					})),
-				}
-			: null;
-		// header of the composite: rounded on top only when parts follow
-		const r = 8;
-		const headPath = parts.length
-			? `M0,${r}a${r},${r} 0 0 1 ${r},-${r}H${centerW - r}a${r},${r} 0 0 1 ${r},${r}V40H0Z`
-			: `M0,${r}a${r},${r} 0 0 1 ${r},-${r}H${centerW - r}a${r},${r} 0 0 1 ${r},${r}V${40 - r}a${r},${r} 0 0 1 -${r},${r}H${r}a${r},${r} 0 0 1 -${r},-${r}Z`;
-		return {
-			nodes,
-			headers,
-			toggles,
-			links,
-			parts: partNodes,
-			internal,
-			frame,
-			width: W,
-			height,
-			nodeW,
-			centerW,
-			compositeH,
-			headPath,
-			center: { x: cx, y: cy },
-			centerLabel: fitLabel(e, lang, centerW - 24, 14, 700),
-			hasStructure: parts.length > 0 || wholes.length > 0,
-		};
+	});
+	protected readonly page = computed(() =>
+		Math.min(this.pageIndex(), Math.max(0, Math.ceil(this.sorted().length / this.pageSize()) - 1)),
+	);
+	protected readonly paged = computed(() => {
+		const start = this.page() * this.pageSize();
+		return this.sorted().slice(start, start + this.pageSize());
 	});
 
 	constructor() {
-		// keep the diagram as wide as its container
-		effect((onCleanup) => {
-			const el = this.egoWrap()?.nativeElement;
-			if (!el) return;
-			const ro = new ResizeObserver(([entry]) => {
-				const w = Math.round(entry.contentRect.width);
-				if (w) this.diagramWidth.set(w);
-			});
-			ro.observe(el);
-			onCleanup(() => ro.disconnect());
+		// the address is only needed for organizations
+		effect(() => {
+			if (this.entity()?.kind === 'organization') untracked(() => this.addressService.load());
+		});
+		// another element or another sort order: back to the first page
+		effect(() => {
+			this.entity();
+			this.sort();
+			untracked(() => this.pageIndex.set(0));
 		});
 	}
 
-	protected toggleGroup(id: string): void {
-		this.expanded.update((s) => {
-			const n = new Set(s);
-			if (n.has(id)) n.delete(id);
-			else n.add(id);
-			return n;
-		});
+	protected onSort(s: Sort): void {
+		this.sort.set(s.direction ? s : { active: 'predicate', direction: 'asc' });
+	}
+	protected onPage(e: PageEvent): void {
+		this.pageIndex.set(e.pageIndex);
+		this.pageSize.set(e.pageSize);
 	}
 
-	protected go(ev: Event, key: string): void {
-		ev.preventDefault();
-		void this.router.navigate(['/entity', key]);
+	protected icon(e: Entity): string {
+		return KIND_ICON[e.kind];
 	}
 
 	protected copy(text: string): void {

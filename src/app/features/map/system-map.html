@@ -1,209 +1,214 @@
 <div class="map-shell" [class.panel-closed]="!panelOpen()">
 	<!-- ============================================================ controls -->
-	<aside class="controls" [attr.aria-label]="'map.controls' | translate" [attr.inert]="panelOpen() ? null : ''">
-		<div class="controls-head">
-			<h1>{{ 'map.filterTitle' | translate }}</h1>
-			<button mat-button obButton="secondary" type="button" class="reset-btn" (click)="reset()">
-				<mat-icon svgIcon="undo" />{{ 'map.reset' | translate }}
-			</button>
-		</div>
+	@if (!embedded()) {
+		<aside class="controls" [attr.aria-label]="'map.controls' | translate" [attr.inert]="panelOpen() ? null : ''">
+			<div class="controls-head">
+				<h1>{{ 'map.filterTitle' | translate }}</h1>
+				<button mat-button obButton="secondary" type="button" class="reset-btn" (click)="reset()">
+					<mat-icon svgIcon="undo" />{{ 'map.reset' | translate }}
+				</button>
+			</div>
 
-		<!-- scope & sector -->
-		<div class="control-block">
-			<mat-form-field class="full" subscriptSizing="dynamic">
-				<mat-label>{{ 'map.scope' | translate }}</mat-label>
-				<mat-select [value]="subgraph() ?? ''" (selectionChange)="setSubgraph($event.value)">
-					<mat-option value="">{{ 'map.scopeAll' | translate }}</mat-option>
-					@for (c of subgraphs(); track c.id) {
-						<mat-option [value]="c.id">{{ c.name | pick: lang() }} ({{ c.members.size }})</mat-option>
-					}
-				</mat-select>
-			</mat-form-field>
+			<!-- scope & sector -->
+			<div class="control-block">
+				<mat-form-field class="full" subscriptSizing="dynamic">
+					<mat-label>{{ 'map.scope' | translate }}</mat-label>
+					<mat-select [value]="subgraph() ?? ''" (selectionChange)="setSubgraph($event.value)">
+						<mat-option value="">{{ 'map.scopeAll' | translate }}</mat-option>
+						@for (c of subgraphs(); track c.id) {
+							<mat-option [value]="c.id">{{ c.name | pick: lang() }} ({{ c.members.size }})</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
 
-			<mat-form-field class="full" subscriptSizing="dynamic">
-				<mat-label>{{ 'catalog.sector' | translate }}</mat-label>
-				<mat-select multiple [value]="orgTypeList()" (selectionChange)="setOrgTypes($event.value)">
-					<mat-select-trigger>
-						@if (orgTypes().size === ORG_TYPES.length) {
-							{{ 'map.allSectors' | translate }}
-						} @else if (!orgTypes().size) {
-							{{ 'common.none' | translate }}
-						} @else {
-							@for (t of orgTypeList(); track t; let last = $last) {
-								{{ 'orgType.' + t | translate }}{{ last ? '' : ', ' }}
+				<mat-form-field class="full" subscriptSizing="dynamic">
+					<mat-label>{{ 'catalog.sector' | translate }}</mat-label>
+					<mat-select multiple [value]="orgTypeList()" (selectionChange)="setOrgTypes($event.value)">
+						<mat-select-trigger>
+							@if (orgTypes().size === ORG_TYPES.length) {
+								{{ 'map.allSectors' | translate }}
+							} @else if (!orgTypes().size) {
+								{{ 'common.none' | translate }}
+							} @else {
+								@for (t of orgTypeList(); track t; let last = $last) {
+									{{ 'orgType.' + t | translate }}{{ last ? '' : ', ' }}
+								}
 							}
+						</mat-select-trigger>
+						@for (t of ORG_TYPES; track t) {
+							<mat-option [value]="t" class="option-row">
+								{{ 'orgType.' + t | translate }}
+								<span class="count">{{ counts().orgTypes[t] }}</span>
+							</mat-option>
 						}
-					</mat-select-trigger>
-					@for (t of ORG_TYPES; track t) {
-						<mat-option [value]="t" class="option-row">
-							{{ 'orgType.' + t | translate }}
-							<span class="count">{{ counts().orgTypes[t] }}</span>
-						</mat-option>
-					}
-				</mat-select>
-			</mat-form-field>
-		</div>
+					</mat-select>
+				</mat-form-field>
+			</div>
 
-		<!-- classes & level of detail -->
-		<div class="control-block">
-			<span class="sm-filter-label">{{ 'map.classes' | translate }}</span>
-			@for (k of KINDS; track k) {
-				<div class="level-row sm-kind--{{ k }}">
-					<span class="level-name">
-						<i class="sm-dot" aria-hidden="true"></i><span class="name">{{ 'kind.' + k + '.plural' | translate }}</span>
-						<span class="count">{{ counts().kinds[k] }}</span>
-					</span>
-					<mat-button-toggle-group
-						hideSingleSelectionIndicator
-						class="level-seg sm-seg-h"
-						[value]="levels()[k]"
-						(change)="setLevel(k, $event.value)"
-						[attr.aria-label]="'kind.' + k + '.plural' | translate"
-					>
-						@for (l of LEVELS; track l) {
-							<mat-button-toggle
-								[value]="l"
-								[matTooltip]="'map.level.' + l | translate"
-								[attr.aria-label]="'map.level.' + l | translate"
-							>
-								<mat-icon [svgIcon]="LEVEL_ICON[l]" />
-							</mat-button-toggle>
+			<!-- classes & level of detail -->
+			<div class="control-block">
+				<span class="sm-filter-label">{{ 'map.classes' | translate }}</span>
+				@for (k of KINDS; track k) {
+					<div class="level-row sm-kind--{{ k }}">
+						<span class="level-name">
+							<i class="sm-dot" aria-hidden="true"></i
+							><span class="name">{{ 'kind.' + k + '.plural' | translate }}</span>
+							<span class="count">{{ counts().kinds[k] }}</span>
+						</span>
+						<mat-button-toggle-group
+							hideSingleSelectionIndicator
+							class="level-seg sm-seg-h"
+							[value]="levels()[k]"
+							(change)="setLevel(k, $event.value)"
+							[attr.aria-label]="'kind.' + k + '.plural' | translate"
+						>
+							@for (l of LEVELS; track l) {
+								<mat-button-toggle
+									[value]="l"
+									[matTooltip]="'map.level.' + l | translate"
+									[attr.aria-label]="'map.level.' + l | translate"
+								>
+									<mat-icon [svgIcon]="LEVEL_ICON[l]" />
+								</mat-button-toggle>
+							}
+						</mat-button-toggle-group>
+					</div>
+				}
+			</div>
+
+			<!-- relations -->
+			<div class="control-block">
+				<mat-form-field class="full" subscriptSizing="dynamic">
+					<mat-label>{{ 'map.relations.title' | translate }}</mat-label>
+					<mat-select multiple [value]="relationList()" (selectionChange)="setRelations($event.value)">
+						<mat-select-trigger>
+							@if (relations().size >= relationOptions().length) {
+								{{ 'map.allRelations' | translate }}
+							} @else {
+								{{ 'map.nOfM' | translate: { n: relations().size, m: relationOptions().length } }}
+							}
+						</mat-select-trigger>
+						@for (r of relationOptions(); track r.key) {
+							<mat-option [value]="r.key" class="option-row">
+								<svg class="line-key" viewBox="0 0 22 8" aria-hidden="true">
+									<path d="M1 4H21" [attr.stroke-dasharray]="r.dashed ? '3 3' : null" />
+								</svg>
+								{{ graph()?.relationInfo?.get(r.key)?.name | pick: lang() }}
+								<span class="count">{{ counts().relations[r.key] }}</span>
+							</mat-option>
 						}
-					</mat-button-toggle-group>
-				</div>
-			}
-		</div>
+					</mat-select>
+				</mat-form-field>
+			</div>
 
-		<!-- relations -->
-		<div class="control-block">
-			<mat-form-field class="full" subscriptSizing="dynamic">
-				<mat-label>{{ 'map.relations.title' | translate }}</mat-label>
-				<mat-select multiple [value]="relationList()" (selectionChange)="setRelations($event.value)">
-					<mat-select-trigger>
-						@if (relations().size >= relationOptions().length) {
-							{{ 'map.allRelations' | translate }}
-						} @else {
-							{{ 'map.nOfM' | translate: { n: relations().size, m: relationOptions().length } }}
-						}
-					</mat-select-trigger>
-					@for (r of relationOptions(); track r.key) {
-						<mat-option [value]="r.key" class="option-row">
-							<svg class="line-key" viewBox="0 0 22 8" aria-hidden="true">
-								<path d="M1 4H21" [attr.stroke-dasharray]="r.dashed ? '3 3' : null" />
-							</svg>
-							{{ graph()?.relationInfo?.get(r.key)?.name | pick: lang() }}
-							<span class="count">{{ counts().relations[r.key] }}</span>
-						</mat-option>
-					}
-				</mat-select>
-			</mat-form-field>
-		</div>
-
-		<!-- display -->
-		<div class="control-block">
-			<span class="sm-filter-label">{{ 'map.display' | translate }}</span>
-			<mat-slide-toggle [checked]="hideIsolated()" (change)="hideIsolated.set($event.checked)">
-				{{ 'map.hideIsolated' | translate }}
-			</mat-slide-toggle>
-		</div>
-	</aside>
+			<!-- display -->
+			<div class="control-block">
+				<span class="sm-filter-label">{{ 'map.display' | translate }}</span>
+				<mat-slide-toggle [checked]="hideIsolated()" (change)="hideIsolated.set($event.checked)">
+					{{ 'map.hideIsolated' | translate }}
+				</mat-slide-toggle>
+			</div>
+		</aside>
+	}
 
 	<!-- ============================================================ stage -->
 	<section class="stage" [class.has-drawer]="!!selectedEntity()" [attr.aria-label]="'nav.map' | translate">
-		<div class="stage-bar">
-			<button
-				mat-icon-button
-				obButton="secondary"
-				type="button"
-				class="bar-btn"
-				[class.has-badge]="activeFilterCount() > 0"
-				[matBadge]="activeFilterCount()"
-				[matBadgeHidden]="!activeFilterCount()"
-				matBadgeColor="warn"
-				[matBadgeDescription]="'map.activeFilters' | translate: { n: activeFilterCount() }"
-				(click)="panelOpen.set(!panelOpen())"
-				[matTooltip]="(panelOpen() ? 'map.hidePanel' : 'map.showPanel') | translate"
-				[attr.aria-label]="(panelOpen() ? 'map.hidePanel' : 'map.showPanel') | translate"
-				[attr.aria-expanded]="panelOpen()"
-			>
-				<mat-icon svgIcon="filter" />
-			</button>
-			<mat-button-toggle-group
-				hideSingleSelectionIndicator
-				class="bar-seg sm-seg-h"
-				[value]="view()"
-				(change)="view.set($event.value)"
-				[attr.aria-label]="'map.view' | translate"
-			>
-				<mat-button-toggle value="network"
-					><mat-icon svgIcon="branch" />{{ 'map.viewNetwork' | translate }}</mat-button-toggle
+		@if (!embedded()) {
+			<div class="stage-bar">
+				<button
+					mat-icon-button
+					obButton="secondary"
+					type="button"
+					class="bar-btn"
+					[class.has-badge]="activeFilterCount() > 0"
+					[matBadge]="activeFilterCount()"
+					[matBadgeHidden]="!activeFilterCount()"
+					matBadgeColor="warn"
+					[matBadgeDescription]="'map.activeFilters' | translate: { n: activeFilterCount() }"
+					(click)="panelOpen.set(!panelOpen())"
+					[matTooltip]="(panelOpen() ? 'map.hidePanel' : 'map.showPanel') | translate"
+					[attr.aria-label]="(panelOpen() ? 'map.hidePanel' : 'map.showPanel') | translate"
+					[attr.aria-expanded]="panelOpen()"
 				>
-				<mat-button-toggle value="layers"
-					><mat-icon svgIcon="list" />{{ 'map.viewLayers' | translate }}</mat-button-toggle
+					<mat-icon svgIcon="filter" />
+				</button>
+				<mat-button-toggle-group
+					hideSingleSelectionIndicator
+					class="bar-seg sm-seg-h"
+					[value]="view()"
+					(change)="view.set($event.value)"
+					[attr.aria-label]="'map.view' | translate"
 				>
-			</mat-button-toggle-group>
-
-			<mat-form-field class="bar-search" subscriptSizing="dynamic">
-				<mat-label>{{ 'map.search' | translate }}</mat-label>
-				<input
-					matInput
-					type="text"
-					autocomplete="off"
-					[value]="query()"
-					(input)="query.set($any($event.target).value)"
-					(keydown.escape)="query.set('')"
-					[matAutocomplete]="auto"
-				/>
-				<mat-autocomplete
-					#auto="matAutocomplete"
-					(optionSelected)="pickSearch($event.option.value)"
-					[displayWith]="noDisplay"
-				>
-					@for (g of matchGroups(); track g.kind) {
-						<mat-optgroup class="search-group">
-							<mat-icon [svgIcon]="KIND_ICON[g.kind]" aria-hidden="true" />{{
-								'kind.' + g.kind + '.plural' | translate
-							}}
-							@for (e of g.items; track e.id) {
-								<mat-option [value]="e" class="search-option">{{ e.name | pick: lang() }}</mat-option>
-							}
-						</mat-optgroup>
-					}
-				</mat-autocomplete>
-			</mat-form-field>
-
-			@if (focusEntity(); as f) {
-				<div class="focus-pill sm-kind--{{ f.kind }}">
-					<mat-icon svgIcon="target" class="focus-icon" aria-hidden="true" />
-					<strong>{{ f.name | pick: lang() }}</strong>
-					<mat-button-toggle-group
-						hideSingleSelectionIndicator
-						class="hops sm-seg-h"
-						[value]="hops()"
-						(change)="hops.set($event.value)"
-						[attr.aria-label]="'map.hops' | translate"
-						[matTooltip]="'map.hops' | translate"
+					<mat-button-toggle value="network"
+						><mat-icon svgIcon="branch" />{{ 'map.viewNetwork' | translate }}</mat-button-toggle
 					>
-						<mat-button-toggle [value]="1">1</mat-button-toggle>
-						<mat-button-toggle [value]="2">2</mat-button-toggle>
-						<mat-button-toggle [value]="3">3</mat-button-toggle>
-					</mat-button-toggle-group>
-					<button
-						mat-icon-button
-						obButton="tertiary"
-						type="button"
-						class="clear"
-						(click)="clearFocus()"
-						[attr.aria-label]="'map.clearFocus' | translate"
-						[matTooltip]="'map.clearFocus' | translate"
+					<mat-button-toggle value="layers"
+						><mat-icon svgIcon="list" />{{ 'map.viewLayers' | translate }}</mat-button-toggle
 					>
-						<mat-icon svgIcon="xmark" />
-					</button>
-				</div>
-			}
+				</mat-button-toggle-group>
 
-			<span class="spacer"></span>
-		</div>
+				<mat-form-field class="bar-search" subscriptSizing="dynamic">
+					<mat-label>{{ 'map.search' | translate }}</mat-label>
+					<input
+						matInput
+						type="text"
+						autocomplete="off"
+						[value]="query()"
+						(input)="query.set($any($event.target).value)"
+						(keydown.escape)="query.set('')"
+						[matAutocomplete]="auto"
+					/>
+					<mat-autocomplete
+						#auto="matAutocomplete"
+						(optionSelected)="pickSearch($event.option.value)"
+						[displayWith]="noDisplay"
+					>
+						@for (g of matchGroups(); track g.kind) {
+							<mat-optgroup class="search-group">
+								<mat-icon [svgIcon]="KIND_ICON[g.kind]" aria-hidden="true" />{{
+									'kind.' + g.kind + '.plural' | translate
+								}}
+								@for (e of g.items; track e.id) {
+									<mat-option [value]="e" class="search-option">{{ e.name | pick: lang() }}</mat-option>
+								}
+							</mat-optgroup>
+						}
+					</mat-autocomplete>
+				</mat-form-field>
+
+				@if (focusEntity(); as f) {
+					<div class="focus-pill sm-kind--{{ f.kind }}">
+						<mat-icon svgIcon="target" class="focus-icon" aria-hidden="true" />
+						<strong>{{ f.name | pick: lang() }}</strong>
+						<mat-button-toggle-group
+							hideSingleSelectionIndicator
+							class="hops sm-seg-h"
+							[value]="hops()"
+							(change)="hops.set($event.value)"
+							[attr.aria-label]="'map.hops' | translate"
+							[matTooltip]="'map.hops' | translate"
+						>
+							<mat-button-toggle [value]="1">1</mat-button-toggle>
+							<mat-button-toggle [value]="2">2</mat-button-toggle>
+							<mat-button-toggle [value]="3">3</mat-button-toggle>
+						</mat-button-toggle-group>
+						<button
+							mat-icon-button
+							obButton="tertiary"
+							type="button"
+							class="clear"
+							(click)="clearFocus()"
+							[attr.aria-label]="'map.clearFocus' | translate"
+							[matTooltip]="'map.clearFocus' | translate"
+						>
+							<mat-icon svgIcon="xmark" />
+						</button>
+					</div>
+				}
+
+				<span class="spacer"></span>
+			</div>
+		}
 
 		<div class="canvas-wrap">
 			@if (!graph()) {
@@ -369,10 +374,39 @@
 				>
 					<mat-icon svgIcon="fullscreen" />
 				</button>
+				@if (embedded()) {
+					<a
+						mat-icon-button
+						obButton="secondary"
+						class="bar-btn"
+						routerLink="/map"
+						[queryParams]="{ focus: focusKey() }"
+						[matTooltip]="'entity.showInMap' | translate"
+						[attr.aria-label]="'entity.showInMap' | translate"
+					>
+						<mat-icon svgIcon="map" />
+					</a>
+				}
 			</div>
 
 			<!-- interaction hint -->
-			<div class="canvas-hint" aria-hidden="true">{{ 'map.interactionHint' | translate }}</div>
+			@if (!embedded()) {
+				<div class="canvas-hint" aria-hidden="true">{{ 'map.interactionHint' | translate }}</div>
+			} @else {
+				<!-- embedded: how far to look around the fixed focus -->
+				<mat-button-toggle-group
+					hideSingleSelectionIndicator
+					class="hops sm-seg-h embed-hops"
+					[value]="hops()"
+					(change)="hops.set($event.value)"
+					[attr.aria-label]="'map.hops' | translate"
+					[matTooltip]="'map.hops' | translate"
+				>
+					<mat-button-toggle [value]="1">1</mat-button-toggle>
+					<mat-button-toggle [value]="2">2</mat-button-toggle>
+					<mat-button-toggle [value]="3">3</mat-button-toggle>
+				</mat-button-toggle-group>
+			}
 
 			<!-- details drawer -->
 			@if (selectedEntity(); as e) {
@@ -442,4 +476,6 @@
 		</div>
 	</section>
 </div>
-<app-data-footer />
+@if (!embedded()) {
+	<app-data-footer />
+}
