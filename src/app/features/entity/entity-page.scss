@@ -26,16 +26,15 @@ mat-icon {
 	}
 }
 
-// title and tags left, the actions right; description and properties run the full width below
-.title-row {
+// text left, the stacked actions right – the two columns do not push each other around
+.hero-grid {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-start;
 	justify-content: space-between;
-	gap: 12px 32px;
-	margin-bottom: 16px;
+	gap: 16px 32px;
 
-	.title-main {
+	.hero-main {
 		flex: 1 1 560px;
 		min-width: 0;
 	}
@@ -103,7 +102,7 @@ mat-icon {
 
 .desc {
 	max-width: 75ch;
-	margin: 0;
+	margin: 16px 0 0;
 	color: var(--sm-ink);
 	font-size: 1.0625rem;
 	line-height: 1.6;
