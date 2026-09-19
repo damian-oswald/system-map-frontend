@@ -358,8 +358,8 @@ export class SystemMap implements AfterViewInit {
 			const uy = dy / len;
 			const x1 = a.x + ux * (a.r + 2);
 			const y1 = a.y + uy * (a.r + 2);
-			const x2 = b.x - ux * (b.r + 3);
-			const y2 = b.y - uy * (b.r + 3);
+			const x2 = b.x - ux * (b.r + 4);
+			const y2 = b.y - uy * (b.r + 4);
 			const label = pick(g.relationInfo.get(e.key)?.name, lang) || e.key;
 			out.push({
 				id: e.id,

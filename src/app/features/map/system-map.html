@@ -247,6 +247,18 @@
 					>
 						<path d="M0,0L8,4L0,8z" class="arrow" />
 					</marker>
+					<!-- the selected node's edges get a larger head -->
+					<marker
+						id="arrow-lg"
+						viewBox="0 0 8 8"
+						refX="7.5"
+						refY="4"
+						markerWidth="11"
+						markerHeight="11"
+						orient="auto-start-reverse"
+					>
+						<path d="M0,0.5L8,4L0,7.5z" class="arrow" />
+					</marker>
 				</defs>
 				<g #viewport>
 					@if (scene(); as sc) {
@@ -280,7 +292,7 @@
 							@if (sc.view === 'network') {
 								<g class="sel-edges">
 									@for (e of selEdges(); track e.id) {
-										<path class="sel-edge" [class.hier]="e.hierarchy" [attr.d]="e.d" marker-end="url(#arrow)" />
+										<path class="sel-edge" [class.hier]="e.hierarchy" [attr.d]="e.d" marker-end="url(#arrow-lg)" />
 									}
 								</g>
 							}
