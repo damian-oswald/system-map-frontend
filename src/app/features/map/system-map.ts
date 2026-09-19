@@ -720,7 +720,7 @@ export class SystemMap implements AfterViewInit {
 				.on('zoom', (ev: { transform: ZoomTransform }) => {
 					this.transform = ev.transform;
 					vp.setAttribute('transform', ev.transform.toString());
-					svg.style.setProperty('--zk', String(Math.min(1, ev.transform.k)));
+					svg.style.setProperty('--zk', String(ev.transform.k));
 					// how many labels the view can take: more important ones first, more as the map is zoomed in
 					const labels = LABELS_AT_FIT * Math.pow(ev.transform.k / this.fitScale, 2);
 					svg.style.setProperty('--label-n', labels.toFixed(2));
