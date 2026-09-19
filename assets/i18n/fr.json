@@ -1,0 +1,379 @@
+{
+	"app": {
+		"title": "Carte des données et des systèmes AgriFood",
+		"footer": {
+			"operator": "Office fédéral de l'agriculture OFAG",
+			"data": "Données : en direct de"
+		}
+	},
+	"nav": {
+		"dashboard": "Vue d'ensemble",
+		"map": "Carte",
+		"catalog": "Inventaire",
+		"about": "À propos"
+	},
+	"common": {
+		"all": "tout",
+		"none": "aucun",
+		"close": "Fermer",
+		"showAll": "Tout afficher",
+		"showLess": "Afficher moins",
+		"of": "sur",
+		"and": "et",
+		"andMore": "et {{n}} autres",
+		"address": "Adresse"
+	},
+	"state": {
+		"loading": "Chargement des données depuis LINDAS…",
+		"error": {
+			"title": "Les données n'ont pas pu être chargées",
+			"text": "LINDAS n'a pas répondu comme prévu :",
+			"retry": "Réessayer"
+		}
+	},
+	"kind": {
+		"organization": {
+			"one": "Organisation",
+			"plural": "Organisations"
+		},
+		"system": {
+			"one": "Système informatique",
+			"plural": "Systèmes informatiques"
+		},
+		"dataset": {
+			"one": "Jeu de données",
+			"plural": "Jeux de données"
+		},
+		"service": {
+			"one": "Service informatique",
+			"plural": "Services informatiques"
+		},
+		"legislation": {
+			"one": "Base légale",
+			"plural": "Bases légales"
+		},
+		"keyword": {
+			"one": "Mot-clé",
+			"plural": "Mots-clés"
+		},
+		"collection": {
+			"one": "Sous-graphe",
+			"plural": "Sous-graphes"
+		},
+		"other": {
+			"one": "Autre",
+			"plural": "Autres"
+		}
+	},
+	"orgType": {
+		"federal": "Confédération",
+		"cantonal": "Cantons",
+		"private": "Secteur privé",
+		"other": "Autres publiques"
+	},
+	"flags": {
+		"personal": "Données personnelles",
+		"sensitive": "Données personnelles sensibles",
+		"master": "Données de base"
+	},
+	"relInverse": {
+		"operates": "est exploité par",
+		"contains": "est contenu dans",
+		"provides": "est fourni par",
+		"consumes": "est utilisé par",
+		"isPartOf": "comprend",
+		"parentOrganization": "a pour sous-organisation",
+		"memberOf": "a pour membre",
+		"owns": "est (partiellement) détenu par",
+		"develops": "est développé par",
+		"access": "est accessible à",
+		"wasDerivedFrom": "est la source de",
+		"informs": "est informé par",
+		"usesMasterData": "est donnée de base de",
+		"references": "est référencé par",
+		"hasLegalBasis": "est la base légale de"
+	},
+	"map": {
+		"controls": "Paramètres de la carte",
+		"reset": "Réinitialiser",
+		"search": "Rechercher",
+		"scope": "Périmètre",
+		"scopeAll": "Tous les éléments",
+		"classes": "Classes",
+		"relations": {
+			"title": "Relations"
+		},
+		"display": "Affichage",
+		"hideIsolated": "Masquer les éléments sans relation",
+		"hidePanel": "Masquer les paramètres",
+		"showPanel": "Afficher les paramètres",
+		"view": "Disposition",
+		"viewLayers": "Couches",
+		"viewNetwork": "Réseau",
+		"hops": "Profondeur du voisinage",
+		"hop": "étape",
+		"hopsLabel": "étapes",
+		"clearFocus": "Supprimer le focus",
+		"nodes": "éléments",
+		"edges": "relations",
+		"zoomIn": "Agrandir",
+		"zoomOut": "Réduire",
+		"fit": "Ajuster à l'écran",
+		"computing": "Calcul de la disposition…",
+		"empty": "Rien à afficher avec les paramètres actuels.",
+		"canvasLabel": "Graphe des organisations, systèmes informatiques, services informatiques et jeux de données",
+		"interactionHint": "Défiler pour déplacer · Ctrl + défiler pour zoomer · double-clic pour le focus",
+		"details": "Détails",
+		"openDetails": "Page de détail",
+		"filterTitle": "Filtres",
+		"level": {
+			"off": "Désactivé",
+			"collapsed": "Regroupé",
+			"detailed": "Détaillé"
+		},
+		"merged": "Comprend {{n}} éléments subordonnés",
+		"allSectors": "Tous les secteurs",
+		"allRelations": "Toutes les relations",
+		"nOfM": "{{n}} sur {{m}}",
+		"activeFilters": "{{n}} filtres actifs"
+	},
+	"dash": {
+		"title": "En un coup d'œil",
+		"kpis": "Chiffres clés",
+		"kpi": {
+			"orgs": "{{top}} de niveau supérieur · {{cantons}} cantons",
+			"systems": "dont {{fmis}} systèmes de gestion d'exploitation",
+			"datasets": "{{personal}} contiennent des données personnelles",
+			"services": "{{n}} utilisations documentées"
+		},
+		"operators": {
+			"title": "Qui exploite les systèmes informatiques ?",
+			"sub": "Organisations de niveau supérieur selon le nombre de systèmes qu'elles (ou leurs unités) exploitent. {{n}} organisations exploitent au moins un système."
+		},
+		"orgs": {
+			"title": "Organisations par secteur",
+			"sub": "Les {{n}} organisations et unités organisationnelles"
+		},
+		"cantons": {
+			"title": "Couverture cantonale",
+			"sub": "Organisations cantonales documentées par canton. Sélectionnez un canton pour l'ouvrir."
+		},
+		"privacy": {
+			"title": "Protection des données",
+			"sub": "Chaque carré représente l'un des {{n}} jeux de données, classés selon le besoin de protection.",
+			"none": "Pas de données personnelles",
+			"master": "Les carrés encadrés sont des données de base ({{n}})."
+		},
+		"systems": {
+			"title": "Principaux systèmes informatiques",
+			"sub": "Systèmes informatiques selon le nombre de jeux de données qu'ils contiennent"
+		},
+		"hubs": {
+			"title": "Les plus connectés",
+			"sub": "Systèmes informatiques et jeux de données avec le plus de relations distinctes"
+		},
+		"services": {
+			"title": "Services informatiques partagés",
+			"sub": "Services informatiques selon le nombre de systèmes et d'organisations qui les utilisent",
+			"note": "{{n}} autres services n'ont pas encore d'utilisateurs documentés."
+		},
+		"subgraphs": {
+			"title": "Architectures documentées",
+			"sub": "Sous-graphes sélectionnés et leur composition. À ouvrir sur la carte."
+		},
+		"relations": {
+			"title": "Types de relations",
+			"sub": "{{n}} relations au total"
+		},
+		"quality": {
+			"title": "Qualité de la documentation",
+			"sub": "Degré de complétude de la description de chaque classe dans le graphe de connaissances",
+			"description": "Avec description",
+			"multilingual": "Nom en DE/FR/IT/EN",
+			"website": "Avec site web",
+			"connected": "Relié"
+		},
+		"unit": {
+			"systems": "systèmes informatiques",
+			"orgs": "organisations",
+			"datasets": "jeux de données",
+			"links": "relations",
+			"consumers": "utilisateurs"
+		}
+	},
+	"catalog": {
+		"classes": "Classes",
+		"filters": "Filtres",
+		"clear": "Réinitialiser les filtres",
+		"results": "Résultats",
+		"protection": "Protection des données",
+		"sector": "Secteur",
+		"topLevelOnly": "Niveau supérieur uniquement",
+		"canton": "Canton",
+		"any": "Tous",
+		"keywords": "Mots-clés",
+		"responsible": {
+			"dataset": "Organisation responsable",
+			"system": "Exploitant",
+			"organization": "Appartient à",
+			"service": "Fournisseur (organisation)"
+		},
+		"groupBy": "Grouper par",
+		"group": {
+			"none": "Aucun regroupement",
+			"operator": "Organisation responsable",
+			"sector": "Secteur",
+			"system": "Système informatique"
+		},
+		"view": "Vue",
+		"cards": "Cartes",
+		"table": "Tableau",
+		"empty": "Aucune entrée ne correspond à la recherche et aux filtres.",
+		"unassigned": "Non attribué",
+		"where": {
+			"dataset": "Stocké dans",
+			"system": "Stocké dans",
+			"organization": "Exploite",
+			"service": "Fourni par"
+		},
+		"who": {
+			"dataset": "Responsable",
+			"system": "Exploité par",
+			"organization": "Appartient à",
+			"service": "Exploité par"
+		},
+		"col": {
+			"name": "Nom",
+			"flags": "Classification",
+			"website": "Site web",
+			"description": "Description"
+		},
+		"csv": "Télécharger en CSV",
+		"count": "{{n}} sur {{m}} entrées",
+		"showFilters": "Afficher les filtres",
+		"hideFilters": "Masquer les filtres",
+		"num": {
+			"systems": "Systèmes",
+			"datasets": "Jeux de données",
+			"services": "Services",
+			"legal": "Bases légales",
+			"parts": {
+				"dataset": "Parties",
+				"system": "Sous-systèmes",
+				"organization": "Sous-unités",
+				"service": "Sous-services"
+			},
+			"users": {
+				"system": "Services utilisés",
+				"service": "Utilisateurs"
+			}
+		},
+		"numHint": {
+			"organization": "Sous-unités comprises",
+			"system": "Sous-systèmes compris"
+		},
+		"pagination": "Pages",
+		"numOne": {
+			"systems": "Système",
+			"datasets": "Jeu de données",
+			"services": "Service",
+			"legal": "Base légale",
+			"parts": {
+				"dataset": "Partie",
+				"system": "Sous-système",
+				"organization": "Sous-unité",
+				"service": "Sous-service"
+			},
+			"users": {
+				"system": "Service utilisé",
+				"service": "Utilisateur"
+			}
+		}
+	},
+	"entity": {
+		"breadcrumb": "Fil d'Ariane",
+		"fallback": "Pas de description dans cette langue – affichée dans une autre langue.",
+		"noDescription": "Aucune description disponible.",
+		"showInMap": "Afficher sur la carte",
+		"copy": "Copier l'IRI de cet élément",
+		"copied": "IRI copié",
+		"notFound": "Élément introuvable",
+		"partOf": "Fait partie de",
+		"structure": {
+			"organization": "Structure organisationnelle",
+			"system": "Structure du système",
+			"dataset": "Structure du jeu de données",
+			"service": "Structure du service"
+		},
+		"structureSub": "Unités supérieures, l'élément lui-même et tout ce qui se trouve en dessous.",
+		"tables": "Relations en détail",
+		"tablesSub": "Toutes les relations documentées de cet élément.",
+		"context": "Contexte",
+		"contextSub": "L'environnement de cet élément sur la carte des données et des systèmes.",
+		"subunitOf": "Sous-organisation de",
+		"figures": "En chiffres",
+		"figuresSub": {
+			"organization": "Chiffres agrégés sur toutes les sous-unités.",
+			"system": "Chiffres agrégés sur tous les sous-systèmes.",
+			"dataset": "Chiffres agrégés sur toutes les parties.",
+			"service": "Chiffres agrégés sur tous les sous-services."
+		},
+		"col": {
+			"subject": "Sujet",
+			"predicate": "Prédicat",
+			"object": "Objet"
+		},
+		"mail": "Envoyer un retour sur cet élément par e-mail",
+		"github": "Signaler un problème concernant cet élément sur GitHub"
+	},
+	"about": {
+		"title": "À propos du projet",
+		"lead": "Une image partagée et lisible par machine de qui exploite quels systèmes informatiques et où se trouvent quelles données dans le secteur agroalimentaire suisse.",
+		"what": {
+			"title": "De quoi s'agit-il ?",
+			"p1": "La carte du système DigiAgriFoodCH est un graphe de connaissances géré par l'Office fédéral de l'agriculture OFAG. Elle décrit les organisations, les systèmes informatiques qu'elles exploitent, les services informatiques que ces systèmes fournissent et utilisent ainsi que les jeux de données qu'ils contiennent – avec leurs relations, leur besoin de protection et leurs bases légales.",
+			"p2": "Cette application propose trois vues sur les mêmes données : une vue d'ensemble avec des chiffres clés, une carte interactive qui rend visible la structure du graphe et un inventaire pour rechercher et filtrer tous les éléments documentés."
+		},
+		"how": {
+			"title": "Fonctionnement",
+			"s1": "Le graphe est publié sous forme de Linked Data sur la plateforme fédérale LINDAS.",
+			"s2": "Le navigateur charge l'ensemble du graphe en une seule requête (environ 170 ko compressés).",
+			"s3title": "Modèle en mémoire",
+			"s3": "Les triplets sont lus et transformés en un modèle typé en quelques millisecondes.",
+			"s4": "Toutes les pages calculent leurs vues localement – le filtrage est instantané, sans serveur.",
+			"p": "La requête est envoyée avant même le démarrage de l'application et le dernier résultat est conservé dans le navigateur : les visites suivantes s'affichent immédiatement pendant qu'une copie à jour est chargée en arrière-plan. Les libellés et descriptions apparaissent dans la langue choisie ; à défaut de traduction, une autre langue est utilisée."
+		},
+		"glossary": {
+			"title": "Glossaire",
+			"p": "Les termes ci-dessous proviennent directement de l'ontologie de la carte du système sur LINDAS."
+		},
+		"links": {
+			"title": "Informations complémentaires",
+			"repo": "Données sources sur GitHub",
+			"wiki": "Documentation technique",
+			"issues": "Signaler une erreur ou proposer un ajout",
+			"repoDesc": "Le dépôt avec le graphe, son ontologie et les règles de validation.",
+			"wikiDesc": "Modèle de données, conventions et guides pour la mise à jour de la carte du système.",
+			"issuesDesc": "Quelque chose manque ou est incorrect ? Ouvrez un ticket sur GitHub.",
+			"project": "Page du projet de la carte du système",
+			"projectDesc": "Contexte et documentation du projet DigiAgriFoodCH.",
+			"lindas": "LINDAS – Linked Data Service",
+			"lindasDesc": "La plateforme Linked Data de la Confédération, sur laquelle le graphe est publié.",
+			"oblique": "Oblique – le système de design de la Confédération",
+			"obliqueDesc": "Le système de design avec lequel cette application est conçue."
+		}
+	},
+	"footer": {
+		"title": "Données",
+		"lead": "Tout le contenu provient en direct du graphe de connaissances de la carte du système sur LINDAS, la plateforme Linked Data de la Confédération.",
+		"live": "Données en direct de LINDAS",
+		"syncing": "Mise à jour…",
+		"reload": "Recharger",
+		"triples": "triplets",
+		"createdOn": "Créé le {{date}}",
+		"modifiedOn": "Données modifiées le {{date}}",
+		"unavailable": "LINDAS n'est pas joignable pour le moment.",
+		"repo": "Données sources sur GitHub",
+		"issues": "Signaler une erreur ou proposer un ajout"
+	}
+}
