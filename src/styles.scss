@@ -192,24 +192,33 @@ app-data-footer {
 	}
 }
 
+// One chip for everything that classifies an element or points to another one: subclasses, keywords, flags,
+// related elements. Button idiom of the federal design – thin black outline, white fill, black text – with a
+// leading icon that says what the chip refers to (the class icon for elements, a tag for keywords, …).
+// Chips never carry class colours; the colour code stays on the map.
 .sm-chip {
-	// an instance: rectangular node with a class-coloured bar, same shape as in the map
 	display: inline-flex;
 	align-items: center;
+	gap: 6px;
 	max-width: 100%;
-	min-height: 26px;
-	padding: 2px 10px 2px 13px;
-	border: 1px solid color-mix(in srgb, var(--k, var(--sm-ink-3)) 35%, var(--sm-line));
-	border-radius: 5px;
+	padding: 3px 10px 3px 8px;
+	border: 1px solid var(--sm-ink);
+	border-radius: 4px;
 	background: var(--sm-surface);
-	box-shadow: inset 4px 0 0 var(--k, var(--sm-ink-3));
 	color: var(--sm-ink);
 	font-size: 0.8125rem;
+	font-weight: 500;
 	line-height: 1.4;
 	text-decoration: none;
 	white-space: nowrap;
 
-	span {
+	> .mat-icon {
+		flex: none;
+		width: 14px;
+		height: 14px;
+	}
+
+	> span {
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
@@ -217,9 +226,7 @@ app-data-footer {
 
 a.sm-chip:hover,
 a.sm-chip:focus-visible {
-	border-color: var(--k, var(--sm-ink-3));
-	background: var(--k-bg, var(--sm-surface-2));
-	text-decoration: none;
+	text-decoration: underline;
 }
 
 // small class-coloured bar used in lists of instances (e.g. search results)
@@ -230,33 +237,6 @@ a.sm-chip:focus-visible {
 	height: 16px;
 	border-radius: 2px;
 	background: var(--k, var(--sm-ink-3));
-}
-
-.sm-tag {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	padding: 1px 8px;
-	border-radius: 4px;
-	background: var(--sm-surface-2);
-	color: var(--sm-ink-2);
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	white-space: nowrap;
-
-	&--warn {
-		background: #fff1f2;
-		color: #9f1239;
-	}
-	&--info {
-		background: #eff6ff;
-		color: #1e40af;
-	}
-	&--ok {
-		background: #ecfdf5;
-		color: #065f46;
-	}
 }
 
 // ---- toolbars & filter panels -------------------------------------------------------------------

@@ -84,23 +84,6 @@ mat-icon {
 	}
 }
 
-// subclasses as tags in the button idiom: thin black outline, white fill, black text
-.hero .sm-tag {
-	padding: 3px 10px;
-	border: 1px solid var(--sm-ink);
-	border-radius: 4px;
-	background: var(--sm-surface);
-	color: var(--sm-ink);
-	font-size: 0.8125rem;
-	font-weight: 500;
-	text-decoration: none;
-
-	&:is(a):hover,
-	&:is(a):focus-visible {
-		text-decoration: underline;
-	}
-}
-
 .desc {
 	max-width: 75ch;
 	margin: 16px 0 0;

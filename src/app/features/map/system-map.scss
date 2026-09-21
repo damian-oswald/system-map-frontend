@@ -484,11 +484,31 @@ mat-button-toggle mat-icon {
 		transition: opacity 0.15s;
 	}
 
-	.member-count {
+	// icons and counts scale with the node, so they are legible only from a certain zoom on: like the labels they
+	// fade in with the zoom factor (--zk), here as soon as they reach a readable size on screen
+	.node-icon {
 		fill: #fff;
-		font-size: 9px;
-		font-weight: 700;
 		pointer-events: none;
+		// --icon: the icon's side in scene units; fully visible from 11 px on screen, gone below 8 px
+		opacity: clamp(0, calc((var(--zk, 1) * var(--icon, 0) - 8) / 3), 1);
+	}
+
+	// merged count at the bottom right: white pill, border and number in the node's own colour
+	.count {
+		pointer-events: none;
+		// --fs: the number's font size in scene units; fully visible from 8 px on screen, gone below 6 px
+		opacity: clamp(0, calc((var(--zk, 1) * var(--fs, 0) - 6) / 2), 1);
+
+		rect {
+			fill: #fff;
+			stroke: var(--k);
+			stroke-width: 1.5;
+		}
+
+		text {
+			fill: var(--k);
+			font-weight: 700;
+		}
 	}
 
 	transition: opacity 0.15s;
@@ -766,11 +786,16 @@ mat-button-toggle mat-icon {
 	margin-bottom: 10px;
 }
 
+// at most five lines – the details page has the full text
 .desc {
+	display: -webkit-box;
 	margin: 0 0 12px;
+	overflow: hidden;
 	color: var(--sm-ink-2);
 	font-size: 0.875rem;
 	line-height: 1.5;
+	-webkit-line-clamp: 5;
+	-webkit-box-orient: vertical;
 }
 
 // postal address of an organization, from Zefix / Staatskalender

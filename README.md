@@ -86,8 +86,10 @@ src/app/features/
 public/assets/i18n/{de,fr,it,en}.json  UI texts
 ```
 
-Visual language: **instances** (a specific organization, system, dataset or service) are always drawn as
-rectangular nodes with a class-coloured bar on the left – in the map, in chips and in the relations diagram.
+Visual language: **instances** (a specific organization, system, dataset or service) are drawn as
+rectangular nodes with a class-coloured bar on the left in the map. Everywhere else – subclasses, keywords,
+flags and related elements – they are **chips** in the federal button idiom (thin black outline, white fill),
+each with a leading icon that says what it refers to: the class icon for elements, a tag for keywords.
 **Classes** (in filters and legends) are marked with a coloured dot. Controls use Oblique/Angular Material
 buttons, selects, button toggles and checkboxes.
 

@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { ObButtonDirective } from '@oblique/oblique';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { Entity, EntityKind } from '../core/graph.model';
+import { Entity, EntityKind, OrgType } from '../core/graph.model';
 import { GraphService } from '../core/graph.service';
 import { abbrLabel, entityLabel, entityTitle, LabelPipe, LangService, shortLabel } from '../core/i18n';
 
@@ -20,24 +20,44 @@ export const KIND_ICON: Record<EntityKind, string> = {
 	other: 'info',
 };
 
-/** Pill linking to an entity's detail page, colour-coded by class; optionally with the class icon and the abbreviation. */
+/** Organizations by sector: the Federal Palace for the Confederation, a columned building for the other public bodies */
+export const ORG_ICON: Record<OrgType, string> = {
+	federal: 'bundeshaus',
+	cantonal: 'antique-building',
+	other: 'antique-building',
+	private: 'building',
+};
+
+/** The icon of an element, as specific as its subclass allows (sector of an organization, FMIS among systems). */
+export function entityIcon(e: Entity | undefined): string {
+	if (!e) return KIND_ICON.other;
+	if (e.kind === 'organization') return ORG_ICON[e.orgType ?? 'other'];
+	if (e.kind === 'system' && e.fmis) return 'tablet';
+	return KIND_ICON[e.kind];
+}
+
+/** Icons of the chips that stand for an attribute rather than an element (element chips carry their own icon). */
+export const CHIP_ICON = {
+	canton: 'location',
+	/** personal data, whether or not especially worthy of protection */
+	protection: 'lock',
+	master: 'star',
+} as const;
+
+/** Chip with the class icon and the name of an element, linking to its detail page unless `link` is false. */
 @Component({
 	selector: 'app-entity-chip',
 	imports: [RouterLink, MatIconModule],
 	template: `
 		@if (entity(); as e) {
 			@if (link()) {
-				<a class="sm-chip sm-kind--{{ e.kind }}" [routerLink]="['/entity', e.key]" [attr.title]="title()">
-					@if (icon()) {
-						<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
-					}
+				<a class="sm-chip" [routerLink]="['/entity', e.key]" [attr.title]="title()">
+					<mat-icon [svgIcon]="icon()" />
 					<span>{{ label() }}</span>
 				</a>
 			} @else {
-				<span class="sm-chip static sm-kind--{{ e.kind }}">
-					@if (icon()) {
-						<mat-icon [svgIcon]="KIND_ICON[e.kind]" />
-					}
+				<span class="sm-chip" [attr.title]="title()">
+					<mat-icon [svgIcon]="icon()" />
 					<span>{{ label() }}</span>
 				</span>
 			}
@@ -48,26 +68,17 @@ export const KIND_ICON: Record<EntityKind, string> = {
 			display: inline-flex;
 			max-width: 100%;
 		}
-		mat-icon {
-			flex: none;
-			width: 14px;
-			height: 14px;
-			margin-right: 7px;
-			color: var(--k, var(--sm-ink-3));
-		}
 	`,
 })
 export class EntityChip {
 	readonly entity = input.required<Entity | undefined>();
 	readonly max = input(48);
-	/** show the class icon in front of the label */
-	readonly icon = input(false, { transform: booleanAttribute });
 	/** prefer the abbreviation over the (shortened) name */
 	readonly abbr = input(false, { transform: booleanAttribute });
 	/** false renders a plain, non-interactive chip (e.g. inside a card that is itself a link) */
 	readonly link = input(true, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
-	protected readonly KIND_ICON = KIND_ICON;
+	protected readonly icon = computed(() => entityIcon(this.entity()));
 	protected readonly title = computed(() => entityTitle(this.entity(), this.lang()));
 	protected readonly label = computed(() =>
 		this.abbr()
@@ -154,16 +165,16 @@ export interface TreeNode {
 					@if (plain()) {
 						@if (n.self) {
 							<span class="tnode current sm-kind--{{ n.e.kind }}"
-								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</span
+								><mat-icon [svgIcon]="icon(n.e)" />{{ n.e | label: lang() : 'title' }}</span
 							>
 						} @else {
 							<a class="tnode sm-kind--{{ n.e.kind }}" [routerLink]="['/entity', n.e.key]"
-								><mat-icon [svgIcon]="KIND_ICON[n.e.kind]" />{{ n.e | label: lang() : 'title' }}</a
+								><mat-icon [svgIcon]="icon(n.e)" />{{ n.e | label: lang() : 'title' }}</a
 							>
 						}
 					} @else if (n.self) {
-						<span class="sm-chip current sm-kind--{{ n.e.kind }}"
-							><span>{{ n.e | label: lang() : 'short' : 60 }}</span></span
+						<span class="sm-chip current"
+							><mat-icon [svgIcon]="icon(n.e)" /><span>{{ n.e | label: lang() : 'short' : 60 }}</span></span
 						>
 					} @else {
 						<app-entity-chip [entity]="n.e" [max]="60" />
@@ -211,8 +222,7 @@ export interface TreeNode {
 			background: var(--sm-surface);
 		}
 		.current {
-			background: var(--k-bg);
-			border-color: var(--k);
+			background: var(--sm-surface-2);
 			font-weight: 600;
 		}
 		// plain rows: class icon + title, the element itself in bold
@@ -247,7 +257,7 @@ export class EntityTree {
 	/** text rows instead of chips */
 	readonly plain = input(false, { transform: booleanAttribute });
 	protected readonly lang = inject(LangService).lang;
-	protected readonly KIND_ICON = KIND_ICON;
+	protected readonly icon = entityIcon;
 }
 
 /** Names as running text – "A, B und C" or "A, B, C und n weitere" – as plain links that underline on hover. */
