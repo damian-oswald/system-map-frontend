@@ -936,6 +936,18 @@ mat-button-toggle mat-icon {
 	}
 }
 
+// the overview's excerpt: a picture, not a control – no buttons, no pointer interaction, a bit lower
+:host.demo {
+	.map-shell,
+	.map-shell.panel-closed {
+		height: 460px;
+	}
+
+	.canvas {
+		pointer-events: none;
+	}
+}
+
 .embed-hops {
 	--seg-h: 40px;
 	--seg-px: 14px;

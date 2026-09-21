@@ -138,17 +138,53 @@
 		"activeFilters": "{{n}} filtres actifs"
 	},
 	"dash": {
-		"title": "En un coup d'œil",
-		"kpis": "Chiffres clés",
-		"kpi": {
-			"orgs": "{{top}} de niveau supérieur · {{cantons}} cantons",
-			"systems": "dont {{fmis}} systèmes de gestion d'exploitation",
-			"datasets": "{{personal}} contiennent des données personnelles",
-			"services": "{{n}} utilisations documentées"
+		"welcome": {
+			"title": "Bienvenue dans la carte des systèmes",
+			"lead": "Qui exploite quels systèmes informatiques dans le secteur agroalimentaire suisse, quelles données s'y trouvent et comment tout cela est-il lié ? La carte des systèmes y répond de manière commune et lisible par machine.",
+			"p1": "Cette vue d'ensemble montre ce que la carte des systèmes a recensé jusqu'ici. Chaque chiffre et chaque graphique est calculé dans votre navigateur directement à partir du graphe de connaissances que l'Office fédéral de l'agriculture OFAG publie sur la plateforme fédérale LINDAS – rien n'est tenu à jour à la main.",
+			"p2": "Trois vues parcourent les mêmes données :"
+		},
+		"views": {
+			"dashboard": "Chiffres clés, graphiques et un premier aperçu de la carte – cette page, juste en dessous.",
+			"catalog": "Tous les éléments en tableau ou en cartes – pour chercher, filtrer et télécharger.",
+			"map": "Le graphe en réseau ou en couches – pour explorer les liens."
+		},
+		"figures": {
+			"title": "En chiffres",
+			"p": "Sont comptés les éléments de premier niveau ; leurs unités subordonnées et leurs parties figurent sous chaque chiffre.",
+			"note": "Ces chiffres décrivent ce que la carte des systèmes a recensé jusqu'ici – et non tout ce qui existe dans le secteur. Le graphe s'enrichit à chaque contribution.",
+			"hint": "{{n}} relations sont documentées entre ces éléments.",
+			"sub": {
+				"organization": "+ {{n}} unités subordonnées",
+				"system": "+ {{n}} sous-systèmes",
+				"dataset": "+ {{n}} sous-jeux de données",
+				"service": "+ {{n}} sous-services"
+			},
+			"all": {
+				"organization": "Toutes les organisations",
+				"system": "Tous les systèmes informatiques",
+				"dataset": "Tous les jeux de données",
+				"service": "Tous les services informatiques"
+			}
+		},
+		"map": {
+			"title": "La carte",
+			"p": "La carte dessine le graphe en réseau : chaque point est un élément, sa couleur indique la classe, sa taille le nombre de ses relations ; les points plus grands portent l'icône de leur classe. En guise d'aperçu, le paysage des systèmes de l'OFAG – sur la carte elle-même, chaque élément peut être cliqué, filtré et mis au point.",
+			"explore": "Explorer la carte"
+		},
+		"plots": {
+			"title": "Analyses choisies",
+			"p": "Chaque graphique est calculé en direct à partir du graphe ; les noms mènent à la page de détail de l'élément."
+		},
+		"scatter": {
+			"title": "Importance et documentation",
+			"sub": "Chaque élément ayant au moins une relation : son PageRank – le poids que lui confèrent les relations des autres – en fonction du nombre de propriétés recensées, c'est-à-dire tout ce que le graphe énonce à son sujet. Les noms apparaissent là où il y a de la place, les éléments les plus importants d'abord ; la vue peut être restreinte à une classe ou sous-classe.",
+			"x": "PageRank (logarithmique)",
+			"y": "Propriétés recensées"
 		},
 		"operators": {
 			"title": "Qui exploite les systèmes informatiques ?",
-			"sub": "Organisations de niveau supérieur selon le nombre de systèmes qu'elles (ou leurs unités) exploitent. {{n}} organisations exploitent au moins un système."
+			"sub": "Organisations de niveau supérieur selon le nombre de systèmes qu'elles (ou leurs unités) exploitent. {{n}} organisations exploitent au moins un système. Échelle logarithmique ; survoler un secteur dans la légende met ses colonnes en évidence."
 		},
 		"orgs": {
 			"title": "Organisations par secteur",
@@ -158,35 +194,18 @@
 			"title": "Couverture cantonale",
 			"sub": "Organisations cantonales documentées par canton. Sélectionnez un canton pour l'ouvrir."
 		},
-		"privacy": {
-			"title": "Protection des données",
-			"sub": "Chaque carré représente l'un des {{n}} jeux de données, classés selon le besoin de protection.",
-			"none": "Pas de données personnelles",
-			"master": "Les carrés encadrés sont des données de base ({{n}})."
-		},
-		"systems": {
-			"title": "Principaux systèmes informatiques",
-			"sub": "Systèmes informatiques selon le nombre de jeux de données qu'ils contiennent"
-		},
-		"hubs": {
-			"title": "Les plus connectés",
-			"sub": "Systèmes informatiques et jeux de données avec le plus de relations distinctes"
-		},
-		"services": {
-			"title": "Services informatiques partagés",
-			"sub": "Services informatiques selon le nombre de systèmes et d'organisations qui les utilisent",
-			"note": "{{n}} autres services n'ont pas encore d'utilisateurs documentés."
+		"matrix": {
+			"title": "Quelles classes sont reliées ?",
+			"sub": "Relations documentées des éléments d'une classe (ligne) vers ceux d'une autre (colonne). L'infobulle indique les types de relation."
 		},
 		"subgraphs": {
 			"title": "Architectures documentées",
 			"sub": "Sous-graphes sélectionnés et leur composition. À ouvrir sur la carte."
 		},
-		"relations": {
-			"title": "Types de relations",
-			"sub": "{{n}} relations au total"
-		},
 		"quality": {
 			"title": "Qualité de la documentation",
+			"p": "Dans quelle mesure les éléments sont décrits – et où des informations manquent encore.",
+			"table": "Complétude par classe",
 			"sub": "Degré de complétude de la description de chaque classe dans le graphe de connaissances",
 			"description": "Avec description",
 			"multilingual": "Nom en DE/FR/IT/EN",
@@ -195,10 +214,7 @@
 		},
 		"unit": {
 			"systems": "systèmes informatiques",
-			"orgs": "organisations",
-			"datasets": "jeux de données",
-			"links": "relations",
-			"consumers": "utilisateurs"
+			"orgs": "organisations"
 		}
 	},
 	"catalog": {

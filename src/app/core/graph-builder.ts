@@ -61,18 +61,21 @@ export function buildGraph(triples: Triple[]): SystemMapGraph {
 		types: Set<string>;
 		lit: Map<string, LangText>;
 		links: { p: string; o: string }[];
+		/** every triple with this subject */
+		n: number;
 	}
 	const raw = new Map<string, Raw>();
 	const get = (id: string): Raw => {
 		let r = raw.get(id);
 		if (!r) {
-			r = { types: new Set(), lit: new Map(), links: [] };
+			r = { types: new Set(), lit: new Map(), links: [], n: 0 };
 			raw.set(id, r);
 		}
 		return r;
 	};
 	for (const t of triples) {
 		const r = get(t.s);
+		r.n++;
 		if (t.p === RDF_TYPE) {
 			r.types.add(t.o.value);
 		} else if (t.o.isLiteral) {
@@ -118,6 +121,7 @@ export function buildGraph(triples: Triple[]): SystemMapGraph {
 			in: [],
 			parents: [],
 			children: [],
+			props: r.n,
 		};
 		if (kind === 'organization') e.orgType = orgTypeOf(r.types);
 		if (kind === 'system') e.fmis = r.types.has(CLS.fmis);

@@ -138,17 +138,53 @@
 		"activeFilters": "{{n}} aktive Filter"
 	},
 	"dash": {
-		"title": "Auf einen Blick",
-		"kpis": "Kennzahlen",
-		"kpi": {
-			"orgs": "{{top}} oberste Ebene · {{cantons}} Kantone",
-			"systems": "davon {{fmis}} Farm-Management-Systeme",
-			"datasets": "{{personal}} enthalten Personendaten",
-			"services": "{{n}} dokumentierte Nutzungen"
+		"welcome": {
+			"title": "Willkommen in der Systemlandkarte",
+			"lead": "Wer betreibt im Schweizer Agrar- und Lebensmittelsektor welche IT-Systeme, welche Daten liegen darin, und wie hängt alles zusammen? Die Systemlandkarte gibt darauf eine gemeinsame, maschinenlesbare Antwort.",
+			"p1": "Diese Übersicht zeigt, was in der Systemlandkarte bisher erfasst ist. Alle Zahlen und Grafiken werden im Browser direkt aus dem Wissensgraphen berechnet, den das Bundesamt für Landwirtschaft BLW auf der Bundesplattform LINDAS publiziert – nichts davon ist von Hand gepflegt.",
+			"p2": "Drei Sichten führen durch dieselben Daten:"
+		},
+		"views": {
+			"dashboard": "Kennzahlen, Grafiken und ein erster Blick auf die Karte – diese Seite, gleich unten.",
+			"catalog": "Alle Elemente als Tabelle oder Kacheln – zum Suchen, Filtern und Herunterladen.",
+			"map": "Der Graph als Netz oder in Ebenen – zum Erkunden von Zusammenhängen."
+		},
+		"figures": {
+			"title": "In Zahlen",
+			"p": "Gezählt werden die Elemente der obersten Ebene; ihre untergeordneten Einheiten und Teile stehen jeweils darunter.",
+			"note": "Die Zahlen beschreiben, was bisher in der Systemlandkarte erfasst ist – nicht, was im Sektor insgesamt existiert. Der Graph wächst mit jedem Beitrag.",
+			"hint": "Zwischen diesen Elementen sind {{n}} Beziehungen dokumentiert.",
+			"sub": {
+				"organization": "+ {{n}} untergeordnete Einheiten",
+				"system": "+ {{n}} Teilsysteme",
+				"dataset": "+ {{n}} Teildatensätze",
+				"service": "+ {{n}} Teilservices"
+			},
+			"all": {
+				"organization": "Alle Organisationen",
+				"system": "Alle IT-Systeme",
+				"dataset": "Alle Datensätze",
+				"service": "Alle IT-Services"
+			}
+		},
+		"map": {
+			"title": "Die Karte",
+			"p": "Die Karte zeigt den Graphen als Netz: Jeder Punkt ist ein Element, seine Farbe die Klasse, seine Grösse die Zahl seiner Beziehungen; grössere Punkte tragen das Symbol ihrer Klasse. Als Kostprobe die Systemlandschaft des BLW – auf der Karte selbst lässt sich jedes Element anklicken, filtern und fokussieren.",
+			"explore": "Karte erkunden"
+		},
+		"plots": {
+			"title": "Ausgewählte Auswertungen",
+			"p": "Jede Grafik wird live aus dem Graphen berechnet; Namen führen zur Detailseite des Elements."
+		},
+		"scatter": {
+			"title": "Bedeutung und Dokumentation",
+			"sub": "Jedes Element mit mindestens einer Beziehung: sein PageRank – das Gewicht, das ihm die Beziehungen der anderen verleihen – gegen die Zahl seiner erfassten Eigenschaften, also aller Angaben, die der Graph über es enthält. Benannt ist, was Platz findet, die wichtigsten Elemente zuerst; der Ausschnitt lässt sich auf eine Klasse oder Unterklasse einschränken.",
+			"x": "PageRank (logarithmisch)",
+			"y": "Erfasste Eigenschaften"
 		},
 		"operators": {
 			"title": "Wer betreibt die IT-Systeme?",
-			"sub": "Organisationen der obersten Ebene nach Anzahl IT-Systeme, die sie (oder ihre Einheiten) betreiben. {{n}} Organisationen betreiben mindestens ein System."
+			"sub": "Organisationen der obersten Ebene nach Anzahl IT-Systeme, die sie (oder ihre Einheiten) betreiben. {{n}} Organisationen betreiben mindestens ein System. Logarithmische Skala; ein Sektor in der Legende hebt seine Balken hervor."
 		},
 		"orgs": {
 			"title": "Organisationen nach Sektor",
@@ -158,35 +194,18 @@
 			"title": "Kantonale Abdeckung",
 			"sub": "Dokumentierte kantonale Organisationen pro Kanton. Wählen Sie einen Kanton, um ihn zu öffnen."
 		},
-		"privacy": {
-			"title": "Datenschutz",
-			"sub": "Jedes Quadrat ist einer der {{n}} Datensätze, geordnet nach Schutzbedarf.",
-			"none": "Keine Personendaten",
-			"master": "Umrandete Quadrate sind Stammdaten ({{n}})."
-		},
-		"systems": {
-			"title": "Grösste IT-Systeme",
-			"sub": "IT-Systeme nach Anzahl enthaltener Datensätze"
-		},
-		"hubs": {
-			"title": "Am stärksten vernetzt",
-			"sub": "IT-Systeme und Datensätze mit den meisten unterschiedlichen Beziehungen"
-		},
-		"services": {
-			"title": "Gemeinsam genutzte IT-Services",
-			"sub": "IT-Services nach Anzahl nutzender Systeme und Organisationen",
-			"note": "{{n}} weitere Services haben noch keine dokumentierten Nutzer."
+		"matrix": {
+			"title": "Wer hängt mit wem zusammen?",
+			"sub": "Dokumentierte Beziehungen von Elementen einer Klasse (Zeile) zu Elementen einer anderen (Spalte). Der Tooltip nennt die Beziehungsarten."
 		},
 		"subgraphs": {
 			"title": "Dokumentierte Architekturen",
 			"sub": "Kuratierte Teilgraphen und ihre Zusammensetzung. Auf der Karte öffnen."
 		},
-		"relations": {
-			"title": "Beziehungstypen",
-			"sub": "Insgesamt {{n}} Beziehungen"
-		},
 		"quality": {
 			"title": "Dokumentationsqualität",
+			"p": "Wie gut die Elemente beschrieben sind – und wo noch Angaben fehlen.",
+			"table": "Vollständigkeit je Klasse",
 			"sub": "Wie vollständig jede Klasse im Wissensgraphen beschrieben ist",
 			"description": "Mit Beschreibung",
 			"multilingual": "Name auf DE/FR/IT/EN",
@@ -195,10 +214,7 @@
 		},
 		"unit": {
 			"systems": "IT-Systeme",
-			"orgs": "Organisationen",
-			"datasets": "Datensätze",
-			"links": "Beziehungen",
-			"consumers": "Nutzende"
+			"orgs": "Organisationen"
 		}
 	},
 	"catalog": {

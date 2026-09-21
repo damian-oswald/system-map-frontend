@@ -138,17 +138,53 @@
 		"activeFilters": "{{n}} active filters"
 	},
 	"dash": {
-		"title": "At a glance",
-		"kpis": "Key figures",
-		"kpi": {
-			"orgs": "{{top}} top-level · {{cantons}} cantons",
-			"systems": "incl. {{fmis}} farm management systems",
-			"datasets": "{{personal}} contain personal data",
-			"services": "{{n}} documented usages"
+		"welcome": {
+			"title": "Welcome to the system map",
+			"lead": "Who operates which IT systems in the Swiss agri-food sector, which data do they hold, and how does it all connect? The system map gives one shared, machine-readable answer.",
+			"p1": "This overview shows what the system map has recorded so far. Every figure and chart is computed in your browser straight from the knowledge graph the Federal Office for Agriculture FOAG publishes on the federal LINDAS platform – none of it is maintained by hand.",
+			"p2": "Three views lead through the same data:"
+		},
+		"views": {
+			"dashboard": "Key figures, charts and a first look at the map – this page, right below.",
+			"catalog": "Every element as a table or as cards – for searching, filtering and downloading.",
+			"map": "The graph as a network or in layers – for exploring how things connect."
+		},
+		"figures": {
+			"title": "In numbers",
+			"p": "The count is of top-level elements; their sub-units and parts are listed beneath each figure.",
+			"note": "These figures describe what the system map has recorded so far – not everything that exists in the sector. The graph grows with every contribution.",
+			"hint": "{{n}} relations are documented between these elements.",
+			"sub": {
+				"organization": "+ {{n}} sub-units",
+				"system": "+ {{n}} sub-systems",
+				"dataset": "+ {{n}} sub-datasets",
+				"service": "+ {{n}} sub-services"
+			},
+			"all": {
+				"organization": "All organizations",
+				"system": "All IT systems",
+				"dataset": "All data sets",
+				"service": "All IT services"
+			}
+		},
+		"map": {
+			"title": "The map",
+			"p": "The map draws the graph as a network: every dot is an element, its colour the class, its size the number of its relations; larger dots carry their class icon. As a taste, the FOAG system landscape – on the map itself every element can be clicked, filtered and focused.",
+			"explore": "Explore the map"
+		},
+		"plots": {
+			"title": "Selected analyses",
+			"p": "Every chart is computed live from the graph; names lead to the element's detail page."
+		},
+		"scatter": {
+			"title": "Importance and documentation",
+			"sub": "Every element with at least one relation: its PageRank – the weight the others' relations lend it – against the number of recorded properties, that is everything the graph states about it. Names appear wherever there is room, the most important elements first; the view can be narrowed to one class or subclass.",
+			"x": "PageRank (logarithmic)",
+			"y": "Recorded properties"
 		},
 		"operators": {
 			"title": "Who operates the IT systems?",
-			"sub": "Top-level organizations by number of IT systems they (or their units) operate. {{n}} organizations operate at least one system."
+			"sub": "Top-level organizations by number of IT systems they (or their units) operate. {{n}} organizations operate at least one system. Logarithmic scale; hovering a sector in the legend highlights its columns."
 		},
 		"orgs": {
 			"title": "Organizations by sector",
@@ -158,35 +194,18 @@
 			"title": "Cantonal coverage",
 			"sub": "Documented cantonal organizations per canton. Select a canton to open it."
 		},
-		"privacy": {
-			"title": "Data protection",
-			"sub": "Each square is one of the {{n}} data sets, ordered by protection need.",
-			"none": "No personal data",
-			"master": "Outlined squares are master data ({{n}})."
-		},
-		"systems": {
-			"title": "Largest IT systems",
-			"sub": "IT systems by number of data sets they contain"
-		},
-		"hubs": {
-			"title": "Most connected",
-			"sub": "IT systems and data sets with the most distinct relations"
-		},
-		"services": {
-			"title": "Shared IT services",
-			"sub": "IT services by number of systems and organizations using them",
-			"note": "{{n}} further services have no documented users yet."
+		"matrix": {
+			"title": "Which classes are linked?",
+			"sub": "Documented relations from elements of one class (row) to elements of another (column). The tooltip lists the relation types."
 		},
 		"subgraphs": {
 			"title": "Documented architectures",
 			"sub": "Curated subgraphs and their composition. Open one on the map."
 		},
-		"relations": {
-			"title": "Relation types",
-			"sub": "{{n}} relations in total"
-		},
 		"quality": {
 			"title": "Documentation quality",
+			"p": "How well the elements are described – and where information is still missing.",
+			"table": "Completeness per class",
 			"sub": "How completely each class is described in the knowledge graph",
 			"description": "Has description",
 			"multilingual": "Name in DE/FR/IT/EN",
@@ -195,10 +214,7 @@
 		},
 		"unit": {
 			"systems": "IT systems",
-			"orgs": "organizations",
-			"datasets": "data sets",
-			"links": "relations",
-			"consumers": "users"
+			"orgs": "organizations"
 		}
 	},
 	"catalog": {

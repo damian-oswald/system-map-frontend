@@ -1,54 +1,147 @@
-<div class="sm-page">
+<!-- The overview is a prose page like "About": a welcome, the key figures, a live excerpt of the map, then a set of
+     figures computed from the graph. Everything on it is derived from the graph as loaded – nothing is hand-kept. -->
+<article class="sm-page overview ob-prose">
 	@if (data(); as d) {
-		<header class="hero">
-			<h1>{{ 'dash.title' | translate }}</h1>
-			<p class="lead">{{ graph()!.meta.description | pick: lang() }}</p>
-		</header>
+		<!-- ============================================================ welcome -->
+		<h1>{{ 'dash.welcome.title' | translate }}</h1>
+		<p class="lead">{{ 'dash.welcome.lead' | translate }}</p>
+		<p>{{ 'dash.welcome.p1' | translate }}</p>
+		<p>{{ 'dash.welcome.p2' | translate }}</p>
+		<!-- the three views, stacked: this page first (a jump to its next chapter), then the inventory, then the map -->
+		<ol class="views">
+			<li>
+				<a href="#figures" (click)="jumpTo('figures', $event)">
+					<mat-icon svgIcon="tachometer" aria-hidden="true" />
+					<span class="v-name">{{ 'nav.dashboard' | translate }}</span>
+					<span class="v-desc">{{ 'dash.views.dashboard' | translate }}</span>
+				</a>
+			</li>
+			<li>
+				<a routerLink="/catalog">
+					<mat-icon svgIcon="list" aria-hidden="true" />
+					<span class="v-name">{{ 'nav.catalog' | translate }}</span>
+					<span class="v-desc">{{ 'dash.views.catalog' | translate }}</span>
+				</a>
+			</li>
+			<li>
+				<a routerLink="/map">
+					<mat-icon svgIcon="map" aria-hidden="true" />
+					<span class="v-name">{{ 'nav.map' | translate }}</span>
+					<span class="v-desc">{{ 'dash.views.map' | translate }}</span>
+				</a>
+			</li>
+		</ol>
 
-		<!-- KPI tiles -->
-		<section class="kpis" [attr.aria-label]="'dash.kpis' | translate">
+		<!-- ============================================================ key figures: top-level elements first -->
+		<h2 id="figures">{{ 'dash.figures.title' | translate }}</h2>
+		<p>{{ 'dash.figures.p' | translate }}</p>
+		<ul class="stats">
 			@for (k of KINDS; track k) {
-				<a class="kpi sm-card sm-kind--{{ k }}" routerLink="/catalog" [queryParams]="{ kind: k }">
-					<span class="kpi-icon"><mat-icon [svgIcon]="KIND_ICON[k]" /></span>
-					<span class="kpi-value">{{ d.counts[k] }}</span>
-					<span class="kpi-label">{{ 'kind.' + k + '.plural' | translate }}</span>
-					<span class="kpi-sub">
-						@switch (k) {
-							@case ('organization') {
-								{{ 'dash.kpi.orgs' | translate: { top: d.topLevelOrgs, cantons: d.cantonsCovered } }}
-							}
-							@case ('system') {
-								{{ 'dash.kpi.systems' | translate: { fmis: d.fmis } }}
-							}
-							@case ('dataset') {
-								{{ 'dash.kpi.datasets' | translate: { personal: d.personal } }}
-							}
-							@case ('service') {
-								{{ 'dash.kpi.services' | translate: { n: d.serviceUsages } }}
-							}
+				<li class="sm-kind--{{ k }}">
+					<span class="value">{{ d.topLevel[k] }}</span>
+					<span class="label">{{ 'kind.' + k + '.plural' | translate }}</span>
+					<span class="sub">
+						@if (d.counts[k] - d.topLevel[k]; as sub) {
+							{{ 'dash.figures.sub.' + k | translate: { n: sub } }}
 						}
 					</span>
-				</a>
+					<a mat-button obButton="secondary" class="all" routerLink="/catalog" [queryParams]="{ kind: k }">
+						<mat-icon [svgIcon]="KIND_ICON[k]" />{{ 'dash.figures.all.' + k | translate }}
+					</a>
+				</li>
 			}
-		</section>
+		</ul>
+		<p class="figures-note">{{ 'dash.figures.hint' | translate: { n: d.relations } }}</p>
+		<p class="figures-note sm-muted">{{ 'dash.figures.note' | translate }}</p>
 
-		<div class="grid">
-			<!-- operators -->
-			<section class="sm-card sm-card-pad span-7">
-				<h2 class="sm-card-title">{{ 'dash.operators.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.operators.sub' | translate: { n: d.operatorsTotal } }}</p>
-				<app-bar-list [items]="operatorBars()" [unit]="'dash.unit.systems' | translate" labelWidth="46%" />
-				<ul class="legend">
-					@for (t of d.orgTypes; track t.type) {
-						<li><i class="swatch" [style.background]="ORG_COLOR[t.type]"></i>{{ 'orgType.' + t.type | translate }}</li>
-					}
-				</ul>
-			</section>
+		<!-- ============================================================ the map, as a live excerpt -->
+		<h2>{{ 'dash.map.title' | translate }}</h2>
+		<p>{{ 'dash.map.p' | translate }}</p>
+		<!-- the excerpt is a picture; the one control on it leads to the real map -->
+		<div class="map-excerpt">
+			<app-system-map embedded demo [subgraphIri]="DEMO_SUBGRAPH" />
+			<a mat-button obButton="secondary" class="explore" routerLink="/map">
+				<mat-icon svgIcon="map" />{{ 'dash.map.explore' | translate }}
+			</a>
+		</div>
 
-			<!-- organisations landscape -->
-			<section class="sm-card sm-card-pad span-5">
-				<h2 class="sm-card-title">{{ 'dash.orgs.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.orgs.sub' | translate: { n: d.counts.organization } }}</p>
+		<!-- ============================================================ selected analyses -->
+		<h2>{{ 'dash.plots.title' | translate }}</h2>
+		<p>{{ 'dash.plots.p' | translate }}</p>
+		<div class="plots">
+			<!-- operators: columns on a log scale, coloured by sector; a sector under the pointer stands out -->
+			<figure class="plot wide">
+				<h3>{{ 'dash.operators.title' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.operators.sub' | translate: { n: d.operatorsTotal } }}</p>
+				@if (opChart(); as oc) {
+					<svg
+						class="chart columns"
+						[attr.viewBox]="'0 0 ' + OP.w + ' ' + OP.h"
+						role="img"
+						[attr.aria-label]="'dash.operators.title' | translate"
+					>
+						<g class="grid">
+							@for (t of oc.yTicks; track t.v) {
+								<line [attr.x1]="OP.l" [attr.x2]="OP.w - OP.r" [attr.y1]="t.pos" [attr.y2]="t.pos" />
+								<text class="tick" [attr.x]="OP.l - 8" [attr.y]="t.pos" text-anchor="end" dominant-baseline="central">
+									{{ t.text }}
+								</text>
+							}
+						</g>
+						<line class="baseline" [attr.x1]="OP.l" [attr.x2]="OP.w - OP.r" [attr.y1]="oc.base" [attr.y2]="oc.base" />
+						@for (c of oc.columns; track c.entity.id) {
+							<g
+								class="col"
+								[class.dim]="hlSector() && hlSector() !== c.orgType"
+								tabindex="0"
+								role="link"
+								[attr.aria-label]="c.entity | label: lang()"
+								[appTip]="c.tip"
+								(click)="open(c.entity)"
+								(keydown.enter)="open(c.entity)"
+								(mouseenter)="hlSector.set(c.orgType)"
+								(mouseleave)="hlSector.set(null)"
+							>
+								<rect
+									class="hit"
+									[attr.x]="c.x - oc.slot / 2"
+									[attr.y]="OP.t"
+									[attr.width]="oc.slot"
+									[attr.height]="oc.base - OP.t + OP.b"
+								/>
+								<path class="mark" [attr.d]="columnPath(c, oc.base, oc.w)" [attr.fill]="ORG_COLOR[c.orgType]" />
+								<text class="cap" [attr.x]="c.x" [attr.y]="c.y - 4" text-anchor="middle">{{ c.value }}</text>
+								<text
+									class="xlabel"
+									[attr.x]="c.x"
+									[attr.y]="oc.base + 6"
+									[attr.transform]="'rotate(-90 ' + c.x + ' ' + (oc.base + 6) + ')'"
+									text-anchor="end"
+									dominant-baseline="central"
+								>
+									{{ c.label }}
+								</text>
+							</g>
+						}
+					</svg>
+					<ul class="legend">
+						@for (t of d.orgTypes; track t.type) {
+							<li
+								[class.dim]="hlSector() && hlSector() !== t.type"
+								(mouseenter)="hlSector.set(t.type)"
+								(mouseleave)="hlSector.set(null)"
+							>
+								<i class="swatch" [style.background]="ORG_COLOR[t.type]"></i>{{ 'orgType.' + t.type | translate }}
+							</li>
+						}
+					</ul>
+				}
+			</figure>
+
+			<!-- organizations by sector -->
+			<figure class="plot">
+				<h3>{{ 'dash.orgs.title' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.orgs.sub' | translate: { n: d.counts.organization } }}</p>
 				<div class="stack" role="img" [attr.aria-label]="'dash.orgs.title' | translate">
 					@for (t of d.orgTypes; track t.type) {
 						@if (t.count) {
@@ -72,9 +165,12 @@
 						</li>
 					}
 				</ul>
+			</figure>
 
-				<h3 class="sub-title">{{ 'dash.cantons.title' | translate }}</h3>
-				<p class="sm-card-sub">{{ 'dash.cantons.sub' | translate }}</p>
+			<!-- cantonal coverage -->
+			<figure class="plot">
+				<h3>{{ 'dash.cantons.title' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.cantons.sub' | translate }}</p>
 				<div class="canton-map" role="list">
 					@for (c of d.cantons; track c.code) {
 						@if (c.root) {
@@ -107,72 +203,47 @@
 				<div class="seq-legend" aria-hidden="true">
 					<span>1</span><i></i><span>{{ cantonMax() }} {{ 'dash.unit.orgs' | translate }}</span>
 				</div>
-			</section>
+			</figure>
 
-			<!-- data protection -->
-			<section class="sm-card sm-card-pad span-5">
-				<h2 class="sm-card-title">{{ 'dash.privacy.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.privacy.sub' | translate: { n: d.counts.dataset } }}</p>
-				<div class="privacy-stats">
-					<div>
-						<strong>{{ d.sensitive }}</strong
-						><span><i class="swatch sw-sensitive"></i>{{ 'flags.sensitive' | translate }}</span>
-					</div>
-					<div>
-						<strong>{{ d.personal - d.sensitive }}</strong
-						><span><i class="swatch sw-personal"></i>{{ 'flags.personal' | translate }}</span>
-					</div>
-					<div>
-						<strong>{{ d.counts.dataset - d.personal }}</strong
-						><span><i class="swatch sw-none"></i>{{ 'dash.privacy.none' | translate }}</span>
-					</div>
-				</div>
-				<div class="waffle">
-					@for (e of d.waffle; track e.id) {
-						<a
-							class="cell"
-							[class.sensitive]="e.sensitive"
-							[class.personal]="e.personal && !e.sensitive"
-							[class.master]="e.master"
-							[routerLink]="['/entity', e.key]"
-							[appTip]="[
-								(e.sensitive ? 'flags.sensitive' : e.personal ? 'flags.personal' : 'dash.privacy.none') | translate,
-								e | label: lang() : 'title',
-							]"
-							[attr.aria-label]="e | label: lang()"
-						></a>
-					}
-				</div>
-				<p class="sm-small sm-muted note">
-					<i class="swatch master-key"></i>{{ 'dash.privacy.master' | translate: { n: d.master } }}
-				</p>
-			</section>
+			<!-- which classes are linked: subject class by object class, the relation types in the tooltip -->
+			<figure class="plot">
+				<h3>{{ 'dash.matrix.title' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.matrix.sub' | translate }}</p>
+				<table class="matrix">
+					<thead>
+						<tr>
+							<th scope="col"></th>
+							@for (k of KINDS; track k) {
+								<th scope="col">{{ 'kind.' + k + '.plural' | translate }}</th>
+							}
+						</tr>
+					</thead>
+					<tbody>
+						@for (row of matrix(); track row.s) {
+							<tr>
+								<th scope="row">{{ 'kind.' + row.s + '.plural' | translate }}</th>
+								@for (c of row.cells; track c.o) {
+									<td>
+										<span
+											class="cell"
+											[style.background]="c.fill"
+											[style.color]="c.ink"
+											[appTip]="c.tip"
+											tabindex="0"
+											>{{ c.count || '' }}</span
+										>
+									</td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+			</figure>
 
-			<!-- systems by data sets -->
-			<section class="sm-card sm-card-pad span-7">
-				<h2 class="sm-card-title">{{ 'dash.systems.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.systems.sub' | translate }}</p>
-				<app-bar-list [items]="systemBars()" [unit]="'dash.unit.datasets' | translate" />
-			</section>
-
-			<!-- hubs -->
-			<section class="sm-card sm-card-pad span-6">
-				<h2 class="sm-card-title">{{ 'dash.hubs.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.hubs.sub' | translate }}</p>
-				<app-bar-list [items]="hubBars()" [unit]="'dash.unit.links' | translate" />
-			</section>
-
-			<!-- relation types -->
-			<section class="sm-card sm-card-pad span-6">
-				<h2 class="sm-card-title">{{ 'dash.relations.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.relations.sub' | translate: { n: d.relations } }}</p>
-				<app-bar-list [items]="relationBars()" [unit]="'map.edges' | translate" labelWidth="52%" />
-			</section>
-
-			<!-- subgraphs -->
-			<section class="sm-card sm-card-pad span-7">
-				<h2 class="sm-card-title">{{ 'dash.subgraphs.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.subgraphs.sub' | translate }}</p>
+			<!-- documented architectures -->
+			<figure class="plot">
+				<h3>{{ 'dash.subgraphs.title' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.subgraphs.sub' | translate }}</p>
 				<ul class="subgraphs">
 					@for (s of subgraphs(); track s.c.id) {
 						<li>
@@ -201,22 +272,107 @@
 						</li>
 					}
 				</ul>
-			</section>
+			</figure>
+		</div>
 
-			<!-- services -->
-			<section class="sm-card sm-card-pad span-5">
-				<h2 class="sm-card-title">{{ 'dash.services.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.services.sub' | translate }}</p>
-				<p class="sm-small sm-muted">
-					{{ 'dash.services.note' | translate: { n: d.counts.service - serviceBars().length } }}
-				</p>
-				<app-bar-list [items]="serviceBars()" [unit]="'dash.unit.consumers' | translate" />
-			</section>
+		<!-- ============================================================ how complete the documentation is -->
+		<h2>{{ 'dash.quality.title' | translate }}</h2>
+		<p>{{ 'dash.quality.p' | translate }}</p>
+		<div class="plots">
+			<!-- importance vs properties, for everything or one class -->
+			<figure class="plot wide">
+				<div class="plot-head">
+					<div>
+						<h3>{{ 'dash.scatter.title' | translate }}</h3>
+						<p class="plot-sub">{{ 'dash.scatter.sub' | translate }}</p>
+					</div>
+					<mat-form-field class="scope" subscriptSizing="dynamic">
+						<mat-label>{{ 'map.scope' | translate }}</mat-label>
+						<mat-select [value]="scope() ?? ''" (selectionChange)="scope.set($event.value || null)">
+							<mat-option value="">{{ 'map.scopeAll' | translate }}</mat-option>
+							@for (o of classScopes(); track o.id) {
+								<mat-option [value]="o.id" [class.option-sub]="o.sub">{{ o.label }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
+				@if (scatter(); as sc) {
+					<svg
+						class="chart scatter"
+						[attr.viewBox]="'0 0 ' + SC.w + ' ' + SC.h"
+						role="img"
+						[attr.aria-label]="'dash.scatter.title' | translate"
+					>
+						<g class="grid">
+							@for (t of sc.yTicks; track t.v) {
+								<line [attr.x1]="SC.l" [attr.x2]="sc.plotR" [attr.y1]="t.pos" [attr.y2]="t.pos" />
+								<text class="tick" [attr.x]="SC.l - 8" [attr.y]="t.pos" text-anchor="end" dominant-baseline="central">
+									{{ t.text }}
+								</text>
+							}
+							@for (t of sc.xTicks; track t.v) {
+								<line [attr.x1]="t.pos" [attr.x2]="t.pos" [attr.y1]="SC.t" [attr.y2]="sc.plotB" />
+								<text class="tick" [attr.x]="t.pos" [attr.y]="sc.plotB + 11" text-anchor="middle">{{ t.text }}</text>
+							}
+						</g>
+						<text class="axis" [attr.x]="(SC.l + sc.plotR) / 2" [attr.y]="SC.h - 14" text-anchor="middle">
+							{{ 'dash.scatter.x' | translate }}
+						</text>
+						<text
+							class="axis"
+							[attr.transform]="'translate(16,' + (SC.t + sc.plotB) / 2 + ') rotate(-90)'"
+							text-anchor="middle"
+						>
+							{{ 'dash.scatter.y' | translate }}
+						</text>
+						<!-- leader lines first, so no dot is covered -->
+						@for (p of sc.points; track p.entity.id) {
+							@if (p.leader) {
+								<line
+									class="leader"
+									[attr.x1]="p.cx"
+									[attr.y1]="p.cy"
+									[attr.x2]="leaderEnd(p).x"
+									[attr.y2]="leaderEnd(p).y"
+								/>
+							}
+						}
+						@for (p of sc.points; track p.entity.id) {
+							<g
+								class="dot sm-kind--{{ p.entity.kind }}"
+								tabindex="0"
+								role="link"
+								[attr.aria-label]="p.entity | label: lang()"
+								[appTip]="p.tip"
+								(click)="open(p.entity)"
+								(keydown.enter)="open(p.entity)"
+							>
+								<circle class="hit" [attr.cx]="p.cx" [attr.cy]="p.cy" r="9" />
+								<circle class="mark" [attr.cx]="p.cx" [attr.cy]="p.cy" r="4" />
+							</g>
+						}
+						<!-- names above everything -->
+						@for (p of sc.points; track p.entity.id) {
+							@if (p.label) {
+								<text
+									class="dot-label"
+									[attr.x]="p.lx"
+									[attr.y]="p.ly"
+									[attr.text-anchor]="p.anchor"
+									dominant-baseline="central"
+								>
+									{{ p.label }}
+								</text>
+							}
+						}
+					</svg>
+				}
+			</figure>
 
-			<!-- documentation quality -->
-			<section class="sm-card sm-card-pad span-12">
-				<h2 class="sm-card-title">{{ 'dash.quality.title' | translate }}</h2>
-				<p class="sm-card-sub">{{ 'dash.quality.sub' | translate }}</p>
+			<!-- completeness per class -->
+			<figure class="plot wide">
+				<h3>{{ 'dash.quality.table' | translate }}</h3>
+				<p class="plot-sub">{{ 'dash.quality.sub' | translate }}</p>
 				<div class="quality-wrap">
 					<table class="quality">
 						<thead>
@@ -248,10 +404,10 @@
 						</tbody>
 					</table>
 				</div>
-			</section>
+			</figure>
 		</div>
 	} @else {
 		<app-page-state />
 	}
-</div>
+</article>
 <app-data-footer />

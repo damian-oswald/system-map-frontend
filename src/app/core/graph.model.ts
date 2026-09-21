@@ -48,6 +48,9 @@ export interface Entity {
 	personal?: boolean;
 	sensitive?: boolean;
 	master?: boolean;
+
+	/** number of triples with this element as subject – how much is recorded about it */
+	props: number;
 }
 
 export interface TermInfo {
