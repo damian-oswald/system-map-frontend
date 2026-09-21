@@ -1,8 +1,14 @@
 import { Directive, ElementRef, OnDestroy, inject, input } from '@angular/core';
 
+/** a titled tooltip: the element's name, then its figures as key–value rows */
+export interface TipCard {
+	title: string;
+	rows: [string, string | number][];
+}
+
 /**
- * Lightweight chart tooltip: value first (strong), label second. Shown on hover and keyboard focus; text is set via
- * textContent (labels come from the data). One shared element for the whole app.
+ * Lightweight chart tooltip: either value first (strong) and label second, or a title with key–value rows. Shown on
+ * hover and keyboard focus; text is set via textContent (labels come from the data). One shared element for the app.
  */
 @Directive({
 	selector: '[appTip]',
@@ -15,8 +21,8 @@ import { Directive, ElementRef, OnDestroy, inject, input } from '@angular/core';
 	},
 })
 export class TipDirective implements OnDestroy {
-	/** [value, label] */
-	readonly appTip = input.required<[string | number, string]>();
+	/** [value, label], or a card with title and rows */
+	readonly appTip = input.required<[string | number, string] | TipCard>();
 	private readonly host = inject(ElementRef<HTMLElement>);
 	private static el?: HTMLDivElement;
 
@@ -33,14 +39,32 @@ export class TipDirective implements OnDestroy {
 	}
 
 	show(fromFocus = false): void {
-		const [value, label] = this.appTip();
+		const tip = this.appTip();
 		const el = this.el;
 		el.replaceChildren();
 		const strong = document.createElement('strong');
-		strong.textContent = String(value);
-		const span = document.createElement('span');
-		span.textContent = label;
-		el.append(strong, span);
+		if (Array.isArray(tip)) {
+			const [value, label] = tip;
+			strong.textContent = String(value);
+			const span = document.createElement('span');
+			span.textContent = label;
+			el.append(strong, span);
+		} else {
+			strong.textContent = tip.title;
+			el.append(strong);
+			for (const [k, v] of tip.rows) {
+				const row = document.createElement('div');
+				row.className = 'row';
+				const key = document.createElement('span');
+				key.className = 'k';
+				key.textContent = k;
+				const val = document.createElement('span');
+				val.className = 'v';
+				val.textContent = String(v);
+				row.append(key, val);
+				el.append(row);
+			}
+		}
 		el.hidden = false;
 		if (fromFocus) {
 			const r = (this.host.nativeElement as HTMLElement).getBoundingClientRect();

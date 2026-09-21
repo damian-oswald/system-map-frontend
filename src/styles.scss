@@ -33,11 +33,12 @@
 	--kind-dataset-ink: #1c2834;
 	--kind-service-ink: #1d4ed8;
 
-	// organization sectors — ordinal shades of the dark blue (Oblique secondary 800/500/300/200), always labelled
+	// organization sectors in the order federal · cantonal · other public · private — ordinal shades of the dark blue
+	// (Oblique secondary 800/500/300/200), always labelled
 	--org-federal: #1c2834;
 	--org-cantonal: #46596b;
-	--org-private: #828e9a;
-	--org-other: #acb4bd;
+	--org-other: #828e9a;
+	--org-private: #acb4bd;
 
 	--seq-1: #dbeafe;
 	--seq-5: #1d4ed8;
@@ -385,6 +386,28 @@ a.sm-chip:focus-visible {
 		display: block;
 		font-size: 1rem;
 	}
+
+	// key–value rows of a titled tooltip
+	.row {
+		display: flex;
+		justify-content: space-between;
+		gap: 16px;
+		margin-top: 2px;
+
+		.k {
+			color: rgba(255, 255, 255, 0.75);
+		}
+
+		.v {
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+	}
+}
+
+// indented sub-option in a select (rendered in the CDK overlay, hence global)
+.option-sub .mdc-list-item__primary-text {
+	padding-left: 18px;
 }
 
 // multiselect options in the map filter (rendered in the CDK overlay, hence global)

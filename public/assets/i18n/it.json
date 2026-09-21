@@ -138,17 +138,53 @@
 		"activeFilters": "{{n}} filtri attivi"
 	},
 	"dash": {
-		"title": "In sintesi",
-		"kpis": "Cifre chiave",
-		"kpi": {
-			"orgs": "{{top}} di livello superiore · {{cantons}} Cantoni",
-			"systems": "di cui {{fmis}} sistemi di gestione aziendale",
-			"datasets": "{{personal}} contengono dati personali",
-			"services": "{{n}} utilizzi documentati"
+		"welcome": {
+			"title": "Benvenuti nella mappa dei sistemi",
+			"lead": "Chi gestisce quali sistemi informatici nel settore agroalimentare svizzero, quali dati vi si trovano e come è collegato il tutto? La mappa dei sistemi dà una risposta comune e leggibile dalle macchine.",
+			"p1": "Questa panoramica mostra ciò che la mappa dei sistemi ha registrato finora. Ogni cifra e ogni grafico è calcolato nel browser direttamente dal grafo di conoscenza che l'Ufficio federale dell'agricoltura UFAG pubblica sulla piattaforma federale LINDAS – nulla è curato a mano.",
+			"p2": "Tre viste percorrono gli stessi dati:"
+		},
+		"views": {
+			"dashboard": "Cifre chiave, grafici e un primo sguardo alla mappa – questa pagina, subito sotto.",
+			"catalog": "Tutti gli elementi in tabella o come schede – per cercare, filtrare e scaricare.",
+			"map": "Il grafo come rete o a livelli – per esplorare i collegamenti."
+		},
+		"figures": {
+			"title": "In cifre",
+			"p": "Si contano gli elementi di primo livello; le loro unità subordinate e parti figurano sotto ogni cifra.",
+			"note": "Queste cifre descrivono ciò che la mappa dei sistemi ha registrato finora – non tutto ciò che esiste nel settore. Il grafo cresce con ogni contributo.",
+			"hint": "Tra questi elementi sono documentate {{n}} relazioni.",
+			"sub": {
+				"organization": "+ {{n}} unità subordinate",
+				"system": "+ {{n}} sottosistemi",
+				"dataset": "+ {{n}} sottoinsiemi di dati",
+				"service": "+ {{n}} sottoservizi"
+			},
+			"all": {
+				"organization": "Tutte le organizzazioni",
+				"system": "Tutti i sistemi IT",
+				"dataset": "Tutti i set di dati",
+				"service": "Tutti i servizi IT"
+			}
+		},
+		"map": {
+			"title": "La mappa",
+			"p": "La mappa disegna il grafo come rete: ogni punto è un elemento, il colore indica la classe, la dimensione il numero delle sue relazioni; i punti più grandi portano l'icona della loro classe. Come assaggio, il paesaggio dei sistemi dell'UFAG – sulla mappa stessa ogni elemento può essere cliccato, filtrato e messo a fuoco.",
+			"explore": "Esplora la mappa"
+		},
+		"plots": {
+			"title": "Analisi scelte",
+			"p": "Ogni grafico è calcolato in tempo reale dal grafo; i nomi portano alla pagina di dettaglio dell'elemento."
+		},
+		"scatter": {
+			"title": "Importanza e documentazione",
+			"sub": "Ogni elemento con almeno una relazione: il suo PageRank – il peso che gli conferiscono le relazioni degli altri – rispetto al numero di proprietà registrate, cioè tutto ciò che il grafo afferma su di esso. I nomi compaiono dove c'è spazio, prima gli elementi più importanti; la vista può essere ristretta a una classe o sottoclasse.",
+			"x": "PageRank (logaritmico)",
+			"y": "Proprietà registrate"
 		},
 		"operators": {
 			"title": "Chi gestisce i sistemi IT?",
-			"sub": "Organizzazioni di livello superiore per numero di sistemi IT che esse (o le loro unità) gestiscono. {{n}} organizzazioni gestiscono almeno un sistema."
+			"sub": "Organizzazioni di livello superiore per numero di sistemi IT che esse (o le loro unità) gestiscono. {{n}} organizzazioni gestiscono almeno un sistema. Scala logaritmica; passando su un settore nella legenda si evidenziano le sue colonne."
 		},
 		"orgs": {
 			"title": "Organizzazioni per settore",
@@ -158,35 +194,18 @@
 			"title": "Copertura cantonale",
 			"sub": "Organizzazioni cantonali documentate per Cantone. Selezionate un Cantone per aprirlo."
 		},
-		"privacy": {
-			"title": "Protezione dei dati",
-			"sub": "Ogni quadrato è uno dei {{n}} set di dati, ordinati per necessità di protezione.",
-			"none": "Nessun dato personale",
-			"master": "I quadrati bordati sono dati di base ({{n}})."
-		},
-		"systems": {
-			"title": "Sistemi IT più grandi",
-			"sub": "Sistemi IT per numero di set di dati contenute"
-		},
-		"hubs": {
-			"title": "I più collegati",
-			"sub": "Sistemi IT e set di dati con il maggior numero di relazioni distinte"
-		},
-		"services": {
-			"title": "Servizi IT condivisi",
-			"sub": "Servizi IT per numero di sistemi e organizzazioni che li utilizzano",
-			"note": "Altri {{n}} servizi non hanno ancora utenti documentati."
+		"matrix": {
+			"title": "Quali classi sono collegate?",
+			"sub": "Relazioni documentate dagli elementi di una classe (riga) a quelli di un'altra (colonna). Il tooltip indica i tipi di relazione."
 		},
 		"subgraphs": {
 			"title": "Architetture documentate",
 			"sub": "Sottografi curati e loro composizione. Apritene uno sulla mappa."
 		},
-		"relations": {
-			"title": "Tipi di relazione",
-			"sub": "{{n}} relazioni in totale"
-		},
 		"quality": {
 			"title": "Qualità della documentazione",
+			"p": "Quanto bene sono descritti gli elementi – e dove mancano ancora informazioni.",
+			"table": "Completezza per classe",
 			"sub": "Quanto completamente ogni classe è descritta nel grafo della conoscenza",
 			"description": "Con descrizione",
 			"multilingual": "Nome in DE/FR/IT/EN",
@@ -195,10 +214,7 @@
 		},
 		"unit": {
 			"systems": "sistemi IT",
-			"orgs": "organizzazioni",
-			"datasets": "set di dati",
-			"links": "relazioni",
-			"consumers": "utenti"
+			"orgs": "organizzazioni"
 		}
 	},
 	"catalog": {

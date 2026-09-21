@@ -200,10 +200,29 @@ export function buildMapGraph(graph: SystemMapGraph, opt: MapOptions): MapGraph 
  * the elements they stand for. Labels appear in this order as the map is zoomed in.
  */
 export function importanceRank(mg: MapGraph): Map<string, number> {
-	const ids = mg.nodes.map((n) => n.id);
+	const scores = pageRank(
+		mg.nodes.map((n) => n.id),
+		mg.adjacency,
+	);
+	const weighted = mg.nodes.map((node) => ({
+		id: node.id,
+		s: scores.get(node.id)! * (1 + 0.15 * Math.log2(node.members)),
+		degree: node.degree,
+	}));
+	weighted.sort((a, b) => b.s - a.s || b.degree - a.degree || a.id.localeCompare(b.id));
+	return new Map(weighted.map((w, i) => [w.id, i]));
+}
+
+/**
+ * PageRank on an undirected graph (adjacency lists; neighbours outside `ids` are ignored): 40 power iterations with
+ * damping 0.85, dangling nodes spread their weight evenly. The scores sum to 1.
+ */
+export function pageRank(ids: string[], adjacency: Map<string, Set<string>>): Map<string, number> {
 	const n = ids.length;
 	const index = new Map(ids.map((id, i) => [id, i]));
-	const neighbours = ids.map((id) => [...(mg.adjacency.get(id) ?? [])].map((m) => index.get(m)!).filter((i) => i >= 0));
+	const neighbours = ids.map((id) =>
+		[...(adjacency.get(id) ?? [])].map((m) => index.get(m) ?? -1).filter((i) => i >= 0),
+	);
 	let score = new Array<number>(n).fill(1 / Math.max(1, n));
 	const damping = 0.85;
 	for (let iter = 0; iter < 40; iter++) {
@@ -218,16 +237,9 @@ export function importanceRank(mg: MapGraph): Map<string, number> {
 			const share = (damping * score[i]) / deg;
 			for (const j of neighbours[i]) next[j] += share;
 		}
-		// dangling nodes spread their weight evenly
 		const spread = (damping * sink) / Math.max(1, n);
 		for (let i = 0; i < n; i++) next[i] += spread;
 		score = next;
 	}
-	const weighted = mg.nodes.map((node, i) => ({
-		id: node.id,
-		s: score[i] * (1 + 0.15 * Math.log2(node.members)),
-		degree: node.degree,
-	}));
-	weighted.sort((a, b) => b.s - a.s || b.degree - a.degree || a.id.localeCompare(b.id));
-	return new Map(weighted.map((w, i) => [w.id, i]));
+	return new Map(ids.map((id, i) => [id, score[i]]));
 }

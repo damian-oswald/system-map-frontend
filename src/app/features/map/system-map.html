@@ -416,59 +416,61 @@
 			</svg>
 
 			<!-- zoom controls -->
-			<div class="zoom-btns">
-				<button
-					mat-icon-button
-					obButton="secondary"
-					type="button"
-					class="bar-btn"
-					(click)="zoomBy(1.3)"
-					[matTooltip]="'map.zoomIn' | translate"
-					[attr.aria-label]="'map.zoomIn' | translate"
-				>
-					<mat-icon svgIcon="plus" />
-				</button>
-				<button
-					mat-icon-button
-					obButton="secondary"
-					type="button"
-					class="bar-btn"
-					(click)="zoomBy(1 / 1.3)"
-					[matTooltip]="'map.zoomOut' | translate"
-					[attr.aria-label]="'map.zoomOut' | translate"
-				>
-					<mat-icon svgIcon="minus" />
-				</button>
-				<button
-					mat-icon-button
-					obButton="secondary"
-					type="button"
-					class="bar-btn"
-					(click)="fit()"
-					[matTooltip]="'map.fit' | translate"
-					[attr.aria-label]="'map.fit' | translate"
-				>
-					<mat-icon svgIcon="fullscreen" />
-				</button>
-				@if (embedded()) {
-					<a
+			@if (!demo()) {
+				<div class="zoom-btns">
+					<button
 						mat-icon-button
 						obButton="secondary"
+						type="button"
 						class="bar-btn"
-						routerLink="/map"
-						[queryParams]="{ focus: focusKey() }"
-						[matTooltip]="'entity.showInMap' | translate"
-						[attr.aria-label]="'entity.showInMap' | translate"
+						(click)="zoomBy(1.3)"
+						[matTooltip]="'map.zoomIn' | translate"
+						[attr.aria-label]="'map.zoomIn' | translate"
 					>
-						<mat-icon svgIcon="map" />
-					</a>
-				}
-			</div>
+						<mat-icon svgIcon="plus" />
+					</button>
+					<button
+						mat-icon-button
+						obButton="secondary"
+						type="button"
+						class="bar-btn"
+						(click)="zoomBy(1 / 1.3)"
+						[matTooltip]="'map.zoomOut' | translate"
+						[attr.aria-label]="'map.zoomOut' | translate"
+					>
+						<mat-icon svgIcon="minus" />
+					</button>
+					<button
+						mat-icon-button
+						obButton="secondary"
+						type="button"
+						class="bar-btn"
+						(click)="fit()"
+						[matTooltip]="'map.fit' | translate"
+						[attr.aria-label]="'map.fit' | translate"
+					>
+						<mat-icon svgIcon="fullscreen" />
+					</button>
+					@if (embedded()) {
+						<a
+							mat-icon-button
+							obButton="secondary"
+							class="bar-btn"
+							routerLink="/map"
+							[queryParams]="{ focus: focusKey() }"
+							[matTooltip]="'entity.showInMap' | translate"
+							[attr.aria-label]="'entity.showInMap' | translate"
+						>
+							<mat-icon svgIcon="map" />
+						</a>
+					}
+				</div>
+			}
 
 			<!-- interaction hint -->
 			@if (!embedded()) {
 				<div class="canvas-hint" aria-hidden="true">{{ 'map.interactionHint' | translate }}</div>
-			} @else {
+			} @else if (!demo()) {
 				<!-- embedded: how far to look around the fixed focus -->
 				<mat-button-toggle-group
 					hideSingleSelectionIndicator

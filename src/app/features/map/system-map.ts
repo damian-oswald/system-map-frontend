@@ -165,7 +165,7 @@ const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, d
 @Component({
 	selector: 'app-system-map',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	host: { '[class.sm-routed]': '!embedded()', '[class.embedded]': 'embedded()' },
+	host: { '[class.sm-routed]': '!embedded()', '[class.embedded]': 'embedded()', '[class.demo]': 'demo()' },
 	imports: [
 		TranslatePipe,
 		MatButtonModule,
@@ -205,6 +205,10 @@ export class SystemMap implements AfterViewInit {
 	 * controls, drawer or URL sync – clicking another element opens its page.
 	 */
 	readonly embedded = input(false, { transform: booleanAttribute });
+	/** embedded and locked: no controls, no pointer interaction – a picture of the graph (the overview's excerpt) */
+	readonly demo = input(false, { transform: booleanAttribute });
+	/** embedded: show this subgraph (IRI of a dcmitype:Collection) instead of a focused element's neighbourhood */
+	readonly subgraphIri = input<string | undefined>(undefined);
 	/** compact IRI of the element to focus on (embedded mode) */
 	readonly focusKey = input<string | undefined>(undefined);
 
@@ -568,15 +572,18 @@ export class SystemMap implements AfterViewInit {
 		});
 		this.readUrl();
 
-		// embedded: the focus follows the page; the steps start at whatever shows about IDEAL_CONTEXT_NODES elements
+		// embedded: the focus follows the page (or a subgraph is shown); the steps start at whatever shows about
+		// IDEAL_CONTEXT_NODES elements
 		effect(() => {
 			if (!this.embedded()) return;
 			const key = this.focusKey();
 			const e = key ? this.graphService.entity(key) : undefined;
 			const g = this.graph();
+			const sub = this.subgraphIri();
 			untracked(() => {
 				this.view.set('network');
 				this.selected.set(null);
+				this.subgraph.set(sub ?? null);
 				this.focus.set(e?.id ?? null);
 				if (!e || !g) return;
 				const counts = [1, 2, 3].map((hops) => buildMapGraph(g, { ...this.options(), focus: e.id, hops }).nodes.length);
