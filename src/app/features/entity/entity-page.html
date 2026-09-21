@@ -13,27 +13,40 @@
 			<div class="hero-grid">
 				<div class="hero-main">
 					<h1>{{ e | label: lang() : 'title' }}</h1>
+					<!-- chips: subclasses with the class icon, canton, flags, then the keywords linking to the inventory -->
 					<div class="tags">
 						@for (t of typeLabels(); track t) {
-							<span class="sm-tag">{{ t }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="icon(e)" /><span>{{ t }}</span></span
+							>
 						}
 						@if (e.canton) {
-							<span class="sm-tag">{{ 'catalog.canton' | translate }} {{ e.canton }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.canton" /><span
+									>{{ 'catalog.canton' | translate }} {{ e.canton }}</span
+								></span
+							>
 						}
 						@if (e.sensitive) {
-							<span class="sm-tag sm-tag--warn">{{ 'flags.sensitive' | translate }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.protection" /><span>{{ 'flags.sensitive' | translate }}</span></span
+							>
 						} @else if (e.personal) {
-							<span class="sm-tag sm-tag--warn">{{ 'flags.personal' | translate }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.protection" /><span>{{ 'flags.personal' | translate }}</span></span
+							>
 						}
 						@if (e.master) {
-							<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.master" /><span>{{ 'flags.master' | translate }}</span></span
+							>
 						}
 						@for (k of keywords(); track k.id) {
 							<a
-								class="sm-tag"
+								class="sm-chip"
 								routerLink="/catalog"
 								[queryParams]="{ kind: e.kind === 'dataset' ? null : e.kind, kw: k.key }"
-								>{{ k.name | pick: lang() }}</a
+								><mat-icon [svgIcon]="KIND_ICON.keyword" /><span>{{ k.name | pick: lang() }}</span></a
 							>
 						}
 					</div>

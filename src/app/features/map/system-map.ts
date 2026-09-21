@@ -38,7 +38,7 @@ import { LabelPipe, LangService, PickPipe, entityTitle, pick, shortLabel } from 
 import { badgeWidth, fitLabel, fontsVersion, textWidth } from '../../core/text-fit';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { KIND_ICON, PageState } from '../../shared/ui';
+import { CHIP_ICON, KIND_ICON, ORG_ICON, PageState, entityIcon } from '../../shared/ui';
 import { ForceRequest, ForceResponse } from './force-layout';
 import { Band, Column, NODE_H, NODE_W, TreeLink, layeredEdgePath, layoutLayers } from './layered-layout';
 import {
@@ -63,9 +63,13 @@ interface SceneNode {
 	x: number;
 	y: number;
 	r: number;
+	/** class or subclass icon (id in Oblique's sprite) */
+	icon: string;
 	label: string;
 	title: string;
 	members: number;
+	/** network view, merged node: the count badge at the bottom right of the border, scaled with the node */
+	cb?: { r: number; w: number; fs: number };
 	orgType?: OrgType;
 	/** place in the importance order of the current view (0 = most important) */
 	rank: number;
@@ -145,8 +149,16 @@ const LABEL_H = 15;
 const EDGE_LABEL_PX = 10.5;
 const EDGE_LABEL_H = 13;
 const EDGE_DETAIL_ZOOM = 1.4;
+/** network view: top-level nodes at least this large carry their class icon, drawn this many times the radius wide */
+const ICON_MIN_R = 10;
+const ICON_SCALE = 1.3;
+/** network view: a top-level element (no visible parent) is drawn this much larger than the formula says */
+const TOP_LEVEL_BONUS = 1.15;
+/** largest zoom step one wheel event may take (log2 of the factor): a mouse wheel notch zooms by about 15 % */
+const WHEEL_STEP_MAX = 0.2;
 /** hovering a node highlights its neighbourhood only after this pause, so brushing over nodes stays calm */
-const HOVER_DELAY = 200;
+/** ms the pointer must rest on a node before its neighbourhood lights up and the rest of the map dims */
+const HOVER_DELAY = 450;
 const LEVEL_ICON: Record<Level, string> = { off: 'xmark', collapsed: 'collapse', detailed: 'expand' };
 const COL_OF: Record<Kind, number> = { organization: 0, system: 1, service: 2, dataset: 3 };
 
@@ -201,8 +213,12 @@ export class SystemMap implements AfterViewInit {
 	protected readonly LEVELS = LEVELS;
 	protected readonly LEVEL_ICON = LEVEL_ICON;
 	protected readonly KIND_ICON = KIND_ICON;
+	protected readonly CHIP_ICON = CHIP_ICON;
+	protected readonly ORG_ICON = ORG_ICON;
 	protected readonly NODE_W = NODE_W;
 	protected readonly NODE_H = NODE_H;
+	protected readonly ICON_MIN_R = ICON_MIN_R;
+	protected readonly ICON_SCALE = ICON_SCALE;
 
 	// ---- options (initialised from the URL so every view is shareable)
 	protected readonly view = signal<MapView>('network');
@@ -630,9 +646,10 @@ export class SystemMap implements AfterViewInit {
 	}
 
 	/**
-	 * Greedy label placement in screen space, like a map: pinned labels (hovered, selected, matching, focused) come
-	 * first, then the others in importance order as far as the zoom level's budget allows; a label whose box would
-	 * overlap an already placed one is hidden. Runs on every zoom frame, ~430 labels take well under a millisecond.
+	 * Greedy label placement in screen space, like a map: pinned labels (the hovered or selected node, the focused
+	 * one, search hits) come first, then the highlighted neighbours and the rest in importance order as far as the
+	 * zoom level's budget allows; a label whose box would overlap an already placed one is hidden. Runs on every
+	 * zoom frame, ~430 labels take well under a millisecond.
 	 */
 	private placeLabels(): void {
 		const sc = this.scene();
@@ -640,14 +657,19 @@ export class SystemMap implements AfterViewInit {
 		if (!sc || sc.view !== 'network' || !svg) return;
 		const { k, x: tx, y: ty } = this.transform;
 		const budget = LABELS_AT_FIT * Math.pow(k / this.fitScale, 2) + 1;
+		const active = this.active();
 		const sel = this.selected();
 		const focus = this.focusRep();
 		const matches = this.matchIds();
-		const pinned = (id: string): boolean => this.isHl(id) || sel === id || focus === id || !!matches?.has(id);
+		const pinned = (id: string): boolean => id === active || id === sel || id === focus || !!matches?.has(id);
 		const byRank = [...sc.labelOrder].reverse();
+		// the highlighted neighbours get the same budget as the whole map does, most important first – a hub's
+		// hundred neighbours do not all get their name at once
+		const neighbours = active ? byRank.filter((n) => !pinned(n.id) && this.isHl(n.id)).slice(0, Math.ceil(budget)) : [];
 		const candidates = [
 			...byRank.filter((n) => pinned(n.id)),
-			...byRank.filter((n) => !pinned(n.id) && n.rank < budget),
+			...neighbours,
+			...byRank.filter((n) => !pinned(n.id) && !this.isHl(n.id) && n.rank < budget),
 		];
 		const boxes: { x: number; y: number; w: number; h: number }[] = [];
 		const shown = new Set<string>();
@@ -734,6 +756,8 @@ export class SystemMap implements AfterViewInit {
 		if (this.levels()[kind] === 'off') this.levels.update((l) => ({ ...l, [kind]: 'detailed' }));
 		this.focus.set(id);
 		this.selected.set(this.repOf(e));
+		// the map is laid out anew, so the node under the pointer is about to move away: no stale hover highlight
+		this.onNodeLeave();
 	}
 	protected clearFocus(): void {
 		this.focus.set(null);
@@ -876,6 +900,12 @@ export class SystemMap implements AfterViewInit {
 					if (ev.type === 'wheel') return (ev as WheelEvent).ctrlKey || (ev as WheelEvent).metaKey;
 					return !(ev as MouseEvent).button && ev.type !== 'dblclick';
 				})
+				// d3's default step (×10 with ctrl, meant for the tiny deltas of a trackpad pinch) makes a mouse wheel
+				// notch of ~100 px zoom fourfold; capping the step keeps pinch smooth and the wheel gradual
+				.wheelDelta((ev: WheelEvent) => {
+					const d = -ev.deltaY * (ev.deltaMode === 1 ? 0.05 : ev.deltaMode ? 1 : 0.002) * (ev.ctrlKey ? 10 : 1);
+					return Math.sign(d) * Math.min(Math.abs(d), WHEEL_STEP_MAX);
+				})
 				.on('zoom', (ev: { transform: ZoomTransform }) => {
 					this.transform = ev.transform;
 					vp.setAttribute('transform', ev.transform.toString());
@@ -945,9 +975,11 @@ export class SystemMap implements AfterViewInit {
 			x: n.x,
 			y: n.y,
 			r,
+			icon: entityIcon(n.entity),
 			label,
 			title: entityTitle(n.entity, this.lang()),
 			members: n.members,
+			cb: n.members > 1 ? countBadge(r, n.members) : undefined,
 			orgType: n.orgType,
 			rank: ranks.get(n.id) ?? 0,
 			lw: textWidth(label, LABEL_PX),
@@ -1025,8 +1057,20 @@ function normalize(s: string): string {
 		.trim();
 }
 
+/**
+ * 5 px for an isolated node, growing with the square root of the degree (and of the merged count) up to 30 px.
+ * A top-level element (no visible parent) gets a slight bonus; sub-elements follow the plain formula.
+ */
 function nodeRadius(n: MapNode): number {
-	return Math.min(22, 5 + Math.sqrt(n.degree) * 2.2 + (n.members > 1 ? Math.sqrt(n.members) : 0));
+	const r = 5 + 1.5 * (Math.sqrt(n.degree) * 2.2 + (n.members > 1 ? Math.sqrt(n.members) : 0));
+	return Math.min(30, n.parentId ? r : r * TOP_LEVEL_BONUS);
+}
+
+/** count badge of a merged node: a pill on the border, about 0.4 of the node's radius, wider for more digits */
+function countBadge(r: number, members: number): { r: number; w: number; fs: number } {
+	const br = Math.max(5.5, r * 0.4);
+	const fs = br * 1.3;
+	return { r: br, w: 2 * br + (String(members).length - 1) * fs * 0.6, fs };
 }
 
 function edgeWidth(weight: number): number {

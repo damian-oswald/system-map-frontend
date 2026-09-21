@@ -332,11 +332,15 @@
 												}
 												<div class="chips">
 													@if (r.e.kind === 'organization') {
-														<span class="sm-tag">{{ 'orgType.' + (r.e.orgType ?? 'other') | translate }}</span>
+														<span class="sm-chip"
+															><mat-icon [svgIcon]="ORG_ICON[r.e.orgType ?? 'other']" /><span>{{
+																'orgType.' + (r.e.orgType ?? 'other') | translate
+															}}</span></span
+														>
 													}
 													@if (chips(r); as c) {
 														@for (x of c.list; track x.id) {
-															<app-entity-chip [entity]="x" icon abbr [link]="false" [max]="36" />
+															<app-entity-chip [entity]="x" abbr [link]="false" [max]="36" />
 														}
 														@if (c.more) {
 															<span class="more">+{{ c.more }}</span>

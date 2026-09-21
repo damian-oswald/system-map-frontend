@@ -333,8 +333,37 @@
 											}
 											<circle class="halo" [attr.r]="n.r + 5" />
 											<circle class="dotn" [attr.r]="n.r" />
-											@if (n.members > 1) {
-												<text class="member-count" y="3.5" text-anchor="middle">{{ n.members }}</text>
+											@if (!n.depth && n.r >= ICON_MIN_R) {
+												<!-- top-level elements of some weight carry their class (or subclass) icon from Oblique's sprite, in white
+												     on the class-coloured disc; sub-elements stay plain dots -->
+												<use
+													class="node-icon"
+													[attr.href]="'assets/obliqueIcons.svg#' + n.icon"
+													[attr.width]="n.r * ICON_SCALE"
+													[attr.height]="n.r * ICON_SCALE"
+													[attr.x]="(-n.r * ICON_SCALE) / 2"
+													[attr.y]="(-n.r * ICON_SCALE) / 2"
+													[style.--icon]="n.r * ICON_SCALE"
+												/>
+											}
+											@if (n.cb; as cb) {
+												<!-- merged node: how many elements it stands for, as a badge on the bottom right of the border -->
+												<g
+													class="count"
+													[attr.transform]="'translate(' + n.r * 0.7071 + ',' + n.r * 0.7071 + ')'"
+													[style.--fs]="cb.fs"
+												>
+													<rect
+														[attr.x]="-cb.w / 2"
+														[attr.y]="-cb.r"
+														[attr.width]="cb.w"
+														[attr.height]="cb.r * 2"
+														[attr.rx]="cb.r"
+													/>
+													<text [attr.y]="cb.fs * 0.36" text-anchor="middle" [attr.font-size]="cb.fs">
+														{{ n.members }}
+													</text>
+												</g>
 											}
 										}
 									</g>
@@ -467,21 +496,29 @@
 					<h2>{{ e | label: lang() : 'title' }}</h2>
 					<div class="drawer-tags">
 						@if (e.orgType) {
-							<span class="sm-tag">{{ 'orgType.' + e.orgType | translate }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="ORG_ICON[e.orgType]" /><span>{{ 'orgType.' + e.orgType | translate }}</span></span
+							>
 						}
 						@if (e.canton) {
-							<span class="sm-tag">{{ e.canton }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.canton" /><span>{{ e.canton }}</span></span
+							>
 						}
 						@if (e.personal) {
-							<span class="sm-tag sm-tag--warn">{{
-								(e.sensitive ? 'flags.sensitive' : 'flags.personal') | translate
-							}}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.protection" /><span>{{
+									(e.sensitive ? 'flags.sensitive' : 'flags.personal') | translate
+								}}</span></span
+							>
 						}
 						@if (e.master) {
-							<span class="sm-tag sm-tag--info">{{ 'flags.master' | translate }}</span>
+							<span class="sm-chip"
+								><mat-icon [svgIcon]="CHIP_ICON.master" /><span>{{ 'flags.master' | translate }}</span></span
+							>
 						}
 						@if (e.fmis) {
-							<span class="sm-tag sm-tag--ok">FMIS</span>
+							<span class="sm-chip"><mat-icon [svgIcon]="KIND_ICON.system" /><span>FMIS</span></span>
 						}
 					</div>
 					@if (e.description | pick: lang(); as d) {

@@ -21,7 +21,7 @@ import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, abbrLabel, entityLabel } from '../../core/i18n';
 import { KINDS, Kind, compactIri, expandIri } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { EntityChip, KIND_ICON, NameList, PageState } from '../../shared/ui';
+import { CHIP_ICON, EntityChip, KIND_ICON, NameList, ORG_ICON, PageState } from '../../shared/ui';
 import { ORG_TYPES } from '../map/map-model';
 import { CatalogRow, CountKey, buildRows, figureLabel, normalize, toCsv } from './catalog-data';
 
@@ -121,6 +121,8 @@ export class Catalog {
 	/** class switch order: the data first */
 	protected readonly KINDS: Kind[] = ['dataset', 'system', 'service', 'organization'];
 	protected readonly KIND_ICON = KIND_ICON;
+	protected readonly CHIP_ICON = CHIP_ICON;
+	protected readonly ORG_ICON = ORG_ICON;
 	protected readonly ORG_TYPES = ORG_TYPES;
 	protected readonly PROTECTIONS: Protection[] = ['sensitive', 'personal', 'none'];
 	protected readonly PROTECTION_KEY: Record<Protection, string> = {

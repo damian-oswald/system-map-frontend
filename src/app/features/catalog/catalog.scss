@@ -279,7 +279,7 @@ mat-paginator {
 	-webkit-box-orient: vertical;
 }
 
-// related elements as chips (class icon + abbreviation); the sector of an organization as a plain tag
+// the sector of an organization, then its related elements (class icon + abbreviation) – all as chips
 .chips {
 	display: flex;
 	flex-wrap: wrap;

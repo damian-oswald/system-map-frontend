@@ -16,7 +16,7 @@ import { GraphService } from '../../core/graph.service';
 import { LabelPipe, LangService, PickPipe, entityLabel, entityTitle, isFallback, pick } from '../../core/i18n';
 import { CLS, HIERARCHY_KEYS, KINDS, Kind, RELATIONS, REPO_URL } from '../../core/vocab';
 import { DataFooter } from '../../shared/data-footer';
-import { EntityTree, KIND_ICON, NameList, PageState, TreeNode } from '../../shared/ui';
+import { CHIP_ICON, EntityTree, KIND_ICON, NameList, PageState, TreeNode, entityIcon } from '../../shared/ui';
 import { CatalogRow, CountKey, buildRow, figureLabel } from '../catalog/catalog-data';
 import { SystemMap } from '../map/system-map';
 
@@ -319,8 +319,11 @@ export class EntityPage {
 		this.pageSize.set(e.pageSize);
 	}
 
+	protected readonly KIND_ICON = KIND_ICON;
+	protected readonly CHIP_ICON = CHIP_ICON;
+
 	protected icon(e: Entity): string {
-		return KIND_ICON[e.kind];
+		return entityIcon(e);
 	}
 
 	protected copy(text: string): void {
