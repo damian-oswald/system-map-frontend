@@ -317,9 +317,17 @@
 										(keydown)="onNodeKey(n.id, $event)"
 									>
 										@if (sc.view === 'layers') {
-											<rect class="pill" [attr.width]="n.w" [attr.height]="NODE_H" rx="5" />
-											<rect class="bar" width="4" [attr.height]="NODE_H" rx="2" />
-											<text class="label" x="12" y="15">{{ n.label }}</text>
+											<!-- the app's chip: thin dark outline, white fill, the element's icon, black text -->
+											<rect class="pill" [attr.width]="n.w" [attr.height]="NODE_H" rx="4" />
+											<use
+												class="pill-icon"
+												[attr.href]="'assets/obliqueIcons.svg#' + n.icon"
+												width="14"
+												height="14"
+												x="8"
+												y="4"
+											/>
+											<text class="label" x="28" y="15">{{ n.label }}</text>
 											@if (n.members > 1) {
 												<g class="badge" [attr.transform]="'translate(' + (n.w - 6 - n.badgeW) + ',3)'">
 													<rect [attr.width]="n.badgeW" height="16" rx="8" />

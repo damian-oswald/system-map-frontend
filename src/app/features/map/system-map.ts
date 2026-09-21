@@ -299,12 +299,12 @@ export class SystemMap implements AfterViewInit {
 			bands = layout.bands;
 			tree = layout.tree;
 			bounds = { x: -20, y: 0, w: layout.width + 90, h: layout.height };
-			// labels are fitted to the (indentation-dependent) node width, minus the count badge: name → abbreviation →
-			// truncated name; the focused node is bold and measured as such
+			// labels are fitted to the (indentation-dependent) node width, minus the icon and the count badge: name →
+			// abbreviation → truncated name; the focused node is bold and measured as such
 			for (const n of mg.nodes) {
 				const bw = n.members > 1 ? badgeWidth(n.members) : 0;
-				const avail = n.w - 20 - (bw ? bw + 8 : 0);
-				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 400), 0, ranks, bw));
+				const avail = n.w - 36 - (bw ? bw + 8 : 0);
+				nodes.push(this.sceneNode(n, fitLabel(n.entity, lang, avail, 12, focused === n.id ? 700 : 500), 0, ranks, bw));
 			}
 			for (const e of mg.edges) {
 				if (e.hierarchy) continue; // drawn as tree connectors
