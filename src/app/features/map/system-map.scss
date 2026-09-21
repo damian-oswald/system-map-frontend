@@ -370,6 +370,12 @@ mat-button-toggle mat-icon {
 	}
 }
 
+// Chrome clamps SVG text to its minimum on-screen font size unless glyphs are scaled geometrically – without this
+// the layered view's labels stop shrinking when zoomed out and overflow their chips
+.scene[data-view='layers'] text {
+	text-rendering: geometricPrecision;
+}
+
 .col-head {
 	.col-head-bar {
 		fill: var(--k);
@@ -416,11 +422,11 @@ mat-button-toggle mat-icon {
 }
 
 // hierarchy: elbow connectors (layers) and short class-coloured links (network)
+// hierarchy connectors between the chips: drawn like the chips' outline
 .tree path {
 	fill: none;
-	stroke: var(--k);
-	stroke-width: 1.2;
-	stroke-opacity: 0.7;
+	stroke: var(--sm-ink);
+	stroke-width: 1;
 }
 
 .edges path.hier {
@@ -441,32 +447,36 @@ mat-button-toggle mat-icon {
 	cursor: pointer;
 	outline: none;
 
+	// layered view: every element is the app's chip – thin dark outline, white fill, its icon, black text. The class
+	// colour stays on the column bars and tree connectors and tints a pill only while it is hovered or selected.
 	.pill {
 		fill: var(--sm-surface);
-		stroke: color-mix(in srgb, var(--k) 35%, #dfe4e9);
+		stroke: var(--sm-ink);
 		stroke-width: 1;
 		transition: fill 0.15s;
 	}
 
-	.bar {
-		fill: var(--k);
+	.pill-icon {
+		fill: var(--sm-ink);
+		pointer-events: none;
 	}
 
 	.label {
 		fill: var(--sm-ink);
 		font-size: 12px;
+		font-weight: 500;
 		pointer-events: none;
 	}
 
 	.badge {
 		rect {
-			fill: var(--k-bg);
-			stroke: var(--k);
+			fill: var(--sm-surface);
+			stroke: var(--sm-ink);
 			stroke-width: 1;
 		}
 
 		text {
-			fill: var(--k-ink);
+			fill: var(--sm-ink);
 			font-size: 10px;
 			font-weight: 700;
 		}
@@ -597,6 +607,10 @@ mat-button-toggle mat-icon {
 		stroke: #fff;
 		stroke-width: 3;
 		filter: drop-shadow(0 0 4px var(--k));
+	}
+
+	.pill-icon {
+		fill: #fff;
 	}
 
 	.badge rect {
