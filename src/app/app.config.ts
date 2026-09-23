@@ -11,10 +11,11 @@ import {
 	provideZoneChangeDetection,
 } from '@angular/core';
 import { MatPaginatorIntl } from '@angular/material/paginator';
-import { TitleStrategy, provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { TitleStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { EXTERNAL_LINK, ObPaginatorService, provideObliqueConfiguration } from '@oblique/oblique';
 
 import { routes } from './app.routes';
+import { provideRouteScroll } from './core/route-scroll';
 import { TranslatedTitleStrategy } from './core/title.strategy';
 
 registerLocaleData(localeDeCH);
@@ -26,11 +27,9 @@ export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
 		provideZoneChangeDetection({ eventCoalescing: true }),
-		provideRouter(
-			routes,
-			withComponentInputBinding(),
-			withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
-		),
+		provideRouter(routes, withComponentInputBinding()),
+		// the layout scrolls a wrapper, not the window, so scroll positions are handled here rather than by the router
+		provideRouteScroll(),
 		provideHttpClient(withFetch()),
 		{ provide: TitleStrategy, useClass: TranslatedTitleStrategy },
 		{ provide: LOCALE_ID, useValue: 'de-CH' },
